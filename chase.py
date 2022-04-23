@@ -508,7 +508,7 @@ if __name__ == "__main__" and not ui.BROWSER:
 
 
 if ui.BROWSER:
-    board = Board(22, 26)
+    board = Board(26, 22)
     gui = GUI(board)
     board.gui = gui
     board.newGame()

@@ -1,5 +1,6 @@
 import time
 import os
+from turtle import width
 from constant import Tools
 
 try:
@@ -102,6 +103,15 @@ class GUI(UI):
         self.absoluteTop  = self.svgRoot.abs_top  + self.relativeTop
         self.absoluteLeft = self.svgRoot.abs_left + self.relativeLeft
 
+        svgShape = svg.rect(
+            id = 'rectExterior',
+            cy = self.absoluteTop,
+            cx = self.absoluteLeft, 
+            width  = (self.board.maxC+1) * self.cellSize,
+            height = (self.board.maxR+1) * self.cellSize,
+            style = {'fill-opacity':0, 'stroke': 'black', 'stroke-width': 4}
+        )
+        self.svgRoot <= svgShape
 
         self.mouseDownRow = None
         self.mouseDownCol = None 
