@@ -1,16 +1,9 @@
 
 import random
-import time
+import ui
+from ui import UI, NoGui, GUI
 
-try:
-    import browser
-    from browser import document, svg, alert, timer, window, html
-    # I'm running in a web browser => use Brython to manage the GUI (https://brython.info/)
-    BROWSER = True
-except:
-    # Brython isn't available so use standard python text based interfase
-    import os
-    BROWSER = False
+from constant import Tools
 
 class BoardObject:
     # Mother class for all the board objects, implements the standard behavior and atributes of them.
@@ -22,13 +15,6 @@ class BoardObject:
     PRIO_FIRE      = 80
     PRIO_DEAD_HERO = 90
 
-    # Types of tools that the Hero can find in the Board
-    TOOL_SMALL_BOMB      = 'v'
-    TOOL_BIG_BOMB        = 'b'
-    TOOL_TELEPORT        = 't'
-    TOOL_SAFE_TELEPORT   = 's'
-    TOOL_GUIDED_TELEPORT = '\u0398'
-    
     idCount = 0
 
     def __init__(self, board, row, col):
@@ -84,7 +70,7 @@ class SmallBomb( BoardObject ):
     def __init__(self, board, row, col):
         BoardObject.__init__(self, board, row, col)
         self.priority = BoardObject.PRIO_LOWER
-        self.tool = BoardObject.TOOL_SMALL_BOMB
+        self.tool = Tools.SMALL_BOMB
         self.char = 'v'
         self.draw = self.gui.drawSmallBomb
 
@@ -92,7 +78,7 @@ class BigBomb( BoardObject ):
     def __init__(self, board, row, col):
         BoardObject.__init__(self, board, row, col)
         self.priority = BoardObject.PRIO_LOWER
-        self.tool = BoardObject.TOOL_BIG_BOMB
+        self.tool = Tools.BIG_BOMB
         self.char = 'b'
         self.draw = self.gui.drawBigBomb
 
@@ -100,7 +86,7 @@ class SafeTeleport( BoardObject ):
     def __init__(self, board, row, col):
         BoardObject.__init__(self, board, row, col)
         self.priority = BoardObject.PRIO_LOWER
-        self.tool = BoardObject.TOOL_SAFE_TELEPORT
+        self.tool = Tools.SAFE_TELEPORT
         self.char = 's'
         self.draw = self.gui.drawSafeTeleport
 
@@ -108,7 +94,7 @@ class GuidedTeleport( BoardObject ):
     def __init__(self, board, row, col):
         BoardObject.__init__(self, board, row, col)
         self.priority = BoardObject.PRIO_LOWER
-        self.tool = BoardObject.TOOL_GUIDED_TELEPORT
+        self.tool = Tools.GUIDED_TELEPORT
         self.char = '\u0398'
         self.draw = self.gui.drawGuidedTeleport
 
@@ -204,11 +190,11 @@ class Board:
         self.dropToolMu = 0
         self.dropToolSigma = 1
         self.inicToolStock = {
-            BoardObject.TOOL_TELEPORT: -1,
-            BoardObject.TOOL_SAFE_TELEPORT: 1,
-            BoardObject.TOOL_GUIDED_TELEPORT: 1,
-            BoardObject.TOOL_SMALL_BOMB: 1,
-            BoardObject.TOOL_BIG_BOMB: 1,            
+            Tools.TELEPORT: -1,
+            Tools.SAFE_TELEPORT: 1,
+            Tools.GUIDED_TELEPORT: 1,
+            Tools.SMALL_BOMB: 1,
+            Tools.BIG_BOMB: 1,            
         }
         self.dieBeyondEdges = False
 
@@ -322,7 +308,7 @@ class Board:
             value = not self.guided
         else:
             value = (mode.lower() == 'on')
-        self.guided = value and ( self.tool(BoardObject.TOOL_GUIDED_TELEPORT) != 0 )
+        self.guided = value and ( self.tool(Tools.GUIDED_TELEPORT) != 0 )
         self.gui.refreshGuided(self.guided)
         return self.guided
 
@@ -410,11 +396,11 @@ class Board:
         if self.checkNewGame():
             return
         # Check if you have the tool
-        if safe and self.tool(BoardObject.TOOL_SAFE_TELEPORT) == 0:
+        if safe and self.tool(Tools.SAFE_TELEPORT) == 0:
             return
-        if guided and self.tool(BoardObject.TOOL_GUIDED_TELEPORT) == 0:
+        if guided and self.tool(Tools.GUIDED_TELEPORT) == 0:
             return
-        if not safe and not guided and self.tool(BoardObject.TOOL_TELEPORT) == 0:
+        if not safe and not guided and self.tool(Tools.TELEPORT) == 0:
             return
 
         if guided:
@@ -427,11 +413,11 @@ class Board:
                 col = random.randrange(self.maxC)
         
         if safe:
-            self.tool(BoardObject.TOOL_SAFE_TELEPORT, -1)
+            self.tool(Tools.SAFE_TELEPORT, -1)
         if guided:
-            self.tool(BoardObject.TOOL_GUIDED_TELEPORT, -1)
+            self.tool(Tools.GUIDED_TELEPORT, -1)
         if not safe and not guided:
-            self.tool(BoardObject.TOOL_TELEPORT, -1)
+            self.tool(Tools.TELEPORT, -1)
 
         self.hero.row = row
         self.hero.col = col
@@ -443,7 +429,7 @@ class Board:
     def bomb(self, big=False):
         if self.checkNewGame():
             return
-        bombType = BoardObject.TOOL_BIG_BOMB if big else BoardObject.TOOL_SMALL_BOMB
+        bombType = Tools.BIG_BOMB if big else Tools.SMALL_BOMB
         if self.tool( bombType ) == 0:
             return
 
@@ -476,404 +462,6 @@ class Board:
         else:
             self.newGame()
             return True
-
-class UI:
-
-    nullFunction = lambda *args, **kwargs: None
-
-    # override all or any of these functions depending on the type of interfase, text (standard os console) or graphic (via Brython)
-    drawHero = nullFunction
-    drawDeadHero = nullFunction
-    drawFoe = nullFunction
-    drawFire = nullFunction
-    drawSmallBomb = nullFunction
-    drawBigBomb = nullFunction
-    drawSafeTeleport = nullFunction
-    drawGuidedTeleport = nullFunction
-    drawNothing = nullFunction
-
-    translate = nullFunction
-    delete = nullFunction
-    
-    refreshScores = nullFunction
-    refreshButtons = nullFunction
-    refreshRepeat = nullFunction
-    refreshGuided = nullFunction
-
-    repeatDelay = nullFunction
-
-    askNewGame = nullFunction
-
-    textDisplayBoard = nullFunction
-
-
-class NoGui(UI):
-    # when testing the game in text mode (no graphics available) use this class instead to manage the user interfase
-
-    def repeatDelay(self):
-        time.sleep(0.25)  # sleep 250ms
-
-    def askNewGame(self):
-        again = ' '
-        while again not in 'yns':
-            again = input('Play again (y/n)? ').lower()
-        return again in 'ys'
-
-    def textDisplayBoard(self, board):
-
-        os.system('cls')
-        print()
-        print('Foes left', board.foeCount, ' '*20, 'Score:', board.score, ' '*20, 'High Score:', board.highScore)
-        print()
-        print('  ' + ('. 1 2 3 4 5 6 7 8 9 ' * 20)[ : board.maxC*2 ] + '  ' )
-        for row in range(board.maxR):
-            print( (str(row%10) if row%10 != 0 else '.') + ' ', end='')
-            for col in range(board.maxC):
-                if board.grid[row][col] != None:
-                    print(board.grid[row][col].char+' ', end='')
-                else:
-                    print('  ', end='')
-            print( (str(row%10) if row%10 != 0 else '.') )
-        print('  ' + ('. 1 2 3 4 5 6 7 8 9 ' * 20)[ : board.maxC*2 ] + '  ' )
-        print()
-        for t in board.toolStock:
-            print( t + ' ' + str(board.toolStock[t] if board.toolStock[t] >= 0 else ''), end='   ' )
-        print( '   ', '[r]' if board.repeat else ' r ', end='   ' )
-        print()
-        print()
-
-
-class GUI(UI):
-    # class to manage all the Graphical User Interfase based on Brython and the browser objects
-
-    SMALL_MOVE = 1
-    BIG_MOVE = 15
-    FAST_MOVE = 250  # milliseconds between clicks in a double click
-
-    def __init__(self, board):
-        
-        self.svgRoot = browser.document["svg_root"]
-        
-        self.width = self.svgRoot.clientWidth
-        self.height = self.svgRoot.clientHeight
-
-        self.board = board
-        
-        self.cellSize = min( self.width // (self.board.maxC+2), self.height // (self.board.maxR+2) )
-        self.relativeTop  = self.cellSize
-        self.relativeLeft = self.cellSize
-        self.absoluteTop  = self.svgRoot.abs_top  + self.relativeTop
-        self.absoluteLeft = self.svgRoot.abs_left + self.relativeLeft
-
-
-        self.mouseDownRow = None
-        self.mouseDownCol = None 
-        self.mouseUpRow = None
-        self.mouseUpCol = None
-        self.lastPointerMoveTimeStamp = 0
-
-        self.svgRoot.bind("mousedown", self.pointerStart)
-        self.svgRoot.bind("mousemove", self.pointerMove)
-        self.svgRoot.bind("mouseup", self.pointerEnd)
-
-        self.svgRoot.bind('touchstart', self.pointerStart)
-        self.svgRoot.bind('touchmove', self.pointerMove)
-        self.svgRoot.bind('touchend', self.pointerEnd)
-
-        window.bind('keydown', self.keyPressed)
-        window.bind('keyup', self.keyPressed)
-        self.keydownArrows = {'ArrowUp':False, 'ArrowDown':False, 'ArrowLeft':False, 'ArrowRight':False}
-
-        browser.document[BoardObject.TOOL_TELEPORT].bind( 'click', lambda evt: self.board.teleport() )
-        browser.document['repeat'].bind( 'click', lambda evt: self.board.setRepeat('toggle') )
-
-        browser.document[BoardObject.TOOL_SAFE_TELEPORT].bind( 'click', lambda evt: self.board.teleport(safe=True) )
-        browser.document[BoardObject.TOOL_GUIDED_TELEPORT].bind( 'click', lambda evt: self.board.setGuided('toggle') )
-        browser.document[BoardObject.TOOL_SMALL_BOMB].bind( 'click', lambda evt: self.board.bomb(big=False) )
-        browser.document[BoardObject.TOOL_BIG_BOMB].bind( 'click', lambda evt: self.board.bomb(big=True) )
-
-        browser.document['new'].bind( 'click', lambda evt: self.board.newGame() )
-
-        browser.document['moveNW'].bind( 'click', lambda evt: self.board.move(-1,-1) )
-        browser.document['moveN'].bind( 'click', lambda evt: self.board.move(-1, 0) )
-        browser.document['moveNE'].bind( 'click', lambda evt: self.board.move(-1, 1) )
-        browser.document['moveW'].bind( 'click', lambda evt: self.board.move(0, -1) )
-        browser.document['moveStay'].bind( 'click', lambda evt: self.board.move(0, 0) )
-        browser.document['moveE'].bind( 'click', lambda evt: self.board.move(0, 1) )
-        browser.document['moveSW'].bind( 'click', lambda evt: self.board.move(1, -1) )
-        browser.document['moveS'].bind( 'click', lambda evt: self.board.move(1, 0) )
-        browser.document['moveSE'].bind( 'click', lambda evt: self.board.move(1, 1) )
- 
-    def rowcol2coords(self, row, col, relative=True):
-        top  = self.relativeTop  if relative else self.absoluteTop
-        left = self.relativeLeft if relative else self.absoluteLeft
-        return ( left + col * self.cellSize, top + row * self.cellSize )
-
-    def coords2rowcol(self, x, y, relative=False):
-        top  = self.relativeTop  if relative else self.absoluteTop
-        left = self.relativeLeft if relative else self.absoluteLeft
-        return ( round((y - top) / self.cellSize), round((x - left) / self.cellSize) )
-
-    def repeatDelay(self):
-        # todo: 
-        # Hacer esta funcion. No funcionó nada de lo que intenté desde Python.
-        # Por ahi hay que hacerla en javascript...
-        pass
-
-    def drawHero(self, boardObj):
-        print(f'drawHero, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        svgShape = svg.circle(
-            id = boardObj.id,
-            cx = cx, 
-            cy = cy,
-            r  = self.cellSize / 2,
-            style = {"fill": '#334BFF'})
-#        svgShape = html.OBJECT(
-#            id = boardObj.id,
-#            type = "image/svg+xml", 
-#            data = 'fire.svg', 
-#            width = self.cellSize,
-#            height = self.cellSize,
-#            cx = cx, 
-#            cy = cy
-#        )
-        self.svgRoot <= svgShape
-
-        
-    def drawDeadHero(self, boardObj):
-        print(f'drawDeadHero, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        svgShape = svg.circle(
-            id = boardObj.id,
-            cx = cx, 
-            cy = cy,
-            r  = self.cellSize / 2,
-            style = {"fill": '#AF33FF'})
-        self.svgRoot <= svgShape
-        
-    def drawFoe(self, boardObj):
-        print(f'drawFoe, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        svgShape = svg.circle(
-            id = boardObj.id,
-            cx = cx, 
-            cy = cy,
-            r  = self.cellSize / 2,
-            style = {"fill": '#C5C5C5'})
-        self.svgRoot <= svgShape
-        
-    def drawFire(self, boardObj):
-        print(f'drawFire, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        svgShape = svg.circle(
-            id = boardObj.id,
-            cx = cx, 
-            cy = cy,
-            r  = self.cellSize / 2,
-            style = {"fill": '#515150'})
-        self.svgRoot <= svgShape
-
-    def drawSmallBomb(self, boardObj):
-        print(f'drawSmallBomb, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        svgShape = svg.circle(
-            id = boardObj.id,
-            cx = cx, 
-            cy = cy,
-            r  = self.cellSize / 2,
-            style = {"fill": '#FFC300'})
-        self.svgRoot <= svgShape
-        
-    def drawBigBomb(self, boardObj):
-        print(f'drawBigBomb, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        svgShape = svg.circle(
-            id = boardObj.id,
-            cx = cx, 
-            cy = cy,
-            r  = self.cellSize / 2,
-            style = {"fill": '#FF5733'})
-        self.svgRoot <= svgShape
-        
-    def drawSafeTeleport(self, boardObj):
-        print(f'drawSafeTeleport, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        svgShape = svg.circle(
-            id = boardObj.id,
-            cx = cx, 
-            cy = cy,
-            r  = self.cellSize / 2,
-            style = {"fill": '#03FC32'})
-        self.svgRoot <= svgShape
-        
-    def drawGuidedTeleport(self, boardObj):
-        print(f'drawGuidedTeleport, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        svgShape = svg.circle(
-            id = boardObj.id,
-            cx = cx, 
-            cy = cy,
-            r  = self.cellSize / 2,
-            style = {"fill": '#027017'})
-        self.svgRoot <= svgShape
-
-
-    def translate(self, boardObj):
-        print(f'translate, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        old_cx = browser.document[boardObj.id].cx.baseVal.value
-        old_cy = browser.document[boardObj.id].cy.baseVal.value
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        browser.document[boardObj.id].setAttributeNS(None, "transform", f"translate({cx - old_cx},{cy - old_cy})")
-
-
-    def delete(self, boardObj):
-        print(f'delete, id={boardObj.id} en {boardObj.row}, {boardObj.col} type={type(boardObj)}')
-        browser.document[boardObj.id].remove()
-
-    def pointerStart(self, evt):
-        print(f'{evt.type} {evt.target.id}')
-        if evt.type == 'mousedown':
-            x, y = evt.x, evt.y
-        elif evt.type == 'touchstart':
-            evt.preventDefault()
-            if len(evt.touches) == 1:
-                x, y = evt.touches[0].pageX, evt.touches[0].pageY
-            else:
-                self.mouseDownRow, self.mouseDownCol = None, None  # cancel move
-                return
-        print(f'     x: {x}, y: {y}, cellSize: {self.cellSize}, coords: {self.coords2rowcol(x, y)}')
-        self.mouseDownRow, self.mouseDownCol = self.coords2rowcol(x, y)
-        self.mouseUpRow, self.mouseUpCol = self.mouseDownRow, self.mouseDownCol  # if there is no movement the ponterMove will not be fired...
-        
-    def pointerMove(self, evt):
-        # print(f'{evt.type} {evt.target.id}')
-        if evt.type == 'mousemove':
-            x, y = evt.x, evt.y
-        elif evt.type == 'touchmove':
-            evt.preventDefault()
-            if len(evt.touches) == 1:
-                x, y = evt.touches[0].pageX, evt.touches[0].pageY
-            else:
-                self.mouseUpRow, self.mouseUpCol = None, None  # cancel move
-                return
-        # print(f'     x: {x}, y: {y}, cellSize: {self.cellSize}, coords: {self.coords2rowcol(x, y)}')
-        self.mouseUpRow, self.mouseUpCol = self.coords2rowcol(x, y)
-
-    def pointerEnd(self, evt):
-        print(f'{evt.type} {evt.target.id}')
-        print(f'    {self.mouseDownRow}, {self.mouseDownCol} -> {self.mouseUpRow}, {self.mouseUpCol}')
-        print(f'last timestamp: {self.lastPointerMoveTimeStamp}, current: {evt.timeStamp}, dif: {evt.timeStamp - self.lastPointerMoveTimeStamp}')
-        if evt.type == 'touchmove':
-            evt.preventDefault()
-        
-        dc = self.mouseUpCol - self.mouseDownCol
-        if abs( dc ) <= GUI.SMALL_MOVE:
-            deltaC = 0
-        elif dc > 0:
-            deltaC = 1
-        else:
-            deltaC = -1
-
-        dr = self.mouseUpRow - self.mouseDownRow
-        if abs( dr ) <= GUI.SMALL_MOVE:
-            deltaR = 0
-        elif dr > 0:
-            deltaR = 1
-        else:
-            deltaR = -1
-
-        if self.board.guided:
-            if deltaR == 0 and deltaC == 0:
-                self.board.teleport(guided=True, coords=(self.mouseUpRow, self.mouseUpCol))
-        else:
-            self.board.repeat = self.board.repeat or (evt.timeStamp - self.lastPointerMoveTimeStamp < GUI.FAST_MOVE)
-            self.board.repeat = self.board.repeat or (dc**2 + dr**2 > GUI.BIG_MOVE**2)
-            self.board.move(deltaR,deltaC)
-            self.lastPointerMoveTimeStamp = evt.timeStamp
-
-    def keyPressed(self, evt):
-        if evt.type == 'keydown':
-            print('keydown', evt.key)
-            if evt.key == 'Shift':
-                self.board.setRepeat('on')
-            elif evt.key in self.keydownArrows:
-                self.keydownArrows[evt.key] = True
-            return
-
-        if evt.type == 'keyup':
-            print('keyup', evt.key)
-            if evt.key == 'Shift':
-                self.board.setRepeat('off')
-            elif evt.key in '123456789 ' or evt.key in ['Home', 'End', 'PageUp', 'PageDown', 'Clear']:
-                deltaR, deltaC = 0, 0
-                if evt.key in '741' or evt.key in ['Home', 'End']:
-                    deltaC = -1
-                elif evt.key in '963' or evt.key in ['PageUp', 'PageDown']:
-                    deltaC = 1
-                if evt.key in '789' or evt.key in ['Home', 'PageUp']:
-                    deltaR = -1
-                elif evt.key in '123' or evt.key in ['End', 'PageDown']:
-                    deltaR = 1
-                self.board.move(deltaR,deltaC)
-            elif evt.key in self.keydownArrows:
-                if not self.keydownArrows[evt.key]:
-                    return # this is the keyup of an arrow that has been processed in combination with another
-                deltaR, deltaC = 0, 0
-                if self.keydownArrows['ArrowUp'   ]:
-                    deltaR = deltaR - 1 
-                if self.keydownArrows['ArrowDown' ]:
-                    deltaR = deltaR + 1 
-                if self.keydownArrows['ArrowLeft' ]:
-                    deltaC = deltaC - 1 
-                if self.keydownArrows['ArrowRight']:
-                    deltaC = deltaC + 1 
-                self.keydownArrows = {k: False for k in self.keydownArrows}
-                print('move', deltaR, deltaC)
-                self.board.move(deltaR,deltaC)
-            elif evt.key in 'tT':
-                self.board.teleport()
-            elif evt.key in 'sS':
-                self.board.teleport(safe=True)
-            elif evt.key in 'gG':
-                self.board.setGuided('toggle')
-            elif evt.key in 'vV':
-                self.board.bomb(big=False)
-            elif evt.key in 'bB':
-                self.board.bomb(big=True)
-            elif evt.key in 'rR':
-                self.board.setRepeat('toggle')
-            elif evt.key in 'nN':
-                self.board.newGame()
-            return
-
-
-
-    def refreshScores(self):
-        browser.document['foeCount'].value = self.board.foeCount
-        browser.document['score'].value = self.board.score
-        browser.document['highScore'].value = self.board.highScore
-
-    def refreshButtons(self, tool=None):
-        tools = self.board.toolStock if tool is None else {tool}
-        for t in tools:
-            if self.board.toolStock[t] >= 0:
-                browser.document[t].value = t + ' ' + str(self.board.toolStock[t] if board.toolStock[t] != 0 else '-')
-
-    def refreshRepeat(self, value):
-        if value:
-            browser.document['repeat'].style = 'background-color:aqua'
-        else:
-            browser.document['repeat'].style = 'background-color:whitesmoke'
-
-    def refreshGuided(self, value):
-        if value:
-            browser.document[BoardObject.TOOL_GUIDED_TELEPORT].style = 'background-color:aqua'
-        else:
-            browser.document[BoardObject.TOOL_GUIDED_TELEPORT].style = 'background-color:whitesmoke'
-
-    def askNewGame(self):
-        return browser.confirm('Play again?')
 
 
 def test():
@@ -915,11 +503,11 @@ def test():
         board.gui.textDisplayBoard( board = board)
 
 
-if __name__ == "__main__" and not BROWSER:
+if __name__ == "__main__" and not ui.BROWSER:
     test()
 
 
-if BROWSER:
+if ui.BROWSER:
     board = Board(22, 26)
     gui = GUI(board)
     board.gui = gui
