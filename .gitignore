@@ -1,7 +1,7 @@
 # Personales
-.bat
-.pdf
-.txt
+*.bat
+*.pdf
+*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
