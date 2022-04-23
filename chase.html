@@ -1,0 +1,60 @@
+<! doctype html>
+<html>
+<meta charset="iso-8859-1">
+<head>
+<script type="text/javascript"
+    src="https://cdn.jsdelivr.net/npm/brython@3.10/brython.min.js">
+</script>
+<script type="text/javascript"
+    src="https://cdn.jsdelivr.net/npm/brython@3.10/brython_stdlib.js">
+</script>
+
+<script type="text/python" src="chase.py"></script>
+
+</head>
+<body onload="brython(1)">
+
+    <label for="foeCount">Foes left:</label> &nbsp;&nbsp;
+    <input type="text" id="foeCount"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+    <label for="score">Score:</label> &nbsp;&nbsp;
+    <input type="text" id="score"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+    <label for="highScore">High Score:</label> &nbsp;&nbsp;
+    <input type="text" id="highScore"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+    <div class="svg-wrapper" style="border: 1px solid black;">
+        <svg id="svg_root" width='100%' height='80%' xmlns='http://www.w3.org/2000/svg'></svg>        
+    </div>
+
+    <input type="button" id='t' value="t" />
+    <input type="button" id='repeat' value=" r " style="background-color:whitesmoke;" />
+
+    &nbsp; 
+    <input type="button" id='s' value="s" />
+    <input type="button" id='&#920;' value="&#920;" style="background-color:whitesmoke" /> <! GuidedTeleport >
+    <input type="button" id='v' value="v" />
+    <input type="button" id='b' value="b" />
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <input type="button" id='new' value="New Game" />
+    &nbsp; 
+    <table style="text-align: center;" >
+        <tr>
+            <td><input type="button" id='moveNW' value = "&nwarr; " /></td>
+            <td><input type="button" id='moveN' value = " &uarr; " /></td>
+            <td><input type="button" id='moveNE' value = " &nearr;" /></td>
+        </tr>
+        <tr>
+            <td><input type="button" id='moveW' value = "&larr;" /></td>
+            <td><input type="button" id='moveStay' value = "&nbsp;&nbsp;&nbsp;" /></td>
+            <td><input type="button" id='moveE' value = "&rarr;" /></td>
+        </tr>
+        <tr>
+            <td><input type="button" id='moveSW' value = "&swarr; " /></td>
+            <td><input type="button" id='moveS' value = " &darr; " /></td>
+            <td><input type="button" id='moveSE' value = " &searr;" /></td>
+        </tr>
+    </table>
+
+</body>
+</html>
