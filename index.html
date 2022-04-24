@@ -11,48 +11,67 @@
 
 <script type="text/python" src="chase.py"></script>
 
+<style>
+    .scores {
+        font-size: 30px;
+    }
+
+    .tool-buttons {
+        font-size: 30px;
+    }
+
+    .arrow-buttons {
+        font-size: 30px;
+    }
+</style>
+
 </head>
 <body onload="brython(1)">
 
-    <label for="foeCount">Foes left:</label> &nbsp;&nbsp;
-    <input type="text" id="foeCount"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <script>
+        const maxR = 23
+        const TELEPORT = 't'
+    </script>
 
-    <label for="score">Score:</label> &nbsp;&nbsp;
-    <input type="text" id="score"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <label for="foeCount" class="scores">Foes left:</label> &nbsp;&nbsp;
+    <input type="text" id="foeCount" class="scores"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-    <label for="highScore">High Score:</label> &nbsp;&nbsp;
-    <input type="text" id="highScore"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <label for="score" class="scores" class="scores">Score:</label> &nbsp;&nbsp;
+    <input type="text" id="score" class="scores"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+    <label for="highScore" class="scores">High Score:</label> &nbsp;&nbsp;
+    <input type="text" id="highScore" class="scores"/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
     <div class="svg-wrapper" style="border: 1px solid black;">
         <svg id="svg_root" width='100%' height='80%' xmlns='http://www.w3.org/2000/svg'></svg>        
     </div>
 
-    <input type="button" id='t' value="t" />
-    <input type="button" id='repeat' value=" r " style="background-color:whitesmoke;" />
+    <input type="button" id='t' value=" t " class="tool-buttons"/>
+    <input type="button" id='repeat' value=" r " class="tool-buttons" style="background-color:whitesmoke;" />
 
     &nbsp; 
-    <input type="button" id='s' value="s" />
-    <input type="button" id='&#920;' value="&#920;" style="background-color:whitesmoke" /> <! GuidedTeleport >
-    <input type="button" id='v' value="v" />
-    <input type="button" id='b' value="b" />
+    <input type="button" id='s' value="s" class="tool-buttons"/>
+    <input type="button" id='&#920;' value="&#920;" class="tool-buttons" style="background-color:whitesmoke;" /> <! GuidedTeleport >
+    <input type="button" id='v' value="v" class="tool-buttons"/>
+    <input type="button" id='b' value="b" class="tool-buttons"/>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <input type="button" id='new' value="New Game" />
+    <input type="button" id='new' value="New Game" class="tool-buttons"/>
     &nbsp; 
     <table style="text-align: center;" >
         <tr>
-            <td><input type="button" id='moveNW' value = "&nwarr; " /></td>
-            <td><input type="button" id='moveN' value = " &uarr; " /></td>
-            <td><input type="button" id='moveNE' value = " &nearr;" /></td>
+            <td><input type="button" id='moveNW' class="arrow-buttons" value = "&nwarr; " /></td>
+            <td><input type="button" id='moveN' class="arrow-buttons" value = " &uarr; " /></td>
+            <td><input type="button" id='moveNE' class="arrow-buttons" value = " &nearr;" /></td>
         </tr>
         <tr>
-            <td><input type="button" id='moveW' value = "&larr;" /></td>
-            <td><input type="button" id='moveStay' value = "&nbsp;&nbsp;&nbsp;" /></td>
-            <td><input type="button" id='moveE' value = "&rarr;" /></td>
+            <td><input type="button" id='moveW' class="arrow-buttons" value = "&larr;" /></td>
+            <td><input type="button" id='moveStay' class="arrow-buttons" value = "&nbsp;&nbsp;&nbsp;" /></td>
+            <td><input type="button" id='moveE' class="arrow-buttons" value = "&rarr;" /></td>
         </tr>
         <tr>
-            <td><input type="button" id='moveSW' value = "&swarr; " /></td>
-            <td><input type="button" id='moveS' value = " &darr; " /></td>
-            <td><input type="button" id='moveSE' value = " &searr;" /></td>
+            <td><input type="button" id='moveSW' class="arrow-buttons" value = "&swarr; " /></td>
+            <td><input type="button" id='moveS' class="arrow-buttons" value = " &darr; " /></td>
+            <td><input type="button" id='moveSE' class="arrow-buttons" value = " &searr;" /></td>
         </tr>
     </table>
 
