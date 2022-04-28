@@ -3,18 +3,11 @@ import random
 import ui
 from ui import UI, NoGui, GUI
 
-from constant import Tools
+from constant import Tools, Prio, TextChar, GraphShape
 
 class BoardObject:
     # Mother class for all the board objects, implements the standard behavior and atributes of them.
     
-    # Priority to remain in a cell of the grid when two BoardObject run into each other.
-    PRIO_LOWER     = 0
-    PRIO_HERO      = 10
-    PRIO_FOE       = 50
-    PRIO_FIRE      = 80
-    PRIO_DEAD_HERO = 90
-
     idCount = 0
 
     def __init__(self, board, row, col):
@@ -23,14 +16,12 @@ class BoardObject:
         self.gui = board.gui
         self.row = row
         self.col = col
-        self.priority = BoardObject.PRIO_LOWER
+        self.priority = Prio.LOWER
         self.tool = None
-        self.char = ' ' # character to display in the board, only in testing mode
+        self.char = None   # character to display in the board, only in testing mode
+        self.shape = None  # shape that will have in the board in a GUI context
         BoardObject.idCount += 1
         self.id = f'BObj_{BoardObject.idCount}' # asign a unique id (used in the GUI as the id in the browser object svgRoot)
-        self.draw      = self.gui.drawNothing # replace this function in each subclass
-        self.translate = self.gui.translate
-        self.delete    = self.gui.delete
 
     def step( self, *args, **kwargs ):
         """ by default the BoardObject doesn't move and, if possible, copies itself to the updated grid """
@@ -55,62 +46,62 @@ class BoardObject:
         if self.tool != None and isinstance(killer,Hero): # if it's the Hero stepping on a tool, take the tool off the board and increase the stock of that tool.
             self.board.tool( self.tool, +1 )
         self.alive = False
-        self.delete( boardObj = self )
+        self.gui.delete( boardObj = self )
         if self.board.grid[ self.row ][ self.col ] == self: # if THIS BoardObject is on the grid, take it off
            self.board.grid[ self.row ][ self.col ] = None
 
 class Fire( BoardObject ):
     def __init__(self, board, row, col):
         BoardObject.__init__(self, board, row, col)
-        self.priority = BoardObject.PRIO_FIRE
-        self.char = '\u039E'
-        self.draw = self.gui.drawFire
+        self.priority = Prio.FIRE
+        self.char = TextChar.FIRE
+        self.shape = GraphShape.FIRE
 
 class SmallBomb( BoardObject ):
     def __init__(self, board, row, col):
         BoardObject.__init__(self, board, row, col)
-        self.priority = BoardObject.PRIO_LOWER
+        self.priority = Prio.LOWER
         self.tool = Tools.SMALL_BOMB
-        self.char = 'v'
-        self.draw = self.gui.drawSmallBomb
+        self.char =  TextChar.SMALL_BOMB
+        self.shape = GraphShape.SMALL_BOMB
 
 class BigBomb( BoardObject ):
     def __init__(self, board, row, col):
         BoardObject.__init__(self, board, row, col)
-        self.priority = BoardObject.PRIO_LOWER
+        self.priority = Prio.LOWER
         self.tool = Tools.BIG_BOMB
-        self.char = 'b'
-        self.draw = self.gui.drawBigBomb
+        self.char = TextChar.BIG_BOMB
+        self.shape = GraphShape.BIG_BOMB
 
 class SafeTeleport( BoardObject ):
     def __init__(self, board, row, col):
         BoardObject.__init__(self, board, row, col)
-        self.priority = BoardObject.PRIO_LOWER
+        self.priority = Prio.LOWER
         self.tool = Tools.SAFE_TELEPORT
-        self.char = 's'
-        self.draw = self.gui.drawSafeTeleport
+        self.char = TextChar.SAFE_TELEPORT
+        self.shape = GraphShape.SAFE_TELEPORT
 
 class GuidedTeleport( BoardObject ):
     def __init__(self, board, row, col):
         BoardObject.__init__(self, board, row, col)
-        self.priority = BoardObject.PRIO_LOWER
+        self.priority = Prio.LOWER
         self.tool = Tools.GUIDED_TELEPORT
-        self.char = '\u0398'
-        self.draw = self.gui.drawGuidedTeleport
+        self.char = TextChar.GUIDED_TELEPORT
+        self.shape = GraphShape.GUIDED_TELEPORT
 
 class DeadHero( BoardObject ):
     def __init__(self, board, row, col):
         BoardObject.__init__(self, board, row, col)
-        self.priority = BoardObject.PRIO_DEAD_HERO
-        self.char = 'g'
-        self.draw = self.gui.drawDeadHero
+        self.priority = Prio.DEAD_HERO
+        self.char = TextChar.DEAD_HERO
+        self.shape = GraphShape.DEAD_HERO
 
 class Foe( BoardObject ):
     def __init__(self, board, row, col):
         BoardObject.__init__(self, board, row, col)
-        self.priority = BoardObject.PRIO_FOE
-        self.char = '\u03A9'
-        self.draw = self.gui.drawFoe
+        self.priority = Prio.FOE
+        self.char = TextChar.FOE
+        self.shape = GraphShape.FOE
 
     def step(self, heroR, heroC):
         if not self.alive:
@@ -126,7 +117,7 @@ class Foe( BoardObject ):
         elif heroC < self.col:
             self.col -= 1
         
-        self.translate( boardObj = self )
+        self.gui.translate( boardObj = self )
 
         if isinstance( self.board.grid[ self.row ][ self.col ], Foe ): # Two Foes collide, they kill each other, a Fire takes their place
             self.die( killer = self.board.grid[ self.row ][ self.col ] )
@@ -146,9 +137,9 @@ class Foe( BoardObject ):
 class Hero( BoardObject ):
     def __init__(self, board, row, col):
         BoardObject.__init__(self, board, row, col)
-        self.priority = BoardObject.PRIO_HERO
-        self.char = '\u00B7'
-        self.draw = self.gui.drawHero
+        self.priority = Prio.HERO
+        self.char = TextChar.HERO
+        self.shape = GraphShape.HERO
 
     def step(self, deltaR, deltaC):
         if not self.alive:
@@ -164,7 +155,7 @@ class Hero( BoardObject ):
             if self.board.dieBeyondEdges:
                 self.die()  # if fell off the board, die
         if self.alive:
-            self.translate( boardObj = self )
+            self.gui.translate( boardObj = self )
             BoardObject.step(self)
 
 
@@ -283,7 +274,7 @@ class Board:
             boardObject = boardObjectClass( board = self, row = row, col = col ) # create the BoardObject
             self.grid[row][col] = boardObject # put it in the grid
             self.boardObjectList.append( boardObject ) # put it in the object list
-            boardObject.draw( boardObj = boardObject ) # draw it
+            self.gui.draw( boardObj = boardObject ) # draw it
             if isinstance(boardObject, Foe):
                 self.foeCount += 1
             added += 1
@@ -421,7 +412,7 @@ class Board:
 
         self.hero.row = row
         self.hero.col = col
-        self.hero.translate( boardObj = self.hero )
+        self.gui.translate( boardObj = self.hero )
         self.setRepeat('off')
         self.move(0,0)
         self.gui.textDisplayBoard(board = self)

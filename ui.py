@@ -90,7 +90,8 @@ class GUI(UI):
 
     def __init__(self, board):
         
-        self.svgRoot = browser.document["svg_root"]
+        self.svgRoot = browser.document["svg_root"] # deprecar si es posible...
+        self.field = browser.document["field"]
         
         self.width = self.svgRoot.clientWidth
         self.height = self.svgRoot.clientHeight
@@ -167,112 +168,29 @@ class GUI(UI):
         # Por ahi hay que hacerla en javascript...
         pass
 
-    def drawHero(self, boardObj):
-        print(f'drawHero, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
+    def draw(self, boardObj):
+        print(f'draw {boardObj.char}, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
         cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        svgShape = svg.circle(
+        img = html.IMG(
             id = boardObj.id,
-            cx = cx, 
-            cy = cy,
-            r  = self.cellSize / 2,
-            style = {"fill": '#334BFF'})
-#        svgShape = html.OBJECT(
-#            id = boardObj.id,
-#            type = "image/svg+xml", 
-#            data = 'fire.svg', 
-#            width = self.cellSize,
-#            height = self.cellSize,
-#            cx = cx, 
-#            cy = cy
-#        )
-        self.svgRoot <= svgShape
-
-        
-    def drawDeadHero(self, boardObj):
-        print(f'drawDeadHero, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        svgShape = svg.circle(
-            id = boardObj.id,
-            cx = cx, 
-            cy = cy,
-            r  = self.cellSize / 2,
-            style = {"fill": '#AF33FF'})
-        self.svgRoot <= svgShape
-        
-    def drawFoe(self, boardObj):
-        print(f'drawFoe, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        svgShape = svg.circle(
-            id = boardObj.id,
-            cx = cx, 
-            cy = cy,
-            r  = self.cellSize / 2,
-            style = {"fill": '#C5C5C5'})
-        self.svgRoot <= svgShape
-        
-    def drawFire(self, boardObj):
-        print(f'drawFire, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        svgShape = svg.circle(
-            id = boardObj.id,
-            cx = cx, 
-            cy = cy,
-            r  = self.cellSize / 2,
-            style = {"fill": '#515150'})
-        self.svgRoot <= svgShape
-
-    def drawSmallBomb(self, boardObj):
-        print(f'drawSmallBomb, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        svgShape = svg.circle(
-            id = boardObj.id,
-            cx = cx, 
-            cy = cy,
-            r  = self.cellSize / 2,
-            style = {"fill": '#FFC300'})
-        self.svgRoot <= svgShape
-        
-    def drawBigBomb(self, boardObj):
-        print(f'drawBigBomb, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        svgShape = svg.circle(
-            id = boardObj.id,
-            cx = cx, 
-            cy = cy,
-            r  = self.cellSize / 2,
-            style = {"fill": '#FF5733'})
-        self.svgRoot <= svgShape
-        
-    def drawSafeTeleport(self, boardObj):
-        print(f'drawSafeTeleport, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        svgShape = svg.circle(
-            id = boardObj.id,
-            cx = cx, 
-            cy = cy,
-            r  = self.cellSize / 2,
-            style = {"fill": '#03FC32'})
-        self.svgRoot <= svgShape
-        
-    def drawGuidedTeleport(self, boardObj):
-        print(f'drawGuidedTeleport, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        svgShape = svg.circle(
-            id = boardObj.id,
-            cx = cx, 
-            cy = cy,
-            r  = self.cellSize / 2,
-            style = {"fill": '#027017'})
-        self.svgRoot <= svgShape
-
+            src = boardObj.shape, 
+            alt = boardObj.char,
+            Class = 'board-object', 
+            style = {
+                'height': self.cellSize,
+                'width': self.cellSize,
+                'top': cy, 
+                'left': cx,
+            }
+        )
+        self.field <= img
 
     def translate(self, boardObj):
         print(f'translate, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        old_cx = browser.document[boardObj.id].cx.baseVal.value
-        old_cy = browser.document[boardObj.id].cy.baseVal.value
         cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        browser.document[boardObj.id].setAttributeNS(None, "transform", f"translate({cx - old_cx},{cy - old_cy})")
-
+        o = browser.document[boardObj.id]
+        o.style['top'] = cy
+        o.style['left'] = cx
 
     def delete(self, boardObj):
         print(f'delete, id={boardObj.id} en {boardObj.row}, {boardObj.col} type={type(boardObj)}')
@@ -409,15 +327,15 @@ class GUI(UI):
 
     def refreshRepeat(self, value):
         if value:
-            browser.document['repeat'].style = 'background-color:aqua'
+            browser.document['repeat'].style['background-color'] = 'aqua'
         else:
-            browser.document['repeat'].style = 'background-color:whitesmoke'
+            browser.document['repeat'].style['background-color'] = 'whitesmoke'
 
     def refreshGuided(self, value):
         if value:
-            browser.document[Tools.GUIDED_TELEPORT].style = 'background-color:aqua'
+            browser.document[Tools.GUIDED_TELEPORT].style['background-color'] = 'aqua'
         else:
-            browser.document[Tools.GUIDED_TELEPORT].style = 'background-color:whitesmoke'
+            browser.document[Tools.GUIDED_TELEPORT].style['background-color'] = 'whitesmoke'
 
     def askNewGame(self):
         return browser.confirm('Play again?')
