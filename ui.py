@@ -98,14 +98,18 @@ class GUI(UI):
         w = self.svgRoot.clientWidth
         h = self.svgRoot.clientHeight
 
-        self.cellSize = min( w // (self.board.maxC+2), h // (self.board.maxR+2) )
-        self.relativeTop  = self.cellSize
-        self.relativeLeft = self.cellSize
+        self.cellSize = min( w // (self.board.maxC+1), h // (self.board.maxR+1) )
+        self.relativeTop  = self.cellSize // 4
+        self.relativeLeft = self.cellSize // 4
         self.absoluteTop  = self.svgRoot.abs_top  + self.relativeTop
         self.absoluteLeft = self.svgRoot.abs_left + self.relativeLeft
 
-        self.height = (self.board.maxR+1) * self.cellSize
-        self.width = (self.board.maxC+1) * self.cellSize
+        print('svg_root abs top left', self.svgRoot.abs_top, self.svgRoot.abs_left)
+        print('rel top left', self.relativeTop, self.relativeLeft)
+        print('abs top left', self.absoluteTop, self.absoluteLeft)
+
+        self.height = self.board.maxR * self.cellSize + self.cellSize // 2
+        self.width = self.board.maxC * self.cellSize + self.cellSize // 2
         self.field.height = self.height
         self.field.width  = self.width
         
@@ -155,7 +159,11 @@ class GUI(UI):
     def coords2rowcol(self, x, y, relative=False):
         top  = self.relativeTop  if relative else self.absoluteTop
         left = self.relativeLeft if relative else self.absoluteLeft
-        return ( round((y - top) / self.cellSize), round((x - left) / self.cellSize) )
+        row = round((y - top - self.cellSize/2) / self.cellSize)
+        col = round((x - left - self.cellSize/2) / self.cellSize)
+        row = min( max(0,row), self.board.maxR - 1)
+        col = min( max(0,col), self.board.maxC - 1)
+        return ( row, col )
 
     def repeatDelay(self):
         # todo: 
@@ -165,7 +173,8 @@ class GUI(UI):
 
     def draw(self, boardObj):
         print(f'draw {boardObj.char}, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
+        x, y = self.rowcol2coords( boardObj.row, boardObj.col )
+        print(f'    x:{x}, y:{y}')
         img = html.IMG(
             id = boardObj.id,
             src = boardObj.shape, 
@@ -174,8 +183,8 @@ class GUI(UI):
             style = {
                 'height': self.cellSize,
                 'width': self.cellSize,
-                'top': cy, 
-                'left': cx,
+                'top': y, 
+                'left': x,
             }
         )
         self.field <= img
