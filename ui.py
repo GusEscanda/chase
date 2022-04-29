@@ -20,16 +20,7 @@ class UI:
     nullFunction = lambda *args, **kwargs: None
 
     # override all or any of these functions depending on the type of interfase, text (standard os console) or graphic (via Brython)
-    drawHero = nullFunction
-    drawDeadHero = nullFunction
-    drawFoe = nullFunction
-    drawFire = nullFunction
-    drawSmallBomb = nullFunction
-    drawBigBomb = nullFunction
-    drawSafeTeleport = nullFunction
-    drawGuidedTeleport = nullFunction
-    drawNothing = nullFunction
-
+    draw = nullFunction
     translate = nullFunction
     delete = nullFunction
     

@@ -331,11 +331,12 @@ class Board:
                 self.gui.repeatDelay()
 
 
-        if not self.hero.alive:
+        if self.hero.alive:
+            self.setRepeat('off')  # reset the repeat mode
+            self.setGuided('off')  # reset the guided mode
+        else:
             self.placeBoardObjects( DeadHero, coords = (self.hero.row, self.hero.col) )
 
-        self.setRepeat('off')  # reset the repeat mode
-        self.setGuided('off')  # reset the guided mode
         self.gui.textDisplayBoard(board = self)
         self.gui.refreshScores()
 
@@ -444,7 +445,7 @@ class Board:
 def test():
     # This is only for testing of the game objects and the interaction between them. It'll run only in a text based environment.
 
-    board = Board( Metrics.BOARD_DIM[0], Metrics.BOARD_DIM[1], NoGui() )
+    board = Board(maxR = min(Metrics.BOARD_DIM), maxC = max(Metrics.BOARD_DIM), gui = NoGui() )
     board.newGame()
     while True:
         k = input('key (n t s g v b 123456789 r):')
