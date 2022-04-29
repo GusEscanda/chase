@@ -115,13 +115,13 @@ class GUI(UI):
         self.mouseUpCol = None
         self.lastPointerMoveTimeStamp = 0
 
-        self.svgRoot.bind("mousedown", self.pointerStart)
-        self.svgRoot.bind("mousemove", self.pointerMove)
-        self.svgRoot.bind("mouseup", self.pointerEnd)
+        self.field.bind("mousedown", self.pointerStart)
+        self.field.bind("mousemove", self.pointerMove)
+        self.field.bind("mouseup", self.pointerEnd)
 
-        self.svgRoot.bind('touchstart', self.pointerStart)
-        self.svgRoot.bind('touchmove', self.pointerMove)
-        self.svgRoot.bind('touchend', self.pointerEnd)
+        self.field.bind('touchstart', self.pointerStart)
+        self.field.bind('touchmove', self.pointerMove)
+        self.field.bind('touchend', self.pointerEnd)
 
         window.bind('keydown', self.keyPressed)
         window.bind('keyup', self.keyPressed)
