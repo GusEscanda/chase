@@ -1,6 +1,6 @@
 import time
 import os
-from turtle import width
+#from turtle import width
 from constant import Tools
 
 try:
@@ -90,30 +90,25 @@ class GUI(UI):
 
     def __init__(self, board):
         
+        self.board = board
+        
         self.svgRoot = browser.document["svg_root"] # deprecar si es posible...
         self.field = browser.document["field"]
         
-        self.width = self.svgRoot.clientWidth
-        self.height = self.svgRoot.clientHeight
+        w = self.svgRoot.clientWidth
+        h = self.svgRoot.clientHeight
 
-        self.board = board
-        
-        self.cellSize = min( self.width // (self.board.maxC+2), self.height // (self.board.maxR+2) )
+        self.cellSize = min( w // (self.board.maxC+2), h // (self.board.maxR+2) )
         self.relativeTop  = self.cellSize
         self.relativeLeft = self.cellSize
         self.absoluteTop  = self.svgRoot.abs_top  + self.relativeTop
         self.absoluteLeft = self.svgRoot.abs_left + self.relativeLeft
 
-        svgShape = svg.rect(
-            id = 'rectExterior',
-            cy = self.absoluteTop,
-            cx = self.absoluteLeft, 
-            width  = (self.board.maxC+1) * self.cellSize,
-            height = (self.board.maxR+1) * self.cellSize,
-            style = {'fill-opacity':0, 'stroke': 'black', 'stroke-width': 4}
-        )
-        self.svgRoot <= svgShape
-
+        self.height = (self.board.maxR+1) * self.cellSize
+        self.width = (self.board.maxC+1) * self.cellSize
+        self.field.height = self.height
+        self.field.width  = self.width
+        
         self.mouseDownRow = None
         self.mouseDownCol = None 
         self.mouseUpRow = None

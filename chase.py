@@ -3,7 +3,7 @@ import random
 import ui
 from ui import UI, NoGui, GUI
 
-from constant import Tools, Prio, TextChar, GraphShape
+from constant import Tools, Prio, TextChar, GraphShape, Metrics
 
 class BoardObject:
     # Mother class for all the board objects, implements the standard behavior and atributes of them.
@@ -152,7 +152,7 @@ class Hero( BoardObject ):
             # if fell off the grid, undo the movement to stay right on the edge
             self.row -= deltaR
             self.col -= deltaC
-            if self.board.dieBeyondEdges:
+            if Metrics.DIE_BEYOND_EDGES:
                 self.die()  # if fell off the board, die
         if self.alive:
             self.gui.translate( boardObj = self )
@@ -174,20 +174,6 @@ class Board:
 
         # Create a grid that will contain the objects in the board
         self.grid = self.emptyGrid()
-
-        # metrics that will determine how difficult the game will be to play
-        self.initFoeCount = 0
-        self.incrementFoeCountByLevel = 5
-        self.dropToolMu = 0
-        self.dropToolSigma = 1
-        self.inicToolStock = {
-            Tools.TELEPORT: -1,
-            Tools.SAFE_TELEPORT: 1,
-            Tools.GUIDED_TELEPORT: 1,
-            Tools.SMALL_BOMB: 1,
-            Tools.BIG_BOMB: 1,            
-        }
-        self.dieBeyondEdges = False
 
         self.foeCount = 0
         self.score = 0
@@ -217,9 +203,9 @@ class Board:
         self.cleanBoard()
         self.placeBoardObjects( Hero )
         self.hero = self.boardObjectList[0]
-        self.placeBoardObjects( Foe, self.initFoeCount + self.incrementFoeCountByLevel * self.level )
+        self.placeBoardObjects( Foe, Metrics.INIT_FOE_COUNT + Metrics.INCREMENT_FOE_COUNT_BY_LEVEL * self.level )
         
-        toolDrop = lambda : max(0, int( random.normalvariate( self.dropToolMu, self.dropToolSigma ) ))
+        toolDrop = lambda : max(0, int( random.normalvariate( Metrics.DROP_TOOL_MU, Metrics.DROP_TOOL_SIGMA ) ))
         self.placeBoardObjects( SmallBomb, toolDrop() )
         self.placeBoardObjects( BigBomb, toolDrop() )
         self.placeBoardObjects( SafeTeleport, toolDrop() )
@@ -238,8 +224,8 @@ class Board:
         self.level = 0
         self.score = 0
         self.newLevel()
-        for tool in self.inicToolStock:
-            self.toolStock[tool] = self.inicToolStock[tool]
+        for tool in Metrics.INIC_TOOL_STOCK:
+            self.toolStock[tool] = Metrics.INIC_TOOL_STOCK[tool]
         self.gui.refreshButtons()
 
     def collectTools(self):
@@ -458,7 +444,7 @@ class Board:
 def test():
     # This is only for testing of the game objects and the interaction between them. It'll run only in a text based environment.
 
-    board = Board( 22, 26, NoGui() )
+    board = Board( Metrics.BOARD_DIM[0], Metrics.BOARD_DIM[1], NoGui() )
     board.newGame()
     while True:
         k = input('key (n t s g v b 123456789 r):')
@@ -499,7 +485,10 @@ if __name__ == "__main__" and not ui.BROWSER:
 
 
 if ui.BROWSER:
-    board = Board(26, 22)
+    if ui.window.innerHeight > ui.window.innerWidth:
+        board = Board(maxR = max(Metrics.BOARD_DIM), maxC = min(Metrics.BOARD_DIM))
+    else:
+        board = Board(maxR = min(Metrics.BOARD_DIM), maxC = max(Metrics.BOARD_DIM))
     gui = GUI(board)
     board.gui = gui
     board.newGame()
