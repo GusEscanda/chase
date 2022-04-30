@@ -11,7 +11,114 @@
 
 <script type="text/python" src="chase.py"></script>
 
+</head>
+<body onload="brython(1)">
+    <div class="main-game">
+        <label for="level" class="scores">Level:</label>
+        <input type="text" id="level" class="scores" size=2 /> &nbsp;&nbsp;&nbsp;
+    
+        <label for="foeCount" class="scores">Foes left:</label>
+        <input type="text" id="foeCount" class="scores" size=2 /> &nbsp;&nbsp;&nbsp;
+    
+        <label for="score" class="scores" class="scores">Score:</label> 
+        <input type="text" id="score" class="scores" size=2 /> &nbsp;&nbsp;&nbsp;
+    
+        <label for="highScore" class="scores">High Score:</label> 
+        <input type="text" id="highScore" class="scores" size=2 /> &nbsp;&nbsp;&nbsp;
+        <input type="button" id='new' value="New Game" class="tool-buttons"/>
+    
+
+        <div class="field-wrapper">
+            <div id="field" class="field-class">
+                <svg id="svg_root" xmlns='http://www.w3.org/2000/svg'></svg>
+            </div>
+            <div class="action-buttons-wrapper">
+                <input type="button" class="action-button" id='t' value="t" class="tool-buttons">
+                <input type="button" class="action-button" id='repeat' value="r" class="tool-buttons" >
+                <input type="button" class="action-button" id='s' value="s" class="tool-buttons">
+                <input type="button" class="action-button" id='&#920;' value="&#920;" class="tool-buttons">
+                <input type="button" class="action-button" id='v' value="v" class="tool-buttons">
+                <input type="button" class="action-button" id='b' value="b" class="tool-buttons">
+            </div>
+        </div>
+        <table style="text-align: center;">
+            <tr>
+                <td><input type="button" id='moveNW' class="arrow-buttons" value = "&nwarr; " /></td>
+                <td><input type="button" id='moveN' class="arrow-buttons" value = " &uarr; " /></td>
+                <td><input type="button" id='moveNE' class="arrow-buttons" value = " &nearr;" /></td>
+            </tr>
+            <tr>
+                <td><input type="button" id='moveW' class="arrow-buttons" value = "&larr;" /></td>
+                <td><input type="button" id='moveStay' class="arrow-buttons" value = "&nbsp;&nbsp;&nbsp;" /></td>
+                <td><input type="button" id='moveE' class="arrow-buttons" value = "&rarr;" /></td>
+            </tr>
+            <tr>
+                <td><input type="button" id='moveSW' class="arrow-buttons" value = "&swarr; " /></td>
+                <td><input type="button" id='moveS' class="arrow-buttons" value = " &darr; " /></td>
+                <td><input type="button" id='moveSE' class="arrow-buttons" value = " &searr;" /></td>
+            </tr>
+        </table>
+    </div>
+</body>
+
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        color: #40aa3a;
+    }
+
+    #svg_root {
+        height: 100%;
+        width: 100%;
+    }
+
+    .field-wrapper {
+        display: flex;
+        height: 80%;
+    }
+
+    .field-class {
+        height: 100% !important;
+        width: 100% !important;
+        border: 2px solid #40aa3a;
+        margin-right: 8px;
+    }
+
+    .main-game {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .action-buttons-wrapper {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    input[type=button] {
+        background-color: transparent !important;
+        border: 2px solid #40aa3a;
+        text-align: center;
+        padding: 4px 10px;
+        font-size: 30px;
+        cursor: pointer;
+        margin: 0;
+        margin-bottom: 10px;
+    }
+
+    .action-button {
+        max-width: 64px;
+        width: 100%;
+    }
+
+    body {
+        background-color: #1a1a1a;
+        font-family: 'Roboto Mono', monospace;
+    }
+
     .scores {
         font-size: 30px;
     }
@@ -33,57 +140,4 @@
         font-size: 40px;
     }
 </style>
-
-</head>
-<body onload="brython(1)">
-
-    <label for="level" class="scores">Level:</label> 
-    <input type="text" id="level" class="scores" size=2 /> &nbsp;&nbsp;&nbsp;
-
-    <label for="foeCount" class="scores">Foes left:</label> 
-    <input type="text" id="foeCount" class="scores" size=2 /> &nbsp;&nbsp;&nbsp;
-
-    <label for="score" class="scores" class="scores">Score:</label> 
-    <input type="text" id="score" class="scores" size=2 /> &nbsp;&nbsp;&nbsp;
-
-    <label for="highScore" class="scores">High Score:</label> 
-    <input type="text" id="highScore" class="scores" size=2 /> &nbsp;&nbsp;&nbsp;
-
-    <div id="field" class="field-class" width='100%' height='80%' style="border: 1px solid black;">
-        <svg id="svg_root" width='100%' height='80%' xmlns='http://www.w3.org/2000/svg'></svg>
-    </div>
-
-    <br>
-    <br>
-
-    <input type="button" id='t' value=" t " class="tool-buttons"/>
-    <input type="button" id='repeat' value=" r " class="tool-buttons" style="background-color:whitesmoke;" />
-
-    &nbsp; 
-    <input type="button" id='s' value="s" class="tool-buttons"/>
-    <input type="button" id='&#920;' value="&#920;" class="tool-buttons" style="background-color:whitesmoke;" /> <! GuidedTeleport >
-    <input type="button" id='v' value="v" class="tool-buttons"/>
-    <input type="button" id='b' value="b" class="tool-buttons"/>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <input type="button" id='new' value="New Game" class="tool-buttons"/>
-    &nbsp; 
-    <table style="text-align: center;" >
-        <tr>
-            <td><input type="button" id='moveNW' class="arrow-buttons" value = "&nwarr; " /></td>
-            <td><input type="button" id='moveN' class="arrow-buttons" value = " &uarr; " /></td>
-            <td><input type="button" id='moveNE' class="arrow-buttons" value = " &nearr;" /></td>
-        </tr>
-        <tr>
-            <td><input type="button" id='moveW' class="arrow-buttons" value = "&larr;" /></td>
-            <td><input type="button" id='moveStay' class="arrow-buttons" value = "&nbsp;&nbsp;&nbsp;" /></td>
-            <td><input type="button" id='moveE' class="arrow-buttons" value = "&rarr;" /></td>
-        </tr>
-        <tr>
-            <td><input type="button" id='moveSW' class="arrow-buttons" value = "&swarr; " /></td>
-            <td><input type="button" id='moveS' class="arrow-buttons" value = " &darr; " /></td>
-            <td><input type="button" id='moveSE' class="arrow-buttons" value = " &searr;" /></td>
-        </tr>
-    </table>
-
-</body>
 </html>
