@@ -310,6 +310,7 @@ class GUI(UI):
 
 
     def refreshScores(self):
+        browser.document['level'].value = self.board.level
         browser.document['foeCount'].value = self.board.foeCount
         browser.document['score'].value = self.board.score
         browser.document['highScore'].value = self.board.highScore
