@@ -1,6 +1,6 @@
 import time
 import os
-from constant import Tools, Anim
+from constant import SoundEffects, Tools, Anim
 
 try:
     import browser
@@ -30,7 +30,10 @@ class UI:
     refreshRepeat = nullFunction
     refreshGuided = nullFunction
 
-    repeatDelay = nullFunction
+    sndFire = nullFunction
+    sndGetTool = nullFunction
+    sndLevelUp = nullFunction
+    sndLost = nullFunction
 
     askNewGame = nullFunction
 
@@ -39,9 +42,6 @@ class UI:
 
 class NoGui(UI):
     # when testing the game in text mode (no graphics available) use this class instead to manage the user interfase
-
-    def repeatDelay(self):
-        time.sleep(0.25)  # sleep 250ms
 
     def askNewGame(self):
         again = ' '
@@ -107,6 +107,11 @@ class GUI(UI):
         self.field.height = self.height
         self.field.width  = self.width
         
+        browser.document <= html.AUDIO(id='sndFire', src=SoundEffects.FIRE)
+        browser.document <= html.AUDIO(id='sndGetTool', src=SoundEffects.GET_TOOL)
+        browser.document <= html.AUDIO(id='sndLevelUp', src=SoundEffects.LEVEL_UP)
+        browser.document <= html.AUDIO(id='sndLost', src=SoundEffects.LOST)
+
         self.mouseDownRow = None
         self.mouseDownCol = None 
         self.mouseUpRow = None
@@ -159,11 +164,17 @@ class GUI(UI):
         col = min( max(0,col), self.board.maxC - 1)
         return ( row, col )
 
-    def repeatDelay(self):
-        # todo: 
-        # Hacer esta funcion. No funcionó nada de lo que intenté desde Python.
-        # Por ahi hay que hacerla en javascript...
-        pass
+    def sndFire(self):
+        timer.set_timeout(browser.document['sndFire'].play, self.animWhen + Anim.STEP_TIME)
+
+    def sndGetTool(self):
+        timer.set_timeout(browser.document['sndGetTool'].play, self.animWhen)
+
+    def sndLevelUp(self):
+        timer.set_timeout(browser.document['sndLevelUp'].play, self.animWhen)
+
+    def sndLost(self):
+        timer.set_timeout(browser.document['sndLost'].play, self.animWhen + Anim.STEP_TIME)
 
     def resetAnim(self):
         self.animWhen = 0

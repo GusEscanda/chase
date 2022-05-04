@@ -43,62 +43,69 @@ class BoardObject:
     def die(self, killer=None):
         if not self.alive:
             return
-        if self.tool != None and isinstance(killer,Hero): # if it's the Hero stepping on a tool, take the tool off the board and increase the stock of that tool.
-            self.board.tool( self.tool, +1 )
         self.alive = False
         self.gui.delete( boardObj = self )
         if self.board.grid[ self.row ][ self.col ] == self: # if THIS BoardObject is on the grid, take it off
            self.board.grid[ self.row ][ self.col ] = None
 
+class BoardTool( BoardObject ):
+    def __init__(self, board, row, col):
+        super().__init__(board, row, col)
+        self.priority = Prio.LOWER
+
+    def die(self, killer=None):  # tool pick up (killer==Hero) or took steal (killer==Foe)
+        if not self.alive:
+            return
+        if isinstance(killer,Hero): # if it's the Hero stepping on a tool, take the tool off the board and increase the stock of that tool.
+            self.board.tool( self.tool, +1 )
+            self.board.gui.sndGetTool()
+        super().die(killer=killer)
+
 class Fire( BoardObject ):
     def __init__(self, board, row, col):
-        BoardObject.__init__(self, board, row, col)
+        super().__init__(board, row, col)
         self.priority = Prio.FIRE
         self.char = TextChar.FIRE
         self.shape = GraphShape.FIRE
 
-class SmallBomb( BoardObject ):
+class SmallBomb( BoardTool ):
     def __init__(self, board, row, col):
-        BoardObject.__init__(self, board, row, col)
-        self.priority = Prio.LOWER
+        super().__init__(board, row, col)
         self.tool = Tools.SMALL_BOMB
         self.char =  TextChar.SMALL_BOMB
         self.shape = GraphShape.SMALL_BOMB
 
-class BigBomb( BoardObject ):
+class BigBomb( BoardTool ):
     def __init__(self, board, row, col):
-        BoardObject.__init__(self, board, row, col)
-        self.priority = Prio.LOWER
+        super().__init__(board, row, col)
         self.tool = Tools.BIG_BOMB
         self.char = TextChar.BIG_BOMB
         self.shape = GraphShape.BIG_BOMB
 
-class SafeTeleport( BoardObject ):
+class SafeTeleport( BoardTool ):
     def __init__(self, board, row, col):
-        BoardObject.__init__(self, board, row, col)
-        self.priority = Prio.LOWER
+        super().__init__(board, row, col)
         self.tool = Tools.SAFE_TELEPORT
         self.char = TextChar.SAFE_TELEPORT
         self.shape = GraphShape.SAFE_TELEPORT
 
-class GuidedTeleport( BoardObject ):
+class GuidedTeleport( BoardTool ):
     def __init__(self, board, row, col):
-        BoardObject.__init__(self, board, row, col)
-        self.priority = Prio.LOWER
+        super().__init__(board, row, col)
         self.tool = Tools.GUIDED_TELEPORT
         self.char = TextChar.GUIDED_TELEPORT
         self.shape = GraphShape.GUIDED_TELEPORT
 
 class DeadHero( BoardObject ):
     def __init__(self, board, row, col):
-        BoardObject.__init__(self, board, row, col)
+        super().__init__(board, row, col)
         self.priority = Prio.DEAD_HERO
         self.char = TextChar.DEAD_HERO
         self.shape = GraphShape.DEAD_HERO
 
 class Foe( BoardObject ):
     def __init__(self, board, row, col):
-        BoardObject.__init__(self, board, row, col)
+        super().__init__(board, row, col)
         self.priority = Prio.FOE
         self.char = TextChar.FOE
         self.shape = GraphShape.FOE
@@ -124,19 +131,20 @@ class Foe( BoardObject ):
             self.board.grid[ self.row ][ self.col ].die( killer = self )
             self.board.placeBoardObjects( Fire, coords = (self.row, self.col) )
         else:
-            BoardObject.step(self)
+            super().step(self)
 
     def die(self, killer=None):
-        BoardObject.die(self, killer=killer)
+        super().die(killer=killer)
         self.board.foeCount -= 1
         if killer is not None:
             self.board.score += 1
             self.board.highScore = max( self.board.score, self.board.highScore )
+            self.board.gui.sndFire()
 
 
 class Hero( BoardObject ):
     def __init__(self, board, row, col):
-        BoardObject.__init__(self, board, row, col)
+        super().__init__(board, row, col)
         self.priority = Prio.HERO
         self.char = TextChar.HERO
         self.shape = GraphShape.HERO
@@ -156,7 +164,7 @@ class Hero( BoardObject ):
                 self.die()  # if fell off the board, die
         if self.alive:
             self.gui.translate( boardObj = self )
-            BoardObject.step(self)
+            super().step(self)
 
 
 class Board:
@@ -201,6 +209,8 @@ class Board:
     def newLevel(self):
         self.level += 1
         self.cleanBoard()
+        if self.level > 1:
+            self.gui.sndLevelUp()
         self.placeBoardObjects( Hero )
         self.hero = self.boardObjectList[0]
         self.placeBoardObjects( Foe, Metrics.INIT_FOE_COUNT + Metrics.INCREMENT_FOE_COUNT_BY_LEVEL * self.level )
@@ -337,6 +347,7 @@ class Board:
             self.setGuided('off')  # reset the guided mode
         else:
             self.placeBoardObjects( DeadHero, coords = (self.hero.row, self.hero.col) )
+            self.gui.sndLost()
 
         self.gui.textDisplayBoard(board = self)
         self.gui.refreshScores()

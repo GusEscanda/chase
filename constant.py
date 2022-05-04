@@ -36,6 +36,12 @@ class GraphShape:
     SAFE_TELEPORT   = 'imgSafeTeleport.png'
     GUIDED_TELEPORT = 'imgGuidedTeleport.png'
 
+class SoundEffects:
+    FIRE        = 'sndFire.wav'
+    GET_TOOL    = 'sndTool.mp3'
+    LEVEL_UP    = 'sndLevel.mp3'
+    LOST        = 'sndLost.mp3'
+
 class Metrics:
     # metrics that will determine how difficult the game will be to play
     BOARD_DIM = (26,22)
