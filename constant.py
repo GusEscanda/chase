@@ -52,4 +52,6 @@ class Metrics:
     }
     DIE_BEYOND_EDGES = False
 
-
+class Anim:
+    # times involved in animation (in ms)
+    STEP_TIME = 50

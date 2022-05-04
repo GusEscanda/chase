@@ -1,7 +1,6 @@
 import time
 import os
-#from turtle import width
-from constant import Tools
+from constant import Tools, Anim
 
 try:
     import browser
@@ -20,6 +19,8 @@ class UI:
     nullFunction = lambda *args, **kwargs: None
 
     # override all or any of these functions depending on the type of interfase, text (standard os console) or graphic (via Brython)
+    resetAnim = nullFunction
+    nextStep = nullFunction
     draw = nullFunction
     translate = nullFunction
     delete = nullFunction
@@ -85,6 +86,8 @@ class GUI(UI):
         
         self.svgRoot = browser.document["svg_root"] # deprecar si es posible...
         self.field = browser.document["field"]
+
+        self.animWhen = 0
         
         w = self.svgRoot.clientWidth
         h = self.svgRoot.clientHeight
@@ -162,6 +165,27 @@ class GUI(UI):
         # Por ahi hay que hacerla en javascript...
         pass
 
+    def resetAnim(self):
+        self.animWhen = 0
+
+    def nextStep(self):
+        self.animWhen += Anim.STEP_TIME
+
+    def _draw(self, img):
+        print(f'_draw {img}')
+        self.field <= img
+
+    def _translate(self, id, x, y):
+        print(f'_translate, id={id} en x:{x}, y:{y}')
+        o = browser.document[id]
+        o.style['top'] = y
+        o.style['left'] = x
+
+    def _delete(self, id):
+        print(f'_delete, id={id}')
+        browser.document[id].remove()
+
+
     def draw(self, boardObj):
         print(f'draw {boardObj.char}, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
         x, y = self.rowcol2coords( boardObj.row, boardObj.col )
@@ -177,19 +201,17 @@ class GUI(UI):
                 'top': y, 
                 'left': x,
             }
-        )
-        self.field <= img
+        )        
+        timer.set_timeout(self._draw, self.animWhen + Anim.STEP_TIME, img)
 
     def translate(self, boardObj):
         print(f'translate, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        o = browser.document[boardObj.id]
-        o.style['top'] = cy
-        o.style['left'] = cx
+        x, y = self.rowcol2coords( boardObj.row, boardObj.col )
+        timer.set_timeout(self._translate, self.animWhen, boardObj.id, x, y)
 
     def delete(self, boardObj):
         print(f'delete, id={boardObj.id} en {boardObj.row}, {boardObj.col} type={type(boardObj)}')
-        browser.document[boardObj.id].remove()
+        timer.set_timeout(self._delete, self.animWhen + Anim.STEP_TIME, boardObj.id)
 
     def pointerStart(self, evt):
         print(f'{evt.type} {evt.target.id}')

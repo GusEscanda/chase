@@ -294,6 +294,7 @@ class Board:
         if self.checkNewGame():
             return
         # Take one or more steps in the (deltaR, deltaC) direction.
+        self.gui.resetAnim()
         while self.hero.alive and self.foeCount > 0:
 
             newR = self.hero.row + deltaR
@@ -328,7 +329,7 @@ class Board:
             self.gui.textDisplayBoard(board = self)
 
             if self.repeat:
-                self.gui.repeatDelay()
+                self.gui.nextStep()
 
 
         if self.hero.alive:
