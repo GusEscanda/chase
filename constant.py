@@ -27,14 +27,14 @@ class TextChar:
     GUIDED_TELEPORT = '\u0398'
 
 class GraphShape:
-    HERO            = 'imgHero.png'
-    DEAD_HERO       = 'imgDeadHero.png'
-    FOE             = 'imgFoe.png'
-    FIRE            = 'imgFire.png'
-    SMALL_BOMB      = 'imgSmallBomb.png'
-    BIG_BOMB        = 'imgBigBomb.png'
-    SAFE_TELEPORT   = 'imgSafeTeleport.png'
-    GUIDED_TELEPORT = 'imgGuidedTeleport.png'
+    HERO            = 'assets/imgHero.png'
+    DEAD_HERO       = 'assets/imgDeadHero.png'
+    FOE             = 'assets/imgFoe.png'
+    FIRE            = 'assets/imgFire.png'
+    SMALL_BOMB      = 'assets/imgSmallBomb.png'
+    BIG_BOMB        = 'assets/imgBigBomb.png'
+    SAFE_TELEPORT   = 'assets/imgSafeTeleport.png'
+    GUIDED_TELEPORT = 'assets/imgGuidedTeleport.png'
 
 class SoundEffects:
     FIRE        = 'sndFire.wav'

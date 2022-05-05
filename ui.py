@@ -84,28 +84,32 @@ class GUI(UI):
         
         self.board = board
         
-        self.svgRoot = browser.document["svg_root"] # deprecar si es posible...
+        # self.svgRoot = browser.document["svg_root"] # deprecar si es posible...
         self.field = browser.document["field"]
 
         self.animWhen = 0
         
-        w = self.svgRoot.clientWidth
-        h = self.svgRoot.clientHeight
-
-        self.cellSize = min( w // (self.board.maxC+1), h // (self.board.maxR+1) )
+        w = self.field.clientWidth
+        h = self.field.clientHeight
+        print(f'w:{w}, h:{h}')
+        self.cellSize = w // (self.board.maxC+1)
+        print('cell size:', self.cellSize)
         self.relativeTop  = self.cellSize // 4
         self.relativeLeft = self.cellSize // 4
-        self.absoluteTop  = self.svgRoot.abs_top  + self.relativeTop
-        self.absoluteLeft = self.svgRoot.abs_left + self.relativeLeft
+        self.absoluteTop  = self.field.abs_top  + self.relativeTop
+        self.absoluteLeft = self.field.abs_left + self.relativeLeft
 
-        print('svg_root abs top left', self.svgRoot.abs_top, self.svgRoot.abs_left)
-        print('rel top left', self.relativeTop, self.relativeLeft)
-        print('abs top left', self.absoluteTop, self.absoluteLeft)
+        # print('svg_root abs top left', self.svgRoot.abs_top, self.svgRoot.abs_left)
+        # print('rel top left', self.relativeTop, self.relativeLeft)
+        # print('abs top left', self.absoluteTop, self.absoluteLeft)
 
         self.height = self.board.maxR * self.cellSize + self.cellSize // 2
         self.width = self.board.maxC * self.cellSize + self.cellSize // 2
         self.field.height = self.height
         self.field.width  = self.width
+        print(f'field height:{self.height}, width:{self.width}')
+#        self.svgRoot.height = self.height
+#        self.svgRoot.width  = self.width
         
         browser.document <= html.AUDIO(id='sndFire', src=SoundEffects.FIRE)
         browser.document <= html.AUDIO(id='sndGetTool', src=SoundEffects.GET_TOOL)
@@ -343,10 +347,10 @@ class GUI(UI):
 
 
     def refreshScores(self):
-        browser.document['level'].value = self.board.level
-        browser.document['foeCount'].value = self.board.foeCount
-        browser.document['score'].value = self.board.score
-        browser.document['highScore'].value = self.board.highScore
+        browser.document['level'].textContent = self.board.level
+        browser.document['foeCount'].textContent = self.board.foeCount
+        browser.document['score'].textContent = self.board.score
+        browser.document['highScore'].textContent = self.board.highScore
 
     def refreshButtons(self, tool=None):
         tools = self.board.toolStock if tool is None else {tool}
