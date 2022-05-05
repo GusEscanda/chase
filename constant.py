@@ -27,20 +27,20 @@ class TextChar:
     GUIDED_TELEPORT = '\u0398'
 
 class GraphShape:
-    HERO            = 'imgHero.png'
-    DEAD_HERO       = 'imgDeadHero.png'
-    FOE             = 'imgFoe.png'
-    FIRE            = 'imgFire.png'
-    SMALL_BOMB      = 'imgSmallBomb.png'
-    BIG_BOMB        = 'imgBigBomb.png'
-    SAFE_TELEPORT   = 'imgSafeTeleport.png'
-    GUIDED_TELEPORT = 'imgGuidedTeleport.png'
+    HERO            = 'assets/img/imgHero.png'
+    DEAD_HERO       = 'assets/img/imgDeadHero.png'
+    FOE             = 'assets/img/imgFoe.png'
+    FIRE            = 'assets/img/imgFire.png'
+    SMALL_BOMB      = 'assets/img/imgSmallBomb.png'
+    BIG_BOMB        = 'assets/img/imgBigBomb.png'
+    SAFE_TELEPORT   = 'assets/img/imgSafeTeleport.png'
+    GUIDED_TELEPORT = 'assets/img/imgGuidedTeleport.png'
 
 class SoundEffects:
-    FIRE        = 'sndFire.wav'
-    GET_TOOL    = 'sndTool.mp3'
-    LEVEL_UP    = 'sndLevel.mp3'
-    LOST        = 'sndLost.mp3'
+    FIRE        = 'assets/audio/sndFire.wav'
+    GET_TOOL    = 'assets/audio/sndTool.mp3'
+    LEVEL_UP    = 'assets/audio/sndLevel.mp3'
+    LOST        = 'assets/audio/sndLost.mp3'
 
 class Metrics:
     # metrics that will determine how difficult the game will be to play
