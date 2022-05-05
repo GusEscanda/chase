@@ -1,7 +1,6 @@
 import time
 import os
-#from turtle import width
-from constant import Tools
+from constant import SoundEffects, Tools, Anim
 
 try:
     import browser
@@ -20,6 +19,8 @@ class UI:
     nullFunction = lambda *args, **kwargs: None
 
     # override all or any of these functions depending on the type of interfase, text (standard os console) or graphic (via Brython)
+    resetAnim = nullFunction
+    nextStep = nullFunction
     draw = nullFunction
     translate = nullFunction
     delete = nullFunction
@@ -29,7 +30,10 @@ class UI:
     refreshRepeat = nullFunction
     refreshGuided = nullFunction
 
-    repeatDelay = nullFunction
+    sndFire = nullFunction
+    sndGetTool = nullFunction
+    sndLevelUp = nullFunction
+    sndLost = nullFunction
 
     askNewGame = nullFunction
 
@@ -38,9 +42,6 @@ class UI:
 
 class NoGui(UI):
     # when testing the game in text mode (no graphics available) use this class instead to manage the user interfase
-
-    def repeatDelay(self):
-        time.sleep(0.25)  # sleep 250ms
 
     def askNewGame(self):
         again = ' '
@@ -85,6 +86,8 @@ class GUI(UI):
         
         # self.svgRoot = browser.document["svg_root"] # deprecar si es posible...
         self.field = browser.document["field"]
+
+        self.animWhen = 0
         
         w = self.field.clientWidth
         h = self.field.clientHeight
@@ -108,6 +111,11 @@ class GUI(UI):
 #        self.svgRoot.height = self.height
 #        self.svgRoot.width  = self.width
         
+        browser.document <= html.AUDIO(id='sndFire', src=SoundEffects.FIRE)
+        browser.document <= html.AUDIO(id='sndGetTool', src=SoundEffects.GET_TOOL)
+        browser.document <= html.AUDIO(id='sndLevelUp', src=SoundEffects.LEVEL_UP)
+        browser.document <= html.AUDIO(id='sndLost', src=SoundEffects.LOST)
+
         self.mouseDownRow = None
         self.mouseDownCol = None 
         self.mouseUpRow = None
@@ -160,11 +168,38 @@ class GUI(UI):
         col = min( max(0,col), self.board.maxC - 1)
         return ( row, col )
 
-    def repeatDelay(self):
-        # todo: 
-        # Hacer esta funcion. No funcionó nada de lo que intenté desde Python.
-        # Por ahi hay que hacerla en javascript...
-        pass
+    def sndFire(self):
+        timer.set_timeout(browser.document['sndFire'].play, self.animWhen + Anim.STEP_TIME)
+
+    def sndGetTool(self):
+        timer.set_timeout(browser.document['sndGetTool'].play, self.animWhen)
+
+    def sndLevelUp(self):
+        timer.set_timeout(browser.document['sndLevelUp'].play, self.animWhen)
+
+    def sndLost(self):
+        timer.set_timeout(browser.document['sndLost'].play, self.animWhen + Anim.STEP_TIME)
+
+    def resetAnim(self):
+        self.animWhen = 0
+
+    def nextStep(self):
+        self.animWhen += Anim.STEP_TIME
+
+    def _draw(self, img):
+        print(f'_draw {img}')
+        self.field <= img
+
+    def _translate(self, id, x, y):
+        print(f'_translate, id={id} en x:{x}, y:{y}')
+        o = browser.document[id]
+        o.style['top'] = y
+        o.style['left'] = x
+
+    def _delete(self, id):
+        print(f'_delete, id={id}')
+        browser.document[id].remove()
+
 
     def draw(self, boardObj):
         print(f'draw {boardObj.char}, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
@@ -181,19 +216,17 @@ class GUI(UI):
                 'top': y, 
                 'left': x,
             }
-        )
-        self.field <= img
+        )        
+        timer.set_timeout(self._draw, self.animWhen + Anim.STEP_TIME, img)
 
     def translate(self, boardObj):
         print(f'translate, id={boardObj.id} en {boardObj.row}, {boardObj.col}')
-        cx, cy = self.rowcol2coords( boardObj.row, boardObj.col )
-        o = browser.document[boardObj.id]
-        o.style['top'] = cy
-        o.style['left'] = cx
+        x, y = self.rowcol2coords( boardObj.row, boardObj.col )
+        timer.set_timeout(self._translate, self.animWhen, boardObj.id, x, y)
 
     def delete(self, boardObj):
         print(f'delete, id={boardObj.id} en {boardObj.row}, {boardObj.col} type={type(boardObj)}')
-        browser.document[boardObj.id].remove()
+        timer.set_timeout(self._delete, self.animWhen + Anim.STEP_TIME, boardObj.id)
 
     def pointerStart(self, evt):
         print(f'{evt.type} {evt.target.id}')
