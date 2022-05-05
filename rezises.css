@@ -1,0 +1,12 @@
+/* ! 888px */
+@media (max-width: 888px) {
+    .info-item {
+        margin-right: 18px;
+    }
+}
+
+@media(max-width: 800px) {
+    .info-item {
+        margin-right: 10px;
+    }
+}

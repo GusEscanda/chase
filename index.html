@@ -1,44 +1,51 @@
 <! doctype html>
 <html>
-<meta charset="iso-8859-1">
 <head>
-<script type="text/javascript"
-    src="https://cdn.jsdelivr.net/npm/brython@3.10/brython.min.js">
-</script>
-<script type="text/javascript"
-    src="https://cdn.jsdelivr.net/npm/brython@3.10/brython_stdlib.js">
-</script>
-
-<script type="text/python" src="chase.py"></script>
-
+    <meta charset="iso-8859-1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css.css">
+    <link rel="stylesheet" href="rezises.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.10/brython.min.js">
+    </script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.10/brython_stdlib.js">
+    </script>
+    <script type="text/python" src="chase.py"></script>
 </head>
 <body onload="brython(1)">
     <div class="main-game">
-        <label for="level" class="scores">Level:</label>
-        <input type="text" id="level" class="scores" size=2 /> &nbsp;&nbsp;&nbsp;
-    
-        <label for="foeCount" class="scores">Foes left:</label>
-        <input type="text" id="foeCount" class="scores" size=2 /> &nbsp;&nbsp;&nbsp;
-    
-        <label for="score" class="scores" class="scores">Score:</label> 
-        <input type="text" id="score" class="scores" size=2 /> &nbsp;&nbsp;&nbsp;
-    
-        <label for="highScore" class="scores">High Score:</label> 
-        <input type="text" id="highScore" class="scores" size=2 /> &nbsp;&nbsp;&nbsp;
-        <input type="button" id='new' value="New Game" class="tool-buttons"/>
-    
-
+        <div class="info-wrapper">
+            <div class="info-wrapper__items">
+                <div class="info-item">
+                    <p for="level" class="scores">Level: </p>
+                    <span type="text" id="level" class="scores"></span>
+                </div>
+                <div class="info-item">
+                    <p for="foeCount" class="scores">Enemies: </p>
+                    <span type="text" id="foeCount" class="scores"></span>
+                </div>
+                <div class="info-item">
+                    <p for="score" class="scores" class="scores">Score: </p>
+                    <span type="text" id="score" class="scores"></span>
+                </div>
+                <div class="info-item">
+                    <p for="highScore" class="scores">High Score: </p>
+                    <span type="text" id="highScore" class="scores"></span>
+                </div>
+            </div>
+            <input type="button" id='new' value="New Game" title="New Game" class="tool-buttons tool-buttons--new-game"/>
+        </div>
         <div class="field-wrapper">
             <div id="field" class="field-class">
-                <svg id="svg_root" xmlns='http://www.w3.org/2000/svg'></svg>
+                <!-- <svg id="svg_root" xmlns='http://www.w3.org/2000/svg'></svg> -->
             </div>
             <div class="action-buttons-wrapper">
-                <input type="button" class="action-button" id='t' value="t" class="tool-buttons">
-                <input type="button" class="action-button" id='repeat' value="r" class="tool-buttons" >
-                <input type="button" class="action-button" id='s' value="s" class="tool-buttons">
-                <input type="button" class="action-button" id='&#920;' value="&#920;" class="tool-buttons">
-                <input type="button" class="action-button" id='v' value="v" class="tool-buttons">
-                <input type="button" class="action-button" id='b' value="b" class="tool-buttons">
+                <input type="button" class="action-button" title="Teleport" id='t' value="t" class="tool-buttons">
+                <input type="button" class="action-button" title="R" id='repeat' value="r" class="tool-buttons" >
+                <input type="button" class="action-button" title="Save Teleport" id='s' value="s" class="tool-buttons">
+                <input type="button" class="action-button" title="A" id='&#920;' value="&#920;" class="tool-buttons">
+                <input type="button" class="action-button" title="Small Bomb" id='v' value="v" class="tool-buttons">
+                <input type="button" class="action-button" title="Big Bomb" id='b' value="b" class="tool-buttons">
             </div>
         </div>
         <table style="text-align: center;">
@@ -61,83 +68,13 @@
     </div>
 </body>
 
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        color: #40aa3a;
-    }
+<script>
+    window.addEventListener("keydown", e => {
+        if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) {
+            e.preventDefault();
+        }
+    }, false);
+</script>
+<script src="js/app.js"></script>
 
-    #svg_root {
-        height: 100%;
-        width: 100%;
-    }
-
-    .field-wrapper {
-        display: flex;
-        height: 80%;
-    }
-
-    .field-class {
-        height: 100% !important;
-        width: 100% !important;
-        border: 2px solid #40aa3a;
-        margin-right: 8px;
-    }
-
-    .main-game {
-        max-width: 1100px;
-        margin: 0 auto;
-    }
-
-    .action-buttons-wrapper {
-        display: flex;
-        align-items: center;
-        flex-direction: column;
-    }
-
-    input[type=button] {
-        background-color: transparent !important;
-        border: 2px solid #40aa3a;
-        text-align: center;
-        padding: 4px 10px;
-        font-size: 30px;
-        cursor: pointer;
-        margin: 0;
-        margin-bottom: 10px;
-    }
-
-    .action-button {
-        max-width: 64px;
-        width: 100%;
-    }
-
-    body {
-        background-color: #1a1a1a;
-        font-family: 'Roboto Mono', monospace;
-    }
-
-    .scores {
-        font-size: 30px;
-    }
-
-    #field {
-        position: relative;
-    }
-
-    .board-object {
-        position: absolute;
-        transition: all 0.1s ease-in-out;
-    }
-
-    .tool-buttons {
-        font-size: 40px;
-    }
-
-    .arrow-buttons {
-        font-size: 40px;
-    }
-</style>
 </html>
