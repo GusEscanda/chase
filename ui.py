@@ -1,5 +1,6 @@
 import time
 import os
+import math
 from constant import SoundEffects, Tools, Anim
 
 try:
@@ -259,8 +260,19 @@ class GUI(UI):
         print(f'last timestamp: {self.lastPointerMoveTimeStamp}, current: {evt.timeStamp}, dif: {evt.timeStamp - self.lastPointerMoveTimeStamp}')
         if evt.type == 'touchmove':
             evt.preventDefault()
-        
+
         dc = self.mouseUpCol - self.mouseDownCol
+        dr = self.mouseUpRow - self.mouseDownRow
+        length = math.sqrt(dc*dc+dr*dr)
+        print(f'dc: {dc}, dr: {dr}, length: {length}')
+        if length < GUI.SMALL_MOVE:
+            deltaC, deltaR = 0, 0
+        else:
+            angle = math.asin(dr/length) if dc > 0 else math.pi - math.asin(dr/length)
+            angle = angle + 2*math.pi if angle < 0 else angle
+            cuadrant = round((angle / math.pi) * 4) / 4
+            print(f'Angle: {angle/math.pi}*pi, cuadrant: {cuadrant}')
+            
         if abs( dc ) <= GUI.SMALL_MOVE:
             deltaC = 0
         elif dc > 0:
@@ -268,7 +280,6 @@ class GUI(UI):
         else:
             deltaC = -1
 
-        dr = self.mouseUpRow - self.mouseDownRow
         if abs( dr ) <= GUI.SMALL_MOVE:
             deltaR = 0
         elif dr > 0:
