@@ -78,7 +78,7 @@ class GUI(UI):
     # class to manage all the Graphical User Interfase based on Brython and the browser objects
 
     SMALL_MOVE = 1
-    BIG_MOVE = 15
+    BIG_MOVE = 10
     FAST_MOVE = 250  # milliseconds between clicks in a double click
 
     def __init__(self, board):
@@ -90,37 +90,29 @@ class GUI(UI):
 
         self.animWhen = 0
         
-        w = self.field.clientWidth
-        h = self.field.clientHeight
-        print(f'w:{w}, h:{h}')
-        self.cellSize = w // (self.board.maxC+1)
-        print('cell size:', self.cellSize)
-        self.relativeTop  = self.cellSize // 4
-        self.relativeLeft = self.cellSize // 4
+        self.width = self.field.clientWidth
+        self.height = self.field.clientHeight
+        print(f'w:{self.width}, h:{self.height}')
+        self.cellWidth = self.width / self.board.maxC
+        self.cellHeight = self.height / self.board.maxR
+        print('cell width, height:', self.cellWidth, self.cellHeight)
+        self.relativeTop  = 0
+        self.relativeLeft = 0
         self.absoluteTop  = self.field.abs_top  + self.relativeTop
         self.absoluteLeft = self.field.abs_left + self.relativeLeft
 
-        # print('svg_root abs top left', self.svgRoot.abs_top, self.svgRoot.abs_left)
-        # print('rel top left', self.relativeTop, self.relativeLeft)
-        # print('abs top left', self.absoluteTop, self.absoluteLeft)
-
-        self.height = self.board.maxR * self.cellSize + self.cellSize // 2
-        self.width = self.board.maxC * self.cellSize + self.cellSize // 2
-        self.field.height = self.height
-        self.field.width  = self.width
-        print(f'field height:{self.height}, width:{self.width}')
-#        self.svgRoot.height = self.height
-#        self.svgRoot.width  = self.width
+        print('rel top left', self.relativeTop, self.relativeLeft)
+        print('abs top left', self.absoluteTop, self.absoluteLeft)
         
         browser.document <= html.AUDIO(id='sndFire', src=SoundEffects.FIRE)
         browser.document <= html.AUDIO(id='sndGetTool', src=SoundEffects.GET_TOOL)
         browser.document <= html.AUDIO(id='sndLevelUp', src=SoundEffects.LEVEL_UP)
         browser.document <= html.AUDIO(id='sndLost', src=SoundEffects.LOST)
 
-        self.mouseDownRow = None
-        self.mouseDownCol = None 
-        self.mouseUpRow = None
-        self.mouseUpCol = None
+        self.mouseDownX = None
+        self.mouseDownY = None 
+        self.mouseUpX = None
+        self.mouseUpY = None
         self.lastPointerMoveTimeStamp = 0
 
         self.field.bind("mousedown", self.pointerStart)
@@ -158,13 +150,13 @@ class GUI(UI):
     def rowcol2coords(self, row, col, relative=True):
         top  = self.relativeTop  if relative else self.absoluteTop
         left = self.relativeLeft if relative else self.absoluteLeft
-        return ( left + col * self.cellSize, top + row * self.cellSize )
+        return ( int(left + col * self.cellWidth), int(top + row * self.cellHeight) )
 
     def coords2rowcol(self, x, y, relative=False):
         top  = self.relativeTop  if relative else self.absoluteTop
         left = self.relativeLeft if relative else self.absoluteLeft
-        row = round((y - top - self.cellSize/2) / self.cellSize)
-        col = round((x - left - self.cellSize/2) / self.cellSize)
+        row = round((y - top - self.cellHeight/2) / self.cellHeight)
+        col = round((x - left - self.cellWidth/2) / self.cellWidth)
         row = min( max(0,row), self.board.maxR - 1)
         col = min( max(0,col), self.board.maxC - 1)
         return ( row, col )
@@ -212,8 +204,8 @@ class GUI(UI):
             alt = boardObj.char,
             Class = 'board-object', 
             style = {
-                'height': self.cellSize,
-                'width': self.cellSize,
+                'height': int(self.cellHeight),
+                'width': int(self.cellWidth),
                 'top': y, 
                 'left': x,
             }
@@ -238,11 +230,11 @@ class GUI(UI):
             if len(evt.touches) == 1:
                 x, y = evt.touches[0].pageX, evt.touches[0].pageY
             else:
-                self.mouseDownRow, self.mouseDownCol = None, None  # cancel move
+                self.mouseDownX, self.mouseDownY = None, None  # cancel move
                 return
-        print(f'     x: {x}, y: {y}, cellSize: {self.cellSize}, coords: {self.coords2rowcol(x, y)}')
-        self.mouseDownRow, self.mouseDownCol = self.coords2rowcol(x, y)
-        self.mouseUpRow, self.mouseUpCol = self.mouseDownRow, self.mouseDownCol  # if there is no movement the ponterMove will not be fired...
+        print(f'     x: {x}, y: {y}, coords: {self.coords2rowcol(x, y)}')
+        self.mouseDownX, self.mouseDownY = x, y
+        self.mouseUpX, self.mouseUpY = x, y  # if there is no movement the ponterMove will not be fired...
         
     def pointerMove(self, evt):
         # print(f'{evt.type} {evt.target.id}')
@@ -253,50 +245,40 @@ class GUI(UI):
             if len(evt.touches) == 1:
                 x, y = evt.touches[0].pageX, evt.touches[0].pageY
             else:
-                self.mouseUpRow, self.mouseUpCol = None, None  # cancel move
+                self.mouseUpX, self.mouseUpY = None, None  # cancel move
                 return
-        # print(f'     x: {x}, y: {y}, cellSize: {self.cellSize}, coords: {self.coords2rowcol(x, y)}')
-        self.mouseUpRow, self.mouseUpCol = self.coords2rowcol(x, y)
+        # print(f'     x: {x}, y: {y}, coords: {self.coords2rowcol(x, y)}')
+        self.mouseUpX, self.mouseUpY = x, y
 
     def pointerEnd(self, evt):
         print(f'{evt.type} {evt.target.id}')
-        print(f'    {self.mouseDownRow}, {self.mouseDownCol} -> {self.mouseUpRow}, {self.mouseUpCol}')
+        print(f'    {self.mouseDownX}, {self.mouseDownY} -> {self.mouseUpX}, {self.mouseUpY}')
         print(f'last timestamp: {self.lastPointerMoveTimeStamp}, current: {evt.timeStamp}, dif: {evt.timeStamp - self.lastPointerMoveTimeStamp}')
         if evt.type == 'touchmove':
             evt.preventDefault()
 
-        dc = self.mouseUpCol - self.mouseDownCol
-        dr = self.mouseUpRow - self.mouseDownRow
-        length = math.sqrt(dc*dc+dr*dr)
-        print(f'dc: {dc}, dr: {dr}, length: {length}')
-        if length < GUI.SMALL_MOVE:
+        deltaX = self.mouseUpX - self.mouseDownX
+        deltaY = self.mouseUpY - self.mouseDownY
+        length = math.sqrt( deltaX**2 + deltaY**2 )
+        print(f'deltaX: {deltaX}, deltaY: {deltaY}, length: {length}')
+        if (length/self.cellWidth) < GUI.SMALL_MOVE:
             deltaC, deltaR = 0, 0
         else:
-            angle = math.asin(dr/length) if dc > 0 else math.pi - math.asin(dr/length)
+            angle = math.asin(deltaY/length) if deltaX > 0 else math.pi - math.asin(deltaY/length)
             angle = angle + 2*math.pi if angle < 0 else angle
-            cuadrant = round((angle / math.pi) * 4) / 4
-            print(f'Angle: {angle/math.pi}*pi, cuadrant: {cuadrant}')
-            
-        if abs( dc ) <= GUI.SMALL_MOVE:
-            deltaC = 0
-        elif dc > 0:
-            deltaC = 1
-        else:
-            deltaC = -1
-
-        if abs( dr ) <= GUI.SMALL_MOVE:
-            deltaR = 0
-        elif dr > 0:
-            deltaR = 1
-        else:
-            deltaR = -1
+            cuadrant = ( round((angle / math.pi) * 4) / 4 ) * math.pi
+            print(f'Angle: {angle/math.pi}*pi, cuadrant: {cuadrant/math.pi}*pi')
+            print(f'sin(cuadrant): {math.sin(cuadrant)}, cos(cuadrant): {math.cos(cuadrant)}')
+            sign = lambda x: 0 if x == 0 else ( 1 if x > 0 else -1 )
+            deltaR = sign(round(math.sin(cuadrant),3))
+            deltaC = sign(round(math.cos(cuadrant),3))
 
         if self.board.guided:
             if deltaR == 0 and deltaC == 0:
-                self.board.teleport(guided=True, coords=(self.mouseUpRow, self.mouseUpCol))
+                self.board.teleport(guided=True, coords=self.coords2rowcol(self.mouseUpX, self.mouseUpY))
         else:
             self.board.repeat = self.board.repeat or (evt.timeStamp - self.lastPointerMoveTimeStamp < GUI.FAST_MOVE)
-            self.board.repeat = self.board.repeat or (dc**2 + dr**2 > GUI.BIG_MOVE**2)
+            self.board.repeat = self.board.repeat or ((length/self.cellWidth) > GUI.BIG_MOVE)
             self.board.move(deltaR,deltaC)
             self.lastPointerMoveTimeStamp = evt.timeStamp
 
