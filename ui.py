@@ -90,11 +90,12 @@ class GUI(UI):
 
         self.animWhen = 0
         
-        self.width = self.field.clientWidth
-        self.height = self.field.clientHeight
+        self.width =  self.field.offsetWidth
+        self.height =  self.field.offsetHeight
         print(f'w:{self.width}, h:{self.height}')
         self.cellWidth = self.width / self.board.maxC
         self.cellHeight = self.height / self.board.maxR
+        print('HOLA!! ', self.width, self.board.maxC, self.board.maxR)
         print('cell width, height:', self.cellWidth, self.cellHeight)
         self.relativeTop  = 0
         self.relativeLeft = 0
