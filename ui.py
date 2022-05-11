@@ -78,7 +78,7 @@ class GUI(UI):
     # class to manage all the Graphical User Interfase based on Brython and the browser objects
 
     SMALL_MOVE = 1
-    BIG_MOVE = 10
+    BIG_MOVE = 15
     FAST_MOVE = 250  # milliseconds between clicks in a double click
 
     def __init__(self, board):
