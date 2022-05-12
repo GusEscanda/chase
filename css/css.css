@@ -1,112 +1,329 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
 
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    color: #40aa3a;
-}
-
-.main-game {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-#svg_root {
-    height: 100%;
-    width: 100%;
-}
-
-.info-wrapper {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
-
-.info-wrapper__items {
-    display: flex;
-    align-items: center;
-}
-
-.info-item {
-    display: flex;
-    align-items: center;
-    margin-right: 40px;
-    line-height: 28px;
-}
-
-.info-item p {
-    font-size: 22px;
-    margin-right: 6px;
-}
-
-.field-wrapper {
-    display: flex;
-    height: 80%;
-}
-
-.separation-wrapper {
-    height: 100%;
-    width: 100%;
-    border: 2px solid #40aa3a;
-    margin-right: 8px;
-    padding: 12px;
-}
-
-.field-class {
-    height: 100%;
-    width: 100%;
-}
-
-.action-buttons-wrapper {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-}
-
-input[type=button] {
-    background-color: transparent !important;
-    border: 2px solid #40aa3a;
-    text-align: center;
-    padding: 4px 10px;
-    font-size: 30px;
-    cursor: pointer;
-    margin: 0;
-    margin-bottom: 10px;
-}
-
-.tool-buttons--new-game {
-    margin: 0 !important;
-}
-
-.action-button {
-    width: 72px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: #40aa3a;
 }
 
 body {
-    background-color: #1a1a1a;
-    font-family: 'Roboto Mono', monospace;
+  background-color: #1a1a1a;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.game-title {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100%;
+  background-color: #1a1a1a;
+  font-size: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 1s ease-in-out;
+  padding: 20px;
+}
+
+.game-title__title {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.game-title__title h2::after {
+  content: '_';
+	opacity: 0;
+	animation: cursor-animation 1s infinite;
+}
+
+.game-title__press-to-enter {
+  font-size: 36px;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 1s ease-in-out;
+}
+
+.game-title__press-to-enter--active {
+  opacity: 1;
+  pointer-events: all;
+  animation: press-to-enter-animation 1s infinite linear;
+}
+
+@keyframes press-to-enter-animation {
+  0% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes cursor-animation {
+	0% {
+		opacity: 0;
+	}
+	40% {
+		opacity: 0;
+	}
+	50% {
+		opacity: 1;
+	}
+	90% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+.game-title--active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.instructions {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #1a1a1a;
+  height: 100vh;
+  width: 100%;
+  padding: 20px;
+  display: none;
+  overflow: auto;
+}
+
+.instructions--active {
+  display: block;
+}
+
+.instructions__game {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.instructions h2 {
+  font-size: 40px;
+  margin-bottom: 20px;
+}
+
+.instructions h4 {
+  font-size: 30px;
+  margin-bottom: 20px;
+}
+
+.instructions__commands-wrapper {
+  font-size: 20px;
+  max-width: 680px;
+}
+
+.instructions__instrictions-item {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.instructions__instriction-command {
+  height: 100%;
+  min-width: 50px;
+  font-size: 24px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #40aa3a;
+  padding: 10px;
+}
+
+.instructions__key-section-title {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.instructions__powers {
+  margin-bottom: 80px;
+}
+
+.close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  border: none;
+  padding: 0;
+}
+
+.main-game {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+#svg_root {
+  height: 100%;
+  width: 100%;
+}
+
+.info-wrapper {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.info-wrapper__items {
+  display: flex;
+  align-items: center;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  margin-right: 40px;
+  line-height: 28px;
+}
+
+.info-item p {
+  font-size: 22px;
+  margin-right: 6px;
+}
+
+.field-wrapper {
+  display: flex;
+  height: 80%;
+}
+
+.separation-wrapper {
+  height: 100%;
+  width: 100%;
+  border: 2px solid #40aa3a;
+  margin-right: 8px;
+  padding: 12px;
+}
+
+.field-class {
+  height: 100%;
+  width: 100%;
+}
+
+.action-buttons-wrapper {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+button {
+  background-color: transparent !important;
+  border: 2px solid #40aa3a;
+  text-align: center;
+  padding: 4px 10px;
+  font-size: 30px;
+  cursor: pointer;
+  margin: 0;
+  margin-bottom: 10px;
+}
+
+.action-button {
+  position: relative;
+  object-fit: contain;
+  width: 72px;
+}
+
+.action-button:hover > .button-tooltip {
+  opacity: 1;
+  pointer-events: all;
+  left: -116%;
+}
+
+.action-button img {
+  width: 100%;
+  height: 48px;
+  margin-bottom: 8px;
+}
+
+.button-tooltip {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  font-size: 18px;
+  background-color: #40aa3a;
+  font-weight: 600;
+  padding: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.button-tooltip p {
+  color: #1a1a1a;
+}
+
+.count-indicator {
+  width: 100%;
+  height: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.count-indicator--infinite {
+  height: 4px;
+  background-color: #40aa3a;
+  border-radius: 10px;
+}
+
+.count-indicator__circle {
+  border: 1px solid #40aa3a;
+  height: 100%;
+  width: 8px;
+  margin-right: 1px;
+  border-radius: 50%;
+}
+
+.count-indicator__circle--active {
+  border: none;
+  background-color: #40aa3a;
+}
+
+.count-indicator__circle:last-of-type {
+  margin: 0;
 }
 
 .scores {
-    font-size: 32px;
+  font-size: 32px;
 }
 
 #field {
-    position: relative;
+  position: relative;
 }
 
 .board-object {
-    position: absolute;
-    transition: all 0.1s ease-in-out;
+  position: absolute;
+  transition: all 0.1s ease-in-out;
 }
 
 .tool-buttons {
-    font-size: 40px;
+  font-size: 40px;
+}
+
+.tool-buttons--new-game {
+  font-size: 24px;
+  margin: 0 !important;
 }
 
 .arrow-buttons {
-    font-size: 40px;
+  font-size: 40px;
 }

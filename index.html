@@ -1,56 +1,110 @@
 <! doctype html>
 <html>
 <head>
-    <meta charset="iso-8859-1">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/css.css">
-    <link rel="stylesheet" href="css/rezises.css">
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.10/brython.min.js">
-    </script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.10/brython_stdlib.js">
-    </script>
-    <script type="text/python" src="chase.py"></script>
+  <meta charset="iso-8859-1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/css.css">
+  <link rel="stylesheet" href="css/rezises.css">
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.10/brython.min.js">
+  </script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.10/brython_stdlib.js">
+  </script>
+  <script type="text/python" src="chase.py"></script>
 </head>
 <body onload="brython(1)">
-    <div class="main-game">
-        <div class="info-wrapper">
-            <div class="info-wrapper__items">
-                <div class="info-item">
-                    <p for="level" class="scores">Level: </p>
-                    <span type="text" id="level" class="scores"></span>
-                </div>
-                <div class="info-item">
-                    <p for="foeCount" class="scores">Enemies: </p>
-                    <span type="text" id="foeCount" class="scores"></span>
-                </div>
-                <div class="info-item">
-                    <p for="score" class="scores" class="scores">Score: </p>
-                    <span type="text" id="score" class="scores"></span>
-                </div>
-                <div class="info-item">
-                    <p for="highScore" class="scores">High Score: </p>
-                    <span type="text" id="highScore" class="scores"></span>
-                </div>
-            </div>
-            <input type="button" id='new' value="New Game" title="New Game" class="tool-buttons tool-buttons--new-game"/>
+  <div class="main-game">
+    <div class="info-wrapper">
+      <div class="info-wrapper__items">
+        <div class="info-item">
+          <p for="level" class="scores">Level: </p>
+          <span type="text" id="level" class="scores"></span>
         </div>
-        <div class="field-wrapper">
-            <div class="separation-wrapper">
-                <div id="field" class="field-class">
-                    <!-- ! <svg id="svg_root" xmlns='http://www.w3.org/2000/svg'></svg> -->
-                </div>
-            </div>
-            <div class="action-buttons-wrapper">
-                <input type="button" class="action-button" title="Teleport" id='t' value="t" class="tool-buttons">
-                <input type="button" class="action-button" title="R" id='repeat' value="r" class="tool-buttons" >
-                <input type="button" class="action-button" title="Save Teleport" id='s' value="s" class="tool-buttons">
-                <input type="button" class="action-button" title="A" id='&#920;' value="&#920;" class="tool-buttons">
-                <input type="button" class="action-button" title="Small Bomb" id='v' value="v" class="tool-buttons">
-                <input type="button" class="action-button" title="Big Bomb" id='b' value="b" class="tool-buttons">
-            </div>
+        <div class="info-item">
+          <p for="foeCount" class="scores">Enemies: </p>
+          <span type="text" id="foeCount" class="scores"></span>
         </div>
-        <table style="text-align: center;">
+        <div class="info-item">
+          <p for="score" class="scores" class="scores">Score: </p>
+          <span type="text" id="score" class="scores"></span>
+        </div>
+        <div class="info-item">
+          <p for="highScore" class="scores">High Score: </p>
+          <span type="text" id="highScore" class="scores"></span>
+        </div>
+      </div>
+      <div class="buttons-wrapper">
+        <button onclick="openInstructions()" title="Instructions" class="tool-buttons tool-buttons--new-game">Instructions</button>
+        <button id='new' title="New Game" class="tool-buttons tool-buttons--new-game">New Game</button>
+      </div>
+    </div>
+    <div class="field-wrapper">
+      <div class="separation-wrapper">
+        <div id="field" class="field-class"></div>
+      </div>
+      <div class="action-buttons-wrapper">
+        <button class="action-button" title="Teleport" id='t'>
+          <img src="./assets/img//teleport-button.svg" alt="Teleport">
+          <div class="count-indicator count-indicator--infinite"></div>
+          <div id="tTooltip" class="button-tooltip">
+            <p>Or press "t"</p>
+          </div>
+        </button>
+        <button class="action-button" title="Safe Teleport" id='s'>
+          <img src="./assets/img/safe-teleport-button.svg" alt="Safe Teleport">
+          <div class="count-indicator">
+            <div id="sCircle1" class="count-indicator__circle"></div>
+            <div id="sCircle2" class="count-indicator__circle"></div>
+            <div id="sCircle3" class="count-indicator__circle"></div>
+            <div id="sCircle4" class="count-indicator__circle"></div>
+            <div id="sCircle5" class="count-indicator__circle"></div>
+          </div>
+          <div id="sTooltip" class="button-tooltip">
+            <p>Or press "s"</p>
+          </div>
+        </button>
+        <button class="action-button action-button--teleport" title="Guided Teleport" id='&#920;'>
+          <img src="./assets/img/guided-teleport-button.svg" alt="Guided Teleport">
+          <div class="count-indicator">
+            <div id="gCircle1" class="count-indicator__circle"></div>
+            <div id="gCircle2" class="count-indicator__circle"></div>
+            <div id="gCircle3" class="count-indicator__circle"></div>
+            <div id="gCircle4" class="count-indicator__circle"></div>
+            <div id="gCircle5" class="count-indicator__circle"></div>
+          </div>
+          <div id="gTooltip" class="button-tooltip">
+            <p>Or press "g"</p>
+          </div>
+        </button>
+        <button class="action-button" title="Small Bomb" id='v'>
+          <img src="./assets/img/small-bomb-button.svg" alt="Small Bomb">
+          <div class="count-indicator">
+            <div id="vCircle1" class="count-indicator__circle"></div>
+            <div id="vCircle2" class="count-indicator__circle"></div>
+            <div id="vCircle3" class="count-indicator__circle"></div>
+            <div id="vCircle4" class="count-indicator__circle"></div>
+            <div id="vCircle5" class="count-indicator__circle"></div>
+          </div>
+          <div id="vTooltip" class="button-tooltip">
+            <p>Or press "v"</p>
+          </div>
+        </button>
+        <button class="action-button" title="Big Bomb" id='b'>
+          <img src="./assets/img/big-bomb-button.svg" alt="Big Bomb">
+          <div class="count-indicator">
+            <div id="bCircle1" class="count-indicator__circle"></div>
+            <div id="bCircle2" class="count-indicator__circle"></div>
+            <div id="bCircle3" class="count-indicator__circle"></div>
+            <div id="bCircle4" class="count-indicator__circle"></div>
+            <div id="bCircle5" class="count-indicator__circle"></div>
+          </div>
+          <div id="bTooltip" class="button-tooltip">
+            <p>Or press "b"</p>
+          </div>
+        </button>
+      </div>
+    </div>
+    <table style="text-align: center; display: none;">
             <tr>
                 <td><input type="button" id='moveNW' class="arrow-buttons" value = "&nwarr; " /></td>
                 <td><input type="button" id='moveN' class="arrow-buttons" value = " &uarr; " /></td>
@@ -66,17 +120,107 @@
                 <td><input type="button" id='moveS' class="arrow-buttons" value = " &darr; " /></td>
                 <td><input type="button" id='moveSE' class="arrow-buttons" value = " &searr;" /></td>
             </tr>
-        </table>
+    </table>
+  </div>
+
+  <div id="gameTitleScreen" class="game-title game-title--active">
+    <div class="game-title__info">
+      <div class="game-title__title">
+        <h2>CHASE</h2>
+      </div>
+      <p id="pressToEnter" class="game-title__press-to-enter">Press any key to enter</p>
     </div>
+  </div>
+
+  <!-- ! Instructions -->
+  <div id="instructions" class="instructions">
+    <button class="close-button" onclick="closeInstructions()">
+      X
+    </button>
+    <div class="instructions__info">
+      <!-- ! Instructions -->
+      <h2>Instructions</h2>
+      <div class="instructions__game">
+        <p>The enemies will alawys try to reah you.</p>
+        <p>Move around the field to avoid them and make them kill themselves.</p>
+      </div>
+      <!-- ! Commands -->
+      <h4>Commands</h4>
+      <div class="instructions__commands-wrapper">
+        <!-- ! Powers -->
+        <div class="instructions__powers">
+          <h5 class="instructions__key-section-title">Powers</h5>
+          <div class="instructions__instrictions-item">
+            <p>Teleport to a random location:</p>
+            <div class="instructions__instriction-command">
+              <span>t</span>
+            </div>
+          </div>
+          <div class="instructions__instrictions-item">
+            <p>Teleport to a safe location:</p>
+            <div class="instructions__instriction-command">
+              <span>s</span>
+            </div>
+          </div>
+          <div class="instructions__instrictions-item">
+            <p>Guided teleport:</p>
+            <div class="instructions__instriction-command">
+              <span>g</span>
+            </div>
+          </div>
+          <div class="instructions__instrictions-item">
+            <p>Small bomb:</p>
+            <div class="instructions__instriction-command">
+              <span>v</span>
+            </div>
+          </div>
+          <div class="instructions__instrictions-item">
+            <p>Big bomb:</p>
+            <div class="instructions__instriction-command">
+              <span>b</span>
+            </div>
+          </div>
+        </div>
+        <!-- ! Movements -->
+        <div class="instructions__movements">
+          <h5 class="instructions__key-section-title">Movements</h5>
+          <div class="instructions__instrictions-item">
+            <p>Combine arrows to move diagonaly</p>
+          </div>
+          <div class="instructions__instrictions-item">
+            <p>Move up:</p>
+            <div class="instructions__instriction-command">
+              <span>↑</span>
+            </div>
+          </div>
+          <div class="instructions__instrictions-item">
+            <p>Move down:</p>
+            <div class="instructions__instriction-command">
+              <span>↓</span>
+            </div>
+          </div>
+          <div class="instructions__instrictions-item">
+            <p>Move right:</p>
+            <div class="instructions__instriction-command">
+              <span>→</span>
+            </div>
+          </div>
+          <div class="instructions__instrictions-item">
+            <p>Move left:</p>
+            <div class="instructions__instriction-command">
+              <span>←</span>
+            </div>
+          </div>
+          <div class="instructions__instrictions-item">
+            <p>Move stright all you can:</p>
+            <div class="instructions__instriction-command">
+              <span>shift + arrow</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
-
-<script>
-    window.addEventListener("keydown", e => {
-        if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) {
-            e.preventDefault();
-        }
-    }, false);
-</script>
 <script src="js/app.js"></script>
-
 </html>
