@@ -69,7 +69,7 @@ class NoGui(UI):
         print()
         for t in board.toolStock:
             print( t + ' ' + str(board.toolStock[t] if board.toolStock[t] >= 0 else ''), end='   ' )
-        print( '   ', '[r]' if board.repeat else ' r ', end='   ' )
+        # print( '   ', '[r]' if board.repeat else ' r ', end='   ' )
         print()
         print()
 
@@ -129,7 +129,7 @@ class GUI(UI):
         self.keydownArrows = {'ArrowUp':False, 'ArrowDown':False, 'ArrowLeft':False, 'ArrowRight':False}
 
         browser.document[Tools.TELEPORT].bind( 'click', lambda evt: self.board.teleport() )
-        browser.document['repeat'].bind( 'click', lambda evt: self.board.setRepeat('toggle') )
+        # browser.document['repeat'].bind( 'click', lambda evt: self.board.setRepeat('toggle') )
 
         browser.document[Tools.SAFE_TELEPORT].bind( 'click', lambda evt: self.board.teleport(safe=True) )
         browser.document[Tools.GUIDED_TELEPORT].bind( 'click', lambda evt: self.board.setGuided('toggle') )
@@ -352,11 +352,11 @@ class GUI(UI):
             if self.board.toolStock[t] >= 0:
                 browser.document[t].value = t + ' ' + str(self.board.toolStock[t] if self.board.toolStock[t] != 0 else '-')
 
-    def refreshRepeat(self, value):
-        if value:
-            browser.document['repeat'].style['background-color'] = 'aqua'
-        else:
-            browser.document['repeat'].style['background-color'] = 'whitesmoke'
+    # def refreshRepeat(self, value):
+    #     if value:
+            # browser.document['repeat'].style['background-color'] = 'aqua'
+        # else:
+            # browser.document['repeat'].style['background-color'] = 'whitesmoke'
 
     def refreshGuided(self, value):
         if value:
