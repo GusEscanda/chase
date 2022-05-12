@@ -1,12 +1,35 @@
-/* ! 888px */
-@media (max-width: 888px) {
-  .info-item {
-    margin-right: 18px;
+/* ! 1000 */
+@media(max-width: 1000px) {
+  .game-title h2 {
+    font-size: 180px;
   }
 }
 
+/* ! 888px */
 @media(max-width: 800px) {
   .info-item {
     margin-right: 10px;
+  }
+}
+
+/* ! 680 */
+@media(max-width: 680px) {
+  .game-title h2 {
+    font-size: 100px;
+  }
+
+  .game-title__press-to-enter {
+    font-size: 24px;
+  }
+}
+
+/* ! 400 */
+@media(max-width: 400px) {
+  .game-title h2 {
+    font-size: 60px;
+  }
+
+  .game-title__press-to-enter {
+    font-size: 18px;
   }
 }

@@ -3,6 +3,7 @@ const field = document.getElementById('field');
 const instructions = document.getElementById('instructions');
 const pressToEnter = document.getElementById('pressToEnter');
 const gameTitleScreen = document.getElementById('gameTitleScreen');
+const newGameButton = document.getElementById('new');
 const fieldWidth = field.offsetWidth;
 
 loadDimensions = () => {
@@ -12,17 +13,19 @@ loadDimensions = () => {
   console.log('Relación: ', fieldWidth * 22 / 26);
 }
 
-loadChaseScreen = () => {
-  console.log('loadChaseScreen');
-  window.addEventListener('keydown', e => {
-    removeGameTitleScreen();
-  });
-  window.addEventListener('click', e => {
-    removeGameTitleScreen();
-  });
-  setTimeout(() => {
-    pressToEnter.classList.add('game-title__press-to-enter--active');
-  }, 3000);
+loadChaseScreenInteraction = () => {
+  if (gameTitleScreen.classList.contains('game-title--active')) {
+    console.log('loadChaseScreenInteraction');
+    window.addEventListener('keydown', e => {
+      removeGameTitleScreen();
+    });
+    window.addEventListener('click', e => {
+      removeGameTitleScreen();
+    });
+    setTimeout(() => {
+      pressToEnter.classList.add('game-title__press-to-enter--active');
+    }, 3000);
+  }
 }
 
 removeGameTitleScreen = () => {
@@ -43,15 +46,19 @@ retainScroll = () => {
 }
 
 openInstructions = () => {
-  instructions.classList.add('instructions--active');
+  if (!instructions.classList.contains('instructions--active')) {
+    instructions.classList.add('instructions--active');
+  }
 }
 
 closeInstructions = () => {
-  instructions.classList.remove('instructions--active');
+  if (instructions.classList.contains('instructions--active')) {
+    instructions.classList.remove('instructions--active');
+  }
 }
 
 // console.log('------------------------------------------------>');
 loadDimensions();
-loadChaseScreen();
+loadChaseScreenInteraction();
 retainScroll();
 // console.log('------------------------------------------------>');

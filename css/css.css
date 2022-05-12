@@ -327,3 +327,7 @@ button {
 .arrow-buttons {
   font-size: 40px;
 }
+
+.separation-wrapper--guided-teleport-cursor {
+  cursor: url(../assets/img/guided-teleport-button.svg), auto;
+}
