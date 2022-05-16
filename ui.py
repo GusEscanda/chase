@@ -1,7 +1,7 @@
 import time
 import os
 import math
-from constant import SoundEffects, Tools, Anim
+from constant import CSSClass, HTMLElmnt, Metrics, SoundEffects, Tools, Anim
 
 try:
     import browser
@@ -12,8 +12,6 @@ except:
     # Brython isn't available so use standard python text based interfase
     import os
     BROWSER = False
-
-
 
 class UI:
 
@@ -82,11 +80,10 @@ class GUI(UI):
     FAST_MOVE = 250  # milliseconds between clicks in a double click
 
     def __init__(self, board):
-        
+
         self.board = board
-        
-        # self.svgRoot = browser.document["svg_root"] # deprecar si es posible...
-        self.field = browser.document["field"]
+
+        self.field = browser.document[HTMLElmnt.BATTLE_FIELD]
 
         self.animWhen = 0
         
@@ -116,38 +113,61 @@ class GUI(UI):
         self.mouseUpY = None
         self.lastPointerMoveTimeStamp = 0
 
-        self.field.bind("mousedown", self.pointerStart)
-        self.field.bind("mousemove", self.pointerMove)
-        self.field.bind("mouseup", self.pointerEnd)
-
-        self.field.bind('touchstart', self.pointerStart)
-        self.field.bind('touchmove', self.pointerMove)
-        self.field.bind('touchend', self.pointerEnd)
-
-        window.bind('keydown', self.keyPressed)
-        window.bind('keyup', self.keyPressed)
         self.keydownArrows = {'ArrowUp':False, 'ArrowDown':False, 'ArrowLeft':False, 'ArrowRight':False}
 
-        browser.document[Tools.TELEPORT].bind( 'click', lambda evt: self.board.teleport() )
-        # browser.document['repeat'].bind( 'click', lambda evt: self.board.setRepeat('toggle') )
+        self.bindsTitleScreen(bind=True)
 
-        browser.document[Tools.SAFE_TELEPORT].bind( 'click', lambda evt: self.board.teleport(safe=True) )
-        browser.document[Tools.GUIDED_TELEPORT].bind( 'click', lambda evt: self.board.setGuided('toggle') )
-        browser.document[Tools.SMALL_BOMB].bind( 'click', lambda evt: self.board.bomb(big=False) )
-        browser.document[Tools.BIG_BOMB].bind( 'click', lambda evt: self.board.bomb(big=True) )
+    def bindsTitleScreen(self, bind):
+        if bind:
+            window.bind("mouseup", self.removeTitleAndStart)
+            window.bind('touchend', self.removeTitleAndStart)
+            window.bind('keyup', self.removeTitleAndStart)
+        else:
+            window.removeEventListener("mouseup", self.removeTitleAndStart)
+            window.removeEventListener('touchend', self.removeTitleAndStart)
+            window.removeEventListener('keyup', self.removeTitleAndStart)
 
-        browser.document['new'].bind( 'click', lambda evt: self.board.newGame() )
 
-        browser.document['moveNW'].bind( 'click', lambda evt: self.board.move(-1,-1) )
-        browser.document['moveN'].bind( 'click', lambda evt: self.board.move(-1, 0) )
-        browser.document['moveNE'].bind( 'click', lambda evt: self.board.move(-1, 1) )
-        browser.document['moveW'].bind( 'click', lambda evt: self.board.move(0, -1) )
-        browser.document['moveStay'].bind( 'click', lambda evt: self.board.move(0, 0) )
-        browser.document['moveE'].bind( 'click', lambda evt: self.board.move(0, 1) )
-        browser.document['moveSW'].bind( 'click', lambda evt: self.board.move(1, -1) )
-        browser.document['moveS'].bind( 'click', lambda evt: self.board.move(1, 0) )
-        browser.document['moveSE'].bind( 'click', lambda evt: self.board.move(1, 1) )
- 
+    def removeTitleAndStart(self, evt):
+        if browser.document[HTMLElmnt.TITLE_SCREEN_DIALOG].classList.contains(CSSClass.TITLE_SCREEN_ACTIVE):
+            browser.document[HTMLElmnt.TITLE_SCREEN_DIALOG].classList.remove(CSSClass.TITLE_SCREEN_ACTIVE)
+            self.bindsTitleScreen(bind=False)
+            self.bindsGamePLay(bind=True)
+
+
+    def bindsGamePLay(self, bind):
+        if bind:
+            self.field.bind("mousedown", self.pointerStart)
+            self.field.bind("mousemove", self.pointerMove)
+            self.field.bind("mouseup", self.pointerEnd)
+            self.field.bind('touchstart', self.pointerStart)
+            self.field.bind('touchmove', self.pointerMove)
+            self.field.bind('touchend', self.pointerEnd)
+            window.bind('keydown', self.keyPressed)
+            window.bind('keyup', self.keyPressed)
+            browser.document[HTMLElmnt.TELEPORT_BUTTON].bind( 'click', lambda evt: self.board.teleport() )
+            browser.document[HTMLElmnt.SAFE_TELEPORT_BUTTON].bind( 'click', lambda evt: self.board.teleport(safe=True) )
+            browser.document[HTMLElmnt.GUIDED_TELEPORT_BUTTON].bind( 'click', lambda evt: self.board.setGuided('toggle') )
+            browser.document[HTMLElmnt.SMALL_BOMB_BUTTON].bind( 'click', lambda evt: self.board.bomb(big=False) )
+            browser.document[HTMLElmnt.BIG_BOMB_BUTTON].bind( 'click', lambda evt: self.board.bomb(big=True) )
+            browser.document[HTMLElmnt.NEW_GAME_BUTTON].bind( 'click', lambda evt: self.board.newGame() )
+        else:
+            self.field.removeEventListener("mousedown", self.pointerStart)
+            self.field.removeEventListener("mousemove", self.pointerMove)
+            self.field.removeEventListener("mouseup", self.pointerEnd)
+            self.field.removeEventListener('touchstart', self.pointerStart)
+            self.field.removeEventListener('touchmove', self.pointerMove)
+            self.field.removeEventListener('touchend', self.pointerEnd)
+            window.removeEventListener('keydown', self.keyPressed)
+            window.removeEventListener('keyup', self.keyPressed)
+            browser.document[HTMLElmnt.TELEPORT_BUTTON].removeEventListener( 'click', lambda evt: self.board.teleport() )
+            browser.document[HTMLElmnt.SAFE_TELEPORT_BUTTON].removeEventListener( 'click', lambda evt: self.board.teleport(safe=True) )
+            browser.document[HTMLElmnt.GUIDED_TELEPORT_BUTTON].removeEventListener( 'click', lambda evt: self.board.setGuided('toggle') )
+            browser.document[HTMLElmnt.SMALL_BOMB_BUTTON].removeEventListener( 'click', lambda evt: self.board.bomb(big=False) )
+            browser.document[HTMLElmnt.BIG_BOMB_BUTTON].removeEventListener( 'click', lambda evt: self.board.bomb(big=True) )
+            browser.document[HTMLElmnt.NEW_GAME_BUTTON].removeEventListener( 'click', lambda evt: self.board.newGame() )
+
+
     def rowcol2coords(self, row, col, relative=True):
         top  = self.relativeTop  if relative else self.absoluteTop
         left = self.relativeLeft if relative else self.absoluteLeft
@@ -284,6 +304,7 @@ class GUI(UI):
             self.lastPointerMoveTimeStamp = evt.timeStamp
 
     def keyPressed(self, evt):
+
         if evt.type == 'keydown':
             print('keydown', evt.key)
             if evt.key == 'Shift':
@@ -339,30 +360,31 @@ class GUI(UI):
             return
 
 
-
     def refreshScores(self):
-        browser.document['level'].textContent = self.board.level
-        browser.document['foeCount'].textContent = self.board.foeCount
-        browser.document['score'].textContent = self.board.score
-        browser.document['highScore'].textContent = self.board.highScore
+        browser.document[HTMLElmnt.TEXT_LEVEL].textContent = self.board.level
+        browser.document[HTMLElmnt.TEXT_FOE_COUNT].textContent = self.board.foeCount
+        browser.document[HTMLElmnt.TEXT_SCORE].textContent = self.board.score
+        browser.document[HTMLElmnt.TEXT_HIGH_SCORE].textContent = self.board.highScore
 
     def refreshButtons(self, tool=None):
         tools = self.board.toolStock if tool is None else {tool}
         for t in tools:
+            print('refresh buttons', t, self.board.toolStock[t])
             if self.board.toolStock[t] >= 0:
-                browser.document[t].value = t + ' ' + str(self.board.toolStock[t] if self.board.toolStock[t] != 0 else '-')
-
-    # def refreshRepeat(self, value):
-    #     if value:
-            # browser.document['repeat'].style['background-color'] = 'aqua'
-        # else:
-            # browser.document['repeat'].style['background-color'] = 'whitesmoke'
+                for c in range(Metrics.MAX_TOOL_STOCK):
+                    idCircle = t+'Circle'+str(c+1)
+                    if self.board.toolStock[t] > c:
+                        browser.document[idCircle].classList.add(CSSClass.COUNT_INDICATOR)
+                    else:
+                        browser.document[idCircle].classList.remove(CSSClass.COUNT_INDICATOR)
 
     def refreshGuided(self, value):
         if value:
-            browser.document[Tools.GUIDED_TELEPORT].style['background-color'] = 'aqua'
+            browser.document[HTMLElmnt.GUIDED_TELEPORT_CURSOR_SCOPE].classList.add(CSSClass.GUIDED_TELEPORT_CURSOR)
+            browser.document[Tools.GUIDED_TELEPORT].classList.add(CSSClass.SELECTED_BUTTON)
         else:
-            browser.document[Tools.GUIDED_TELEPORT].style['background-color'] = 'whitesmoke'
+            browser.document[HTMLElmnt.GUIDED_TELEPORT_CURSOR_SCOPE].classList.remove(CSSClass.GUIDED_TELEPORT_CURSOR)
+            browser.document[Tools.GUIDED_TELEPORT].classList.remove(CSSClass.SELECTED_BUTTON)
 
     def askNewGame(self):
         return browser.confirm('Play again?')
