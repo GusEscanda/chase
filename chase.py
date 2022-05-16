@@ -1,8 +1,7 @@
-
-import random
 import ui
 from ui import UI, NoGui, GUI
 
+import random
 from constant import Tools, Prio, TextChar, GraphShape, Metrics
 
 class BoardObject:
@@ -248,12 +247,14 @@ class Board:
 
 
     def tool(self, tool, qty=0):
-        # Updates the tool stock based on qty. Returns the current stock of the tool 
+        # Updates the tool stock based on qty. Returns the current stock of the tool
+        oldValue = self.toolStock[tool]
         if self.toolStock[tool] < 0:
             self.toolStock[tool] = -1 # tool quantity < 0 means infinite use => don't update it, keep it at -1
         else:
             self.toolStock[tool] += qty
-        if qty != 0:
+        self.toolStock[tool] = min(self.toolStock[tool], Metrics.MAX_TOOL_STOCK)
+        if oldValue != self.toolStock[tool]:
             self.gui.refreshButtons(tool) # if the stock has changed, refresh the button
         return self.toolStock[tool]
 

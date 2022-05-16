@@ -28,10 +28,10 @@ loadChaseScreenInteraction = () => {
   }
 }
 
-removeGameTitleScreen = () => {
+removeGameTitleScreen = () => {/*
   gameTitleScreen.style.transition = 'none';
   gameTitleScreen.classList.remove('game-title--active');
-}
+*/}
 
 claculateDimension = (d1, d2) => {
   return `${(fieldWidth / d1) * d2}px`;

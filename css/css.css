@@ -267,6 +267,10 @@ button {
   transition: all 0.3s ease-in-out;
 }
 
+.button-selected { /* CORREGIR ESTA CLASE POR FAVOR!!! */
+  background-color: #fa0505;
+}
+
 .button-tooltip p {
   color: #1a1a1a;
 }

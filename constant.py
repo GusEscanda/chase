@@ -1,3 +1,26 @@
+class HTMLElmnt:
+    BATTLE_FIELD                  = 'field'
+    SMALL_BOMB_BUTTON             = 'v'
+    BIG_BOMB_BUTTON               = 'b'
+    TELEPORT_BUTTON               = 't'
+    SAFE_TELEPORT_BUTTON          = 's'
+    GUIDED_TELEPORT_BUTTON        = 'g'
+    NEW_GAME_BUTTON               = 'new'
+    GUIDED_TELEPORT_CURSOR_SCOPE  = 'separationWrapper'
+    TITLE_SCREEN_DIALOG           = 'gameTitleScreen'
+    TEXT_LEVEL                    = 'level'
+    TEXT_FOE_COUNT                = 'foeCount'
+    TEXT_SCORE                    = 'score'
+    TEXT_HIGH_SCORE               = 'highScore'
+
+
+class CSSClass:
+    COUNT_INDICATOR               = 'count-indicator__circle--active'
+    GUIDED_TELEPORT_CURSOR        = 'separation-wrapper--guided-teleport-cursor'
+    SELECTED_BUTTON               = 'button-selected'
+    TITLE_SCREEN_ACTIVE           = 'game-title--active'
+
+
 class Tools:
     # Types of tools that the Hero can find in the Board. 
     # These will be the id(s) of the corresponding buttons in the DOM and the keys in the dictionary 
@@ -6,7 +29,7 @@ class Tools:
     BIG_BOMB        = 'b'
     TELEPORT        = 't'
     SAFE_TELEPORT   = 's'
-    GUIDED_TELEPORT = '\u0398'
+    GUIDED_TELEPORT = 'g'
     
 class Prio:
     # Priority to remain in a cell of the grid when two BoardObject run into each other.
@@ -46,17 +69,18 @@ class Metrics:
     # metrics that will determine how difficult the game will be to play
     BOARD_DIM = (26,22)
     INIT_FOE_COUNT = 0
-    INCREMENT_FOE_COUNT_BY_LEVEL = 5
+    INCREMENT_FOE_COUNT_BY_LEVEL = 10
     DROP_TOOL_MU = 0
     DROP_TOOL_SIGMA = 1
     INIC_TOOL_STOCK = {
         Tools.TELEPORT: -1,
-        Tools.SAFE_TELEPORT: 1,
-        Tools.GUIDED_TELEPORT: 1,
-        Tools.SMALL_BOMB: 1,
-        Tools.BIG_BOMB: 1,            
+        Tools.SAFE_TELEPORT: 3,
+        Tools.GUIDED_TELEPORT: 3,
+        Tools.SMALL_BOMB: 3,
+        Tools.BIG_BOMB: 3,            
     }
     DIE_BEYOND_EDGES = False
+    MAX_TOOL_STOCK = 5
 
 class Anim:
     # times involved in animation (in ms)
