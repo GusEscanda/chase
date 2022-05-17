@@ -32,7 +32,7 @@
     - En caso de agregar un modal, crear el/los elemento/s html (cuadro de dialogo, botones) y las clases para que aparezca/desaparezca, informarlas en el constant.py y luego desde python se trabajará la lógica correspondiente
     - Ya saqué los binds de los botones de flechas, se pueden eliminar del html
     - Ya está hecha en python la logica de esconder la 'gameTitleScreen' luego de presionar una tecla o clickear con el mouse
-    - **`OJO`**:
+    - OJO:
        - En modo guided-teleport, al pasar el mouse por algunas zonas del tablero, desaparece la mira y aparece la flecha comun o incluso la barra vertical de ingreso de texto!! En esas condiciones al hacer click NO ejecuta la teletransportacion. Quiza haya que asociar la clase 'separation-wrapper--guided-teleport-cursor' a algun otro elemento HTML. Eso lo podes probar vos cambiando en las clases del constant.py tanto el elemento como la clase a utilizar para esta tarea
        - Hace un tiempo esta dando un warning como pagina insegura al cargarla desde internet, tal vez haya algun tipo de codigo javascript que la haga "sospechosa" para el antivirus
     
