@@ -5,6 +5,7 @@ class HTMLElmnt:
     TELEPORT_BUTTON               = 't'
     SAFE_TELEPORT_BUTTON          = 's'
     GUIDED_TELEPORT_BUTTON        = 'g'
+    CIRCLES_ID_SUFFIX             = 'Circle'
     NEW_GAME_BUTTON               = 'new'
     GUIDED_TELEPORT_CURSOR_SCOPE  = 'separationWrapper'
     TITLE_SCREEN_DIALOG           = 'gameTitleScreen'
