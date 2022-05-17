@@ -25,12 +25,20 @@ class Tools:
     # Types of tools that the Hero can find in the Board. 
     # These will be the id(s) of the corresponding buttons in the DOM and the keys in the dictionary 
     # that keeps account of the stock of each tool
-    SMALL_BOMB      = 'v'
-    BIG_BOMB        = 'b'
-    TELEPORT        = 't'
-    SAFE_TELEPORT   = 's'
-    GUIDED_TELEPORT = 'g'
-    
+    SMALL_BOMB      = 'SmalBomb'
+    BIG_BOMB        = 'BigBomb'
+    TELEPORT        = 'Teleport'
+    SAFE_TELEPORT   = 'SafeTeleport'
+    GUIDED_TELEPORT = 'GuidedTeleport'
+
+ToolHTMLElement = {
+    Tools.SMALL_BOMB:      HTMLElmnt.SMALL_BOMB_BUTTON,
+    Tools.BIG_BOMB:        HTMLElmnt.BIG_BOMB_BUTTON,
+    Tools.TELEPORT:        HTMLElmnt.TELEPORT_BUTTON,
+    Tools.SAFE_TELEPORT:   HTMLElmnt.SAFE_TELEPORT_BUTTON,
+    Tools.GUIDED_TELEPORT: HTMLElmnt.GUIDED_TELEPORT_BUTTON,
+}
+
 class Prio:
     # Priority to remain in a cell of the grid when two BoardObject run into each other.
     LOWER     = 0

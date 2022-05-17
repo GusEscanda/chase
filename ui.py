@@ -1,7 +1,7 @@
 import time
 import os
 import math
-from constant import CSSClass, HTMLElmnt, Metrics, SoundEffects, Tools, Anim
+from constant import CSSClass, HTMLElmnt, Metrics, SoundEffects, Tools, Anim, ToolHTMLElement
 
 try:
     import browser
@@ -372,7 +372,7 @@ class GUI(UI):
             print('refresh buttons', t, self.board.toolStock[t])
             if self.board.toolStock[t] >= 0:
                 for c in range(Metrics.MAX_TOOL_STOCK):
-                    idCircle = t+'Circle'+str(c+1)
+                    idCircle = ToolHTMLElement[t]+'Circle'+str(c+1)
                     if self.board.toolStock[t] > c:
                         browser.document[idCircle].classList.add(CSSClass.COUNT_INDICATOR)
                     else:
@@ -381,10 +381,10 @@ class GUI(UI):
     def refreshGuided(self, value):
         if value:
             browser.document[HTMLElmnt.GUIDED_TELEPORT_CURSOR_SCOPE].classList.add(CSSClass.GUIDED_TELEPORT_CURSOR)
-            browser.document[Tools.GUIDED_TELEPORT].classList.add(CSSClass.SELECTED_BUTTON)
+            browser.document[HTMLElmnt.GUIDED_TELEPORT_BUTTON].classList.add(CSSClass.SELECTED_BUTTON)
         else:
             browser.document[HTMLElmnt.GUIDED_TELEPORT_CURSOR_SCOPE].classList.remove(CSSClass.GUIDED_TELEPORT_CURSOR)
-            browser.document[Tools.GUIDED_TELEPORT].classList.remove(CSSClass.SELECTED_BUTTON)
+            browser.document[HTMLElmnt.GUIDED_TELEPORT_BUTTON].classList.remove(CSSClass.SELECTED_BUTTON)
 
     def askNewGame(self):
         return browser.confirm('Play again?')
