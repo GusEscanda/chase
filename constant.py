@@ -23,9 +23,7 @@ class CSSClass:
 
 
 class Tools:
-    # Types of tools that the Hero can find in the Board. 
-    # These will be the id(s) of the corresponding buttons in the DOM and the keys in the dictionary 
-    # that keeps account of the stock of each tool
+    # Types of tools that the Hero can find in the Board.
     SMALL_BOMB      = 'SmalBomb'
     BIG_BOMB        = 'BigBomb'
     TELEPORT        = 'Teleport'
