@@ -372,7 +372,7 @@ class GUI(UI):
             print('refresh buttons', t, self.board.toolStock[t])
             if self.board.toolStock[t] >= 0:
                 for c in range(Metrics.MAX_TOOL_STOCK):
-                    idCircle = ToolHTMLElement[t]+'Circle'+str(c+1)
+                    idCircle = ToolHTMLElement[t] + HTMLElmnt.CIRCLES_ID_SUFFIX + str(c+1)
                     if self.board.toolStock[t] > c:
                         browser.document[idCircle].classList.add(CSSClass.COUNT_INDICATOR)
                     else:
