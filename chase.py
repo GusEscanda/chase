@@ -399,7 +399,7 @@ class Board:
         else:
             row = random.randrange(self.maxR)
             col = random.randrange(self.maxC)
-            while safe and self.notSafe(row,col):
+            while (self.grid[row][col] != None) or (safe and self.notSafe(row,col)):
                 row = random.randrange(self.maxR)
                 col = random.randrange(self.maxC)
         
