@@ -28,6 +28,7 @@ class UI:
     refreshButtons = nullFunction
     refreshRepeat = nullFunction
     refreshGuided = nullFunction
+    refreshSafeness = nullFunction
 
     sndFire = nullFunction
     sndGetTool = nullFunction
@@ -385,6 +386,9 @@ class GUI(UI):
         else:
             browser.document[HTMLElmnt.GUIDED_TELEPORT_CURSOR_SCOPE].classList.remove(CSSClass.GUIDED_TELEPORT_CURSOR)
             browser.document[HTMLElmnt.GUIDED_TELEPORT_BUTTON].classList.remove(CSSClass.SELECTED_BUTTON)
+
+    def refreshSafeness(self):
+        browser.document[HTMLElmnt.TEXT_SAFENESS].textContent = "{:.4f}".format(self.board.safeness)
 
     def askNewGame(self):
         return browser.confirm('Play again?')

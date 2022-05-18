@@ -13,6 +13,7 @@ class HTMLElmnt:
     TEXT_FOE_COUNT                = 'foeCount'
     TEXT_SCORE                    = 'score'
     TEXT_HIGH_SCORE               = 'highScore'
+    TEXT_SAFENESS                 = 'safeness'
 
 
 class CSSClass:
