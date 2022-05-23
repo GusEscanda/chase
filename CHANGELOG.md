@@ -36,6 +36,9 @@
       informarlas en el constant.py y luego desde python se trabajará la lógica correspondiente
     - Ya saqué los binds de los botones de flechas, se pueden eliminar del html
     - Ya está hecha en python la logica de esconder la 'gameTitleScreen' luego de presionar una tecla o clickear con el mouse
+    - Cuando el mouse tiene la forma de la mira (guided teleport) las coordenadas son las de el angulo superior izquierdo y no las de el
+      centro de la mira. Si vos no podes corregir eso o decirme como obtener las coordenadas del centro, puedo corregir eso a mano pero 
+      necesito saber las dimensiones de la mira.
     - OJO:
        - En modo guided-teleport, al pasar el mouse por algunas zonas del tablero, desaparece la mira y aparece la flecha comun o 
          incluso la barra vertical de ingreso de texto!! En esas condiciones al hacer click NO ejecuta la teletransportacion. Quiza 
