@@ -1,7 +1,7 @@
 import time
 import os
 import math
-from constant import CSSClass, HTMLElmnt, Metrics, SoundEffects, Tools, Anim, ToolHTMLElement
+from constant import CSSClass, HTMLElmnt, Metrics, Tools, Anim, ToolHTMLElement
 
 try:
     import browser
@@ -93,7 +93,6 @@ class GUI(UI):
         print(f'w:{self.width}, h:{self.height}')
         self.cellWidth = self.width / self.board.maxC
         self.cellHeight = self.height / self.board.maxR
-        print('HOLA!! ', self.width, self.board.maxC, self.board.maxR)
         print('cell width, height:', self.cellWidth, self.cellHeight)
         self.relativeTop  = 0
         self.relativeLeft = 0
@@ -103,11 +102,6 @@ class GUI(UI):
         print('rel top left', self.relativeTop, self.relativeLeft)
         print('abs top left', self.absoluteTop, self.absoluteLeft)
         
-        browser.document <= html.AUDIO(id='sndFire', src=SoundEffects.FIRE)
-        browser.document <= html.AUDIO(id='sndGetTool', src=SoundEffects.GET_TOOL)
-        browser.document <= html.AUDIO(id='sndLevelUp', src=SoundEffects.LEVEL_UP)
-        browser.document <= html.AUDIO(id='sndLost', src=SoundEffects.LOST)
-
         self.mouseDownX = None
         self.mouseDownY = None 
         self.mouseUpX = None
@@ -184,16 +178,16 @@ class GUI(UI):
         return ( row, col )
 
     def sndFire(self):
-        timer.set_timeout(browser.document['sndFire'].play, self.animWhen + Anim.STEP_TIME)
+        timer.set_timeout(browser.document[HTMLElmnt.SND_FIRE].play, self.animWhen + Anim.STEP_TIME)
 
     def sndGetTool(self):
-        timer.set_timeout(browser.document['sndGetTool'].play, self.animWhen)
+        timer.set_timeout(browser.document[HTMLElmnt.SND_GET_TOOL].play, self.animWhen)
 
     def sndLevelUp(self):
-        timer.set_timeout(browser.document['sndLevelUp'].play, self.animWhen)
+        timer.set_timeout(browser.document[HTMLElmnt.SND_LEVEL_UP].play, self.animWhen)
 
     def sndLost(self):
-        timer.set_timeout(browser.document['sndLost'].play, self.animWhen + Anim.STEP_TIME)
+        timer.set_timeout(browser.document[HTMLElmnt.SND_LOST].play, self.animWhen + Anim.STEP_TIME)
 
     def resetAnim(self):
         self.animWhen = 0
@@ -259,7 +253,7 @@ class GUI(UI):
         self.mouseUpX, self.mouseUpY = x, y  # if there is no movement the ponterMove will not be fired...
         
     def pointerMove(self, evt):
-        # print(f'{evt.type} {evt.target.id}')
+        print(f'{evt.type} {evt.target.id}')
         if evt.type == 'mousemove':
             x, y = evt.x, evt.y
         elif evt.type == 'touchmove':
@@ -269,7 +263,7 @@ class GUI(UI):
             else:
                 self.mouseUpX, self.mouseUpY = None, None  # cancel move
                 return
-        # print(f'     x: {x}, y: {y}, coords: {self.coords2rowcol(x, y)}')
+        print(f'     x: {x}, y: {y}, coords: {self.coords2rowcol(x, y)}')
         self.mouseUpX, self.mouseUpY = x, y
 
     def pointerEnd(self, evt):

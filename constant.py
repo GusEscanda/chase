@@ -14,6 +14,11 @@ class HTMLElmnt:
     TEXT_SCORE                    = 'score'
     TEXT_HIGH_SCORE               = 'highScore'
     TEXT_SAFENESS                 = 'safeness'
+    SND_FIRE                      = 'sndFire'
+    SND_GET_TOOL                  = 'sndGetTool'
+    SND_LEVEL_UP                  = 'sndLevelUp'
+    SND_LOST                      = 'sndLost'
+
 
 
 class CSSClass:
@@ -66,12 +71,6 @@ class GraphShape:
     BIG_BOMB        = 'assets/img/big-bomb.svg'
     SAFE_TELEPORT   = 'assets/img/safe-teleport.svg'
     GUIDED_TELEPORT = 'assets/img/guided-teleport.svg'
-
-class SoundEffects:
-    FIRE        = 'assets/audio/sndFire.wav'
-    GET_TOOL    = 'assets/audio/sndTool.mp3'
-    LEVEL_UP    = 'assets/audio/sndLevel.mp3'
-    LOST        = 'assets/audio/sndLost.mp3'
 
 class Metrics:
     # metrics that will determine how difficult the game will be to play
