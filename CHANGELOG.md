@@ -39,6 +39,9 @@
     - Cuando el mouse tiene la forma de la mira (guided teleport) las coordenadas son las de el angulo superior izquierdo y no las de el
       centro de la mira. Si vos no podes corregir eso o decirme como obtener las coordenadas del centro, puedo corregir eso a mano pero 
       necesito saber las dimensiones de la mira.
+    - Puse en el HTML los objetos para hacer los sonidos. Fijate si los puse en el lugar correcto y si los id siguen la convension de 
+      nombres acostumbrada (en realidad lo mismo deberías hacer para todos los elementos ya que ahora les podes poner el id que quieras 
+      mientras lo registres en constant.py)
     - OJO:
        - En modo guided-teleport, al pasar el mouse por algunas zonas del tablero, desaparece la mira y aparece la flecha comun o 
          incluso la barra vertical de ingreso de texto!! En esas condiciones al hacer click NO ejecuta la teletransportacion. Quiza 
