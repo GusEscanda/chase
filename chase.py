@@ -223,6 +223,9 @@ class Board:
         self.setRepeat('off')  # reset the repeat mode
         self.setGuided('off')  # reset the guided mode
 
+        self.calculateSafeness()
+        self.gui.refreshSafeness()
+
         self.gui.textDisplayBoard(board = self)
         self.gui.refreshScores()
         
@@ -342,10 +345,11 @@ class Board:
             if self.repeat:
                 self.gui.nextStep()
 
-
         if self.hero.alive:
             self.setRepeat('off')  # reset the repeat mode
             self.setGuided('off')  # reset the guided mode
+            self.calculateSafeness()
+            self.gui.refreshSafeness()
         else:
             self.placeBoardObjects( DeadHero, coords = (self.hero.row, self.hero.col) )
             self.gui.sndLost()
@@ -356,6 +360,16 @@ class Board:
         if self.foeCount == 0:
             self.collectTools()
             self.newLevel()
+
+    def calculateSafeness(self):
+        countSafe, countEmpty = 0, 0
+        for c in range(self.maxC):
+            for r in range(self.maxR):
+                if self.grid[r][c] == None:
+                    countEmpty += 1
+                    if not self.notSafe(r,c):
+                        countSafe += 1
+        self.safeness = countSafe / countEmpty
 
     def notEmpty(self, row, col):
         if row < 0 or row >= self.maxR or col < 0 or col >= self.maxC: # for this funcion off limits is considered not empty
@@ -399,7 +413,7 @@ class Board:
         else:
             row = random.randrange(self.maxR)
             col = random.randrange(self.maxC)
-            while safe and self.notSafe(row,col):
+            while (self.grid[row][col] != None) or (safe and self.notSafe(row,col)):
                 row = random.randrange(self.maxR)
                 col = random.randrange(self.maxC)
         
