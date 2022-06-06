@@ -28,6 +28,8 @@
 ### Notes
     - Intenté, sin exito, hacer una clase que cambie la pinta del boton guded-teleport para que se sepa que ese modo está seleccionado. 
       Hice una clase llamada 'button-selected' que tendrías que revisar/corregir
+    - Hice tambien una clase 'button-hidden' que funciona pero igual habría que revisarla por si no cumple con las buenas prácticas
+    - Hacer clases/elementos para que TODOS los botones de herramientas puedan tener entre 0 y 5 unidades, o bien infinitos, o bien no existir 
     - Ahora todas las clases CSS y elementos HTML pueden tener la convension de nombres que se estila para cada caso, lo unico que hay 
       que tener en cuenta es que en el archivo constant.py hay que dejat registrados esos nombres en las definiciones de las clases 
       HTMLElmnt y CSSClass
