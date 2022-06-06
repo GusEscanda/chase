@@ -168,10 +168,12 @@ class Hero( BoardObject ):
 
 class Board:
 
-    def __init__(self, maxR, maxC, gui = None):
+    def __init__(self, maxR, maxC, gui = None, puzzle=None):
         # Set the height and width of the board
         self.maxR = maxR
         self.maxC = maxC
+        self.vertical = (maxR > maxC)
+        self.puzzle = puzzle
 
         # Store a reference to the GUI object
         self.gui = gui
@@ -193,6 +195,41 @@ class Board:
         # Create a list that will contain all the objects that must do something in each cicle of the game
         self.boardObjectList = []
 
+    def char2num(self,ch):
+        return ord(ch) - 97
+
+    def num2char(self,n):
+        return chr(n+97)
+
+    def str2rc(self,s):
+        if self.vertical:
+            return self.char2num(s[1]), self.char2num(s[0])
+        else:
+            return self.char2num(s[0]), self.char2num(s[1])
+
+    def load_puzzle(self):
+        for tool in Metrics.INIC_TOOL_STOCK:
+            self.toolStock[tool] = -1
+        self.toolStock[Tools.SMALL_BOMB] = self.char2num(self.puzzle[0])
+        self.toolStock[Tools.BIG_BOMB] = self.char2num(self.puzzle[1])
+        self.toolStock[Tools.GUIDED_TELEPORT] = self.char2num(self.puzzle[2])
+        row, col = self.str2rc( self.puzzle[3:5] )
+        self.placeBoardObjects( Hero, coords=(row,col) )
+        self.hero = self.boardObjectList[0]
+        i = 5
+        while i < len(self.puzzle):
+            if self.puzzle[i] == 'V':
+                boClass = SmallBomb
+            elif self.puzzle[i] == 'B':
+                boClass = BigBomb
+            elif self.puzzle[i] == 'G':
+                boClass = GuidedTeleport
+            else:
+                boClass = Foe
+            i += 1
+            while i < len(self.puzzle) and self.puzzle[i] >= 'a':
+                self.placeBoardObjects( boClass, coords=(self.str2rc(self.puzzle[i:i+2])) )
+                i += 2
 
     def emptyGrid(self):
         # using regular python lists because brython doesn't support numpy, I hope will not have performance issues...
@@ -206,20 +243,23 @@ class Board:
         self.foeCount = 0
 
     def newLevel(self):
-        self.level += 1
-        self.cleanBoard()
-        if self.level > 1:
-            self.gui.sndLevelUp()
-        self.placeBoardObjects( Hero )
-        self.hero = self.boardObjectList[0]
-        self.placeBoardObjects( Foe, Metrics.INIT_FOE_COUNT + Metrics.INCREMENT_FOE_COUNT_BY_LEVEL * self.level )
-        
-        toolDrop = lambda : max(0, int( random.normalvariate( Metrics.DROP_TOOL_MU, Metrics.DROP_TOOL_SIGMA ) ))
-        self.placeBoardObjects( SmallBomb, toolDrop() )
-        self.placeBoardObjects( BigBomb, toolDrop() )
-        self.placeBoardObjects( SafeTeleport, toolDrop() )
-        self.placeBoardObjects( GuidedTeleport, toolDrop() )
-        
+        if puzzle:
+            self.load_puzzle()
+        else:
+            self.level += 1
+            self.cleanBoard()
+            if self.level > 1:
+                self.gui.sndLevelUp()
+            self.placeBoardObjects( Hero )
+            self.hero = self.boardObjectList[0]
+            self.placeBoardObjects( Foe, Metrics.INIT_FOE_COUNT + Metrics.INCREMENT_FOE_COUNT_BY_LEVEL * self.level )
+            
+            toolDrop = lambda : max(0, int( random.normalvariate( Metrics.DROP_TOOL_MU, Metrics.DROP_TOOL_SIGMA ) ))
+            self.placeBoardObjects( SmallBomb, toolDrop() )
+            self.placeBoardObjects( BigBomb, toolDrop() )
+            self.placeBoardObjects( SafeTeleport, toolDrop() )
+            self.placeBoardObjects( GuidedTeleport, toolDrop() )
+            
         self.setRepeat('off')  # reset the repeat mode
         self.setGuided('off')  # reset the guided mode
 
@@ -236,8 +276,9 @@ class Board:
         self.level = 0
         self.score = 0
         self.newLevel()
-        for tool in Metrics.INIC_TOOL_STOCK:
-            self.toolStock[tool] = Metrics.INIC_TOOL_STOCK[tool]
+        if not self.puzzle:
+            for tool in Metrics.INIC_TOOL_STOCK:
+                self.toolStock[tool] = Metrics.INIC_TOOL_STOCK[tool]
         self.gui.refreshButtons()
 
     def collectTools(self):
@@ -252,11 +293,9 @@ class Board:
     def tool(self, tool, qty=0):
         # Updates the tool stock based on qty. Returns the current stock of the tool
         oldValue = self.toolStock[tool]
-        if self.toolStock[tool] < 0:
-            self.toolStock[tool] = -1 # tool quantity < 0 means infinite use => don't update it, keep it at -1
-        else:
+        if self.toolStock[tool] >= 0 and self.toolStock[tool] != Metrics.TOOL_INFINITE:
             self.toolStock[tool] += qty
-        self.toolStock[tool] = min(self.toolStock[tool], Metrics.MAX_TOOL_STOCK)
+            self.toolStock[tool] = min(self.toolStock[tool], Metrics.MAX_TOOL_STOCK)
         if oldValue != self.toolStock[tool]:
             self.gui.refreshButtons(tool) # if the stock has changed, refresh the button
         return self.toolStock[tool]
@@ -299,7 +338,7 @@ class Board:
             value = not self.guided
         else:
             value = (mode.lower() == 'on')
-        self.guided = value and ( self.tool(Tools.GUIDED_TELEPORT) != 0 )
+        self.guided = value and ( self.tool(Tools.GUIDED_TELEPORT) > 0 )
         self.gui.refreshGuided(self.guided)
         return self.guided
 
@@ -401,11 +440,11 @@ class Board:
         if self.checkNewGame():
             return
         # Check if you have the tool
-        if safe and self.tool(Tools.SAFE_TELEPORT) == 0:
+        if safe and self.tool(Tools.SAFE_TELEPORT) <= 0:
             return
-        if guided and self.tool(Tools.GUIDED_TELEPORT) == 0:
+        if guided and self.tool(Tools.GUIDED_TELEPORT) <= 0:
             return
-        if not safe and not guided and self.tool(Tools.TELEPORT) == 0:
+        if not safe and not guided and self.tool(Tools.TELEPORT) <= 0:
             return
 
         if guided:
@@ -435,7 +474,7 @@ class Board:
         if self.checkNewGame():
             return
         bombType = Tools.BIG_BOMB if big else Tools.SMALL_BOMB
-        if self.tool( bombType ) == 0:
+        if self.tool( bombType ) <= 0:
             return
 
         self.tool( bombType, -1 )
@@ -513,10 +552,17 @@ if __name__ == "__main__" and not ui.BROWSER:
 
 
 if ui.BROWSER:
+
+    puzzle = None
+    if 'puzzle' in ui.document.query:
+        puzzle = ui.document.query['puzzle']
+
     if ui.window.innerHeight > ui.window.innerWidth:
-        board = Board(maxR = max(Metrics.BOARD_DIM), maxC = min(Metrics.BOARD_DIM))
+        maxR, maxC = max(Metrics.BOARD_DIM), min(Metrics.BOARD_DIM)
     else:
-        board = Board(maxR = min(Metrics.BOARD_DIM), maxC = max(Metrics.BOARD_DIM))
+        maxR, maxC = min(Metrics.BOARD_DIM), max(Metrics.BOARD_DIM)
+
+    board = Board(maxR=maxR, maxC=maxC, puzzle=puzzle)
     gui = GUI(board)
     board.gui = gui
     board.newGame()

@@ -365,7 +365,11 @@ class GUI(UI):
         tools = self.board.toolStock if tool is None else {tool}
         for t in tools:
             print('refresh buttons', t, self.board.toolStock[t])
-            if self.board.toolStock[t] >= 0:
+            if self.board.toolStock[t] < 0:
+                browser.document[ToolHTMLElement[t]].classList.add(CSSClass.HIDE_BUTTON)
+            elif self.board.toolStock[t] == Metrics.TOOL_INFINITE:
+                pass ## Poner aqui lo neecsario para hacer la raya o lo que sea que indique "uso infinito"
+            else:
                 for c in range(Metrics.MAX_TOOL_STOCK):
                     idCircle = ToolHTMLElement[t] + HTMLElmnt.CIRCLES_ID_SUFFIX + str(c+1)
                     if self.board.toolStock[t] > c:

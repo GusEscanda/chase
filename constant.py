@@ -25,6 +25,7 @@ class CSSClass:
     COUNT_INDICATOR               = 'count-indicator__circle--active'
     GUIDED_TELEPORT_CURSOR        = 'separation-wrapper--guided-teleport-cursor'
     SELECTED_BUTTON               = 'button-selected'
+    HIDE_BUTTON                   = 'button-hidden'
     TITLE_SCREEN_ACTIVE           = 'game-title--active'
 
 
@@ -79,15 +80,16 @@ class Metrics:
     INCREMENT_FOE_COUNT_BY_LEVEL = 10
     DROP_TOOL_MU = 0
     DROP_TOOL_SIGMA = 1
+    MAX_TOOL_STOCK = 5
+    TOOL_INFINITE = 100
     INIC_TOOL_STOCK = {
-        Tools.TELEPORT: -1,
+        Tools.TELEPORT: TOOL_INFINITE,
         Tools.SAFE_TELEPORT: 3,
         Tools.GUIDED_TELEPORT: 3,
         Tools.SMALL_BOMB: 3,
         Tools.BIG_BOMB: 3,            
     }
     DIE_BEYOND_EDGES = False
-    MAX_TOOL_STOCK = 5
 
 class Anim:
     # times involved in animation (in ms)
