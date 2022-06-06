@@ -209,7 +209,7 @@ class Board:
 
     def load_puzzle(self):
         for tool in Metrics.INIC_TOOL_STOCK:
-            self.toolStock[tool] = 0
+            self.toolStock[tool] = -1
         self.toolStock[Tools.SMALL_BOMB] = self.char2num(self.puzzle[0])
         self.toolStock[Tools.BIG_BOMB] = self.char2num(self.puzzle[1])
         self.toolStock[Tools.GUIDED_TELEPORT] = self.char2num(self.puzzle[2])
@@ -293,11 +293,9 @@ class Board:
     def tool(self, tool, qty=0):
         # Updates the tool stock based on qty. Returns the current stock of the tool
         oldValue = self.toolStock[tool]
-        if self.toolStock[tool] < 0:
-            self.toolStock[tool] = -1 # tool quantity < 0 means infinite use => don't update it, keep it at -1
-        else:
+        if self.toolStock[tool] >= 0 and self.toolStock[tool] != Metrics.TOOL_INFINITE:
             self.toolStock[tool] += qty
-        self.toolStock[tool] = min(self.toolStock[tool], Metrics.MAX_TOOL_STOCK)
+            self.toolStock[tool] = min(self.toolStock[tool], Metrics.MAX_TOOL_STOCK)
         if oldValue != self.toolStock[tool]:
             self.gui.refreshButtons(tool) # if the stock has changed, refresh the button
         return self.toolStock[tool]
@@ -340,7 +338,7 @@ class Board:
             value = not self.guided
         else:
             value = (mode.lower() == 'on')
-        self.guided = value and ( self.tool(Tools.GUIDED_TELEPORT) != 0 )
+        self.guided = value and ( self.tool(Tools.GUIDED_TELEPORT) > 0 )
         self.gui.refreshGuided(self.guided)
         return self.guided
 
@@ -442,11 +440,11 @@ class Board:
         if self.checkNewGame():
             return
         # Check if you have the tool
-        if safe and self.tool(Tools.SAFE_TELEPORT) == 0:
+        if safe and self.tool(Tools.SAFE_TELEPORT) <= 0:
             return
-        if guided and self.tool(Tools.GUIDED_TELEPORT) == 0:
+        if guided and self.tool(Tools.GUIDED_TELEPORT) <= 0:
             return
-        if not safe and not guided and self.tool(Tools.TELEPORT) == 0:
+        if not safe and not guided and self.tool(Tools.TELEPORT) <= 0:
             return
 
         if guided:
@@ -476,7 +474,7 @@ class Board:
         if self.checkNewGame():
             return
         bombType = Tools.BIG_BOMB if big else Tools.SMALL_BOMB
-        if self.tool( bombType ) == 0:
+        if self.tool( bombType ) <= 0:
             return
 
         self.tool( bombType, -1 )

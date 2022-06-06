@@ -271,6 +271,10 @@ button {
   background-color: #fa0505;
 }
 
+.button-hidden { /* CORREGIR ESTA CLASE POR FAVOR!!! */
+  display: none;
+}
+
 .button-tooltip p {
   color: #1a1a1a;
 }
