@@ -271,7 +271,7 @@ button {
   background-color: #fa0505;
 }
 
-.button-hidden { /* CORREGIR ESTA CLASE POR FAVOR!!! */
+.display-none { /* CORREGIR ESTA CLASE POR FAVOR!!! */
   display: none;
 }
 
