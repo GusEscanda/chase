@@ -186,6 +186,7 @@ class Board:
 
         self.foeCount = 0
         self.score = 0
+        self.steps = 0
         self.highScore = 0
         self.toolStock = {}
 
@@ -243,11 +244,11 @@ class Board:
         self.foeCount = 0
 
     def newLevel(self):
-        if puzzle:
+        self.cleanBoard()
+        if self.puzzle:
             self.load_puzzle()
         else:
             self.level += 1
-            self.cleanBoard()
             if self.level > 1:
                 self.gui.sndLevelUp()
             self.placeBoardObjects( Hero )
@@ -275,6 +276,7 @@ class Board:
                 return
         self.level = 0
         self.score = 0
+        self.steps = 0
         self.newLevel()
         if not self.puzzle:
             for tool in Metrics.INIC_TOOL_STOCK:
@@ -348,6 +350,7 @@ class Board:
             return
         # Take one or more steps in the (deltaR, deltaC) direction.
         self.gui.resetAnim()
+        moved = False
         while self.hero.alive and self.foeCount > 0:
 
             newR = self.hero.row + deltaR
@@ -363,6 +366,7 @@ class Board:
             
             # take a single step
             self.hero.step(deltaR,deltaC)
+            moved = True
 
             if not self.hero.alive:
                 break
@@ -384,6 +388,9 @@ class Board:
             if self.repeat:
                 self.gui.nextStep()
 
+        if moved:
+            self.steps += 1
+            
         if self.hero.alive:
             self.setRepeat('off')  # reset the repeat mode
             self.setGuided('off')  # reset the guided mode
@@ -397,8 +404,11 @@ class Board:
         self.gui.refreshScores()
 
         if self.foeCount == 0:
-            self.collectTools()
-            self.newLevel()
+            if self.puzzle:
+                pass  # Festejo puzzle
+            else:
+                self.collectTools()
+                self.newLevel()
 
     def calculateSafeness(self):
         countSafe, countEmpty = 0, 0

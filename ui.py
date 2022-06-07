@@ -356,17 +356,32 @@ class GUI(UI):
 
 
     def refreshScores(self):
+        if self.board.puzzle:
+            browser.document[HTMLElmnt.DIV_LEVEL].classList.add(CSSClass.HIDE)
+            browser.document[HTMLElmnt.DIV_FOE_COUNT].classList.remove(CSSClass.HIDE)
+            browser.document[HTMLElmnt.DIV_SCORE].classList.add(CSSClass.HIDE)
+            browser.document[HTMLElmnt.DIV_STEPS].classList.remove(CSSClass.HIDE)
+            browser.document[HTMLElmnt.DIV_HIGH_SCORE].classList.add(CSSClass.HIDE)
+        else:
+            browser.document[HTMLElmnt.DIV_LEVEL].classList.remove(CSSClass.HIDE)
+            browser.document[HTMLElmnt.DIV_FOE_COUNT].classList.remove(CSSClass.HIDE)
+            browser.document[HTMLElmnt.DIV_SCORE].classList.remove(CSSClass.HIDE)
+            browser.document[HTMLElmnt.DIV_STEPS].classList.remove(CSSClass.HIDE)
+            browser.document[HTMLElmnt.DIV_HIGH_SCORE].classList.remove(CSSClass.HIDE)
+
         browser.document[HTMLElmnt.TEXT_LEVEL].textContent = self.board.level
         browser.document[HTMLElmnt.TEXT_FOE_COUNT].textContent = self.board.foeCount
         browser.document[HTMLElmnt.TEXT_SCORE].textContent = self.board.score
+        browser.document[HTMLElmnt.TEXT_STEPS].textContent = self.board.steps
         browser.document[HTMLElmnt.TEXT_HIGH_SCORE].textContent = self.board.highScore
 
     def refreshButtons(self, tool=None):
         tools = self.board.toolStock if tool is None else {tool}
         for t in tools:
             print('refresh buttons', t, self.board.toolStock[t])
+            browser.document[ToolHTMLElement[t]].classList.remove(CSSClass.HIDE)
             if self.board.toolStock[t] < 0:
-                browser.document[ToolHTMLElement[t]].classList.add(CSSClass.HIDE_BUTTON)
+                browser.document[ToolHTMLElement[t]].classList.add(CSSClass.HIDE)
             elif self.board.toolStock[t] == Metrics.TOOL_INFINITE:
                 pass ## Poner aqui lo neecsario para hacer la raya o lo que sea que indique "uso infinito"
             else:
