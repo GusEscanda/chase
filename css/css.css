@@ -1,15 +1,32 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
 
+:root {
+  --grey-one: #000E17;
+  --grey-two: #1B1C20;
+  --white: #fafafa;
+  --blue-one: #1DAECB;
+  --blue-two: #6E979D;
+  --orange: #F5573F;
+  --violet: #370051;
+  --bg: linear-gradient(var(--violet), var(--grey-two));
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  color: #40aa3a;
 }
 
 body {
-  background-color: #1a1a1a;
+  background: var(--bg);
   font-family: 'Roboto Mono', monospace;
+  color: var(--white);
+}
+
+#div-score {
+  color: var(--orange);
+  font-weight: bold;
+  font-size: 32px;
 }
 
 .game-title {
@@ -196,8 +213,9 @@ body {
   line-height: 28px;
 }
 
-.info-item p {
-  font-size: 22px;
+.info-item .info,
+.info-item .score-number {
+  font-size: 20px;
   margin-right: 6px;
 }
 
@@ -209,7 +227,7 @@ body {
 .separation-wrapper {
   height: 100%;
   width: 100%;
-  border: 2px solid #40aa3a;
+  border: 1px solid var(--blue-two);
   margin-right: 8px;
   padding: 12px;
 }
