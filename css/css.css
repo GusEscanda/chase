@@ -27,6 +27,7 @@ body {
   pointer-events: none;
   transition: all 1s ease-in-out;
   padding: 20px;
+  z-index: -2;
 }
 
 .game-title__title {
@@ -88,6 +89,7 @@ body {
 .game-title--active {
   opacity: 1;
   pointer-events: all;
+  z-index: 1;
 }
 
 .instructions {
@@ -232,6 +234,7 @@ button {
   cursor: pointer;
   margin: 0;
   margin-bottom: 10px;
+  transition: all 0.3s ease-in-out;
 }
 
 .action-button {
@@ -268,11 +271,11 @@ button {
 }
 
 .button-selected { /* CORREGIR ESTA CLASE POR FAVOR!!! */
-  background-color: #fa0505;
+  background-color: #fa0505 !important;
 }
 
-.display-none { /* CORREGIR ESTA CLASE POR FAVOR!!! */
-  display: none;
+.hide { /* CORREGIR ESTA CLASE POR FAVOR!!! */
+  display: none !important;
 }
 
 .button-tooltip p {
@@ -287,10 +290,18 @@ button {
   justify-content: space-between;
 }
 
+.count-indicator--hide {
+  display: none;
+}
+
 .count-indicator--infinite {
   height: 4px;
   background-color: #40aa3a;
   border-radius: 10px;
+}
+
+.count-indicator--infinite--hide {
+  display: none;
 }
 
 .count-indicator__circle {

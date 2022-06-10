@@ -46,7 +46,7 @@
         </div>
       </div>
       <div class="buttons-wrapper">
-        <button onclick="openInstructions()" title="Instructions" class="tool-buttons tool-buttons--new-game">Instructions</button>
+        <button id="instructions-toggle" title="Instructions" class="tool-buttons tool-buttons--new-game">Instructions</button>
         <button id='new' title="New Game" class="tool-buttons tool-buttons--new-game">New Game</button>
       </div>
     </div>
@@ -57,14 +57,22 @@
       <div class="action-buttons-wrapper">
         <button class="action-button" title="Teleport" id='t'>
           <img src="./assets/img//teleport-button.svg" alt="Teleport">
-          <div class="count-indicator count-indicator--infinite"></div>
+          <div id="count-infinite-t" class="count-indicator count-indicator--infinite"></div>
+          <div id="count-indicator-t" class="count-indicator hide">
+            <div id="tCircle1" class="count-indicator__circle"></div>
+            <div id="tCircle2" class="count-indicator__circle"></div>
+            <div id="tCircle3" class="count-indicator__circle"></div>
+            <div id="tCircle4" class="count-indicator__circle"></div>
+            <div id="tCircle5" class="count-indicator__circle"></div>
+          </div>
           <div id="tTooltip" class="button-tooltip">
             <p>Or press "t"</p>
           </div>
         </button>
         <button class="action-button" title="Safe Teleport" id='s'>
           <img src="./assets/img/safe-teleport-button.svg" alt="Safe Teleport">
-          <div class="count-indicator">
+          <div id="count-infinite-s" class="count-indicator count-indicator--infinite hide"></div>
+          <div id="count-indicator-s" class="count-indicator">
             <div id="sCircle1" class="count-indicator__circle"></div>
             <div id="sCircle2" class="count-indicator__circle"></div>
             <div id="sCircle3" class="count-indicator__circle"></div>
@@ -77,7 +85,8 @@
         </button>
         <button class="action-button action-button--teleport" title="Guided Teleport" id='g'>
           <img src="./assets/img/guided-teleport-button.svg" alt="Guided Teleport">
-          <div class="count-indicator">
+          <div id="count-infinite-g" class="count-indicator count-indicator--infinite hide"></div>
+          <div id="count-indicator-g" class="count-indicator">
             <div id="gCircle1" class="count-indicator__circle"></div>
             <div id="gCircle2" class="count-indicator__circle"></div>
             <div id="gCircle3" class="count-indicator__circle"></div>
@@ -90,7 +99,8 @@
         </button>
         <button class="action-button" title="Small Bomb" id='v'>
           <img src="./assets/img/small-bomb-button.svg" alt="Small Bomb">
-          <div class="count-indicator">
+          <div id="count-infinite-v" class="count-indicator count-indicator--infinite hide"></div>
+          <div id="count-indicator-v" class="count-indicator">
             <div id="vCircle1" class="count-indicator__circle"></div>
             <div id="vCircle2" class="count-indicator__circle"></div>
             <div id="vCircle3" class="count-indicator__circle"></div>
@@ -103,7 +113,8 @@
         </button>
         <button class="action-button" title="Big Bomb" id='b'>
           <img src="./assets/img/big-bomb-button.svg" alt="Big Bomb">
-          <div class="count-indicator">
+          <div id="count-infinite-b" class="count-indicator count-indicator--infinite hide"></div>
+          <div id="count-indicator-b" class="count-indicator">
             <div id="bCircle1" class="count-indicator__circle"></div>
             <div id="bCircle2" class="count-indicator__circle"></div>
             <div id="bCircle3" class="count-indicator__circle"></div>
@@ -129,7 +140,7 @@
 
   <!-- ! Instructions -->
   <div id="instructions" class="instructions">
-    <button class="close-button" onclick="closeInstructions()">
+    <button id="instructions-close" class="close-button">
       X
     </button>
     <div class="instructions__info">
