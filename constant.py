@@ -6,6 +6,8 @@ class HTMLElmnt:
     SAFE_TELEPORT_BUTTON          = 's'
     GUIDED_TELEPORT_BUTTON        = 'g'
     CIRCLES_ID_SUFFIX             = 'Circle'
+    CIRCLES_PARENT_ID_PREFIX      = 'count-indicator-' # Agregar / sacar el .hide para agregar o sacar los circulitos.
+    INFINITE_ID_PREFIX            = 'count-infinite-' # Lo mismo!
     NEW_GAME_BUTTON               = 'new'
     GUIDED_TELEPORT_CURSOR_SCOPE  = 'separationWrapper'
     TITLE_SCREEN_DIALOG           = 'gameTitleScreen'
@@ -25,6 +27,9 @@ class HTMLElmnt:
     SND_GET_TOOL                  = 'sndGetTool'
     SND_LEVEL_UP                  = 'sndLevelUp'
     SND_LOST                      = 'sndLost'
+    INSTRUCTIONS_TOGGLE           = 'instructions-toggle'
+    INSTRUCTIONS                  = 'instructions'
+    INSTRUCTIONS_CLOSE            = 'instructions-close'
 
 
 
@@ -32,8 +37,9 @@ class CSSClass:
     COUNT_INDICATOR               = 'count-indicator__circle--active'
     GUIDED_TELEPORT_CURSOR        = 'separation-wrapper--guided-teleport-cursor'
     SELECTED_BUTTON               = 'button-selected'
-    HIDE                          = 'display-none'
+    HIDE                          = 'hide'
     TITLE_SCREEN_ACTIVE           = 'game-title--active'
+    INSTRUCTIONS_ACTIVE           = 'instructions--active'
 
 
 class Tools:

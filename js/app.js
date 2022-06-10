@@ -13,26 +13,6 @@ loadDimensions = () => {
   console.log('Relación: ', fieldWidth * 22 / 26);
 }
 
-loadChaseScreenInteraction = () => {
-  if (gameTitleScreen.classList.contains('game-title--active')) {
-    console.log('loadChaseScreenInteraction');
-    window.addEventListener('keydown', e => {
-      removeGameTitleScreen();
-    });
-    window.addEventListener('click', e => {
-      removeGameTitleScreen();
-    });
-    setTimeout(() => {
-      pressToEnter.classList.add('game-title__press-to-enter--active');
-    }, 3000);
-  }
-}
-
-removeGameTitleScreen = () => {/*
-  gameTitleScreen.style.transition = 'none';
-  gameTitleScreen.classList.remove('game-title--active');
-*/}
-
 claculateDimension = (d1, d2) => {
   return `${(fieldWidth / d1) * d2}px`;
 }
@@ -45,20 +25,7 @@ retainScroll = () => {
   }, false);
 }
 
-openInstructions = () => {
-  if (!instructions.classList.contains('instructions--active')) {
-    instructions.classList.add('instructions--active');
-  }
-}
-
-closeInstructions = () => {
-  if (instructions.classList.contains('instructions--active')) {
-    instructions.classList.remove('instructions--active');
-  }
-}
-
 // console.log('------------------------------------------------>');
 loadDimensions();
-loadChaseScreenInteraction();
 retainScroll();
 // console.log('------------------------------------------------>');
