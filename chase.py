@@ -260,9 +260,9 @@ class Board:
             self.placeBoardObjects( BigBomb, toolDrop() )
             self.placeBoardObjects( SafeTeleport, toolDrop() )
             self.placeBoardObjects( GuidedTeleport, toolDrop() )
-            
-        self.setRepeat('off')  # reset the repeat mode
-        self.setGuided('off')  # reset the guided mode
+
+        self.setRepeat('off')
+        self.setGuided('off')
 
         self.calculateSafeness()
         self.gui.refreshSafeness()
@@ -322,7 +322,7 @@ class Board:
 
     def setRepeat(self, mode='toggle'):
         """ mode: 'on' set repeat mode on, 'off' set repeat mode off, 'toggle' toggles repeat mode"""
-        if self.checkNewGame():
+        if mode != 'off' and self.checkNewGame():
             return
         if mode == 'toggle':
             value = not self.repeat
@@ -334,7 +334,7 @@ class Board:
 
     def setGuided(self, mode='toggle'):
         """ mode: 'on' set guided mode on, 'off' set guided mode off, 'toggle' toggles guided mode"""
-        if self.checkNewGame():
+        if mode != 'off' and self.checkNewGame():
             return
         if mode == 'toggle':
             value = not self.guided
@@ -392,8 +392,8 @@ class Board:
             self.steps += 1
             
         if self.hero.alive:
-            self.setRepeat('off')  # reset the repeat mode
-            self.setGuided('off')  # reset the guided mode
+            self.setRepeat('off')
+            self.setGuided('off')
             self.calculateSafeness()
             self.gui.refreshSafeness()
         else:
@@ -511,7 +511,7 @@ class Board:
         self.gui.textDisplayBoard(board = self)
 
     def checkNewGame(self):
-        if self.hero.alive:
+        if self.hero.alive and self.foeCount > 0:
             return False
         else:
             self.newGame()
