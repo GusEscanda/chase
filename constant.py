@@ -6,8 +6,8 @@ class HTMLElmnt:
     SAFE_TELEPORT_BUTTON          = 's'
     GUIDED_TELEPORT_BUTTON        = 'g'
     CIRCLES_ID_SUFFIX             = 'Circle'
-    CIRCLES_PARENT_ID_PREFIX      = 'count-indicator-' # Agregar / sacar el .hide para agregar o sacar los circulitos.
-    INFINITE_ID_PREFIX            = 'count-infinite-' # Lo mismo!
+    CIRCLES_PARENT_ID_PREFIX      = 'count-indicator-'
+    INFINITE_ID_PREFIX            = 'count-infinite-'
     NEW_GAME_BUTTON               = 'new'
     GUIDED_TELEPORT_CURSOR_SCOPE  = 'separationWrapper'
     TITLE_SCREEN_DIALOG           = 'gameTitleScreen'
@@ -95,6 +95,7 @@ class Metrics:
     DROP_TOOL_SIGMA = 1
     MAX_TOOL_STOCK = 5
     TOOL_INFINITE = 100
+    TOOL_DISABLE = -1
     INIC_TOOL_STOCK = {
         Tools.TELEPORT: TOOL_INFINITE,
         Tools.SAFE_TELEPORT: 3,
