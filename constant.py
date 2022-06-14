@@ -34,6 +34,7 @@ class HTMLElmnt:
 
 
 class CSSClass:
+    BOARD_OBJECT                  = 'board-object'
     COUNT_INDICATOR               = 'count-indicator__circle--active'
     GUIDED_TELEPORT_CURSOR        = 'separation-wrapper--guided-teleport-cursor'
     SELECTED_BUTTON               = 'button-selected'

@@ -35,6 +35,7 @@ class UI:
     sndLost = nullFunction
 
     askNewGame = nullFunction
+    cleanBoard = nullFunction
 
     textDisplayBoard = nullFunction
 
@@ -110,6 +111,7 @@ class GUI(UI):
         self.playing = False
 
         self.bindsTitleScreen(bind=True)
+
 
     def bindsTitleScreen(self, bind):
         if bind:
@@ -231,7 +233,7 @@ class GUI(UI):
             id = boardObj.id,
             src = boardObj.shape, 
             alt = boardObj.char,
-            Class = 'board-object', 
+            Class = CSSClass.BOARD_OBJECT, 
             style = {
                 'height': int(self.cellHeight),
                 'width': int(self.cellWidth),
@@ -249,6 +251,15 @@ class GUI(UI):
     def delete(self, boardObj):
         print(f'delete, id={boardObj.id} en {boardObj.row}, {boardObj.col} type={type(boardObj)}')
         timer.set_timeout(self._delete, self.animWhen + Anim.STEP_TIME, boardObj.id)
+
+    def cleanBoard(self):
+        timer.set_timeout(self._cleanBoard, self.animWhen + Anim.STEP_TIME)
+
+    def _cleanBoard(self):
+        boardObjects = browser.document.select('.'+CSSClass.BOARD_OBJECT)
+        print('cleanBoard:', len(boardObjects), 'objects')
+        for ob in boardObjects:
+            ob.remove()
 
     def pointerStart(self, evt):
         print(f'{evt.type} {evt.target.id}')

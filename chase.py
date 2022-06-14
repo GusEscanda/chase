@@ -241,6 +241,7 @@ class Board:
         self.boardObjectList = []
         self.grid = self.emptyGrid()
         self.foeCount = 0
+        self.gui.cleanBoard()  # En teoria no debe hacer objetos en el tablero a esta altura, pero si por error quedara alguno lo borro...
 
     def newLevel(self):
         self.cleanBoard()
