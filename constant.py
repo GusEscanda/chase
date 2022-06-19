@@ -30,6 +30,9 @@ class HTMLElmnt:
     INSTRUCTIONS_TOGGLE           = 'instructions-toggle'
     INSTRUCTIONS                  = 'instructions'
     INSTRUCTIONS_CLOSE            = 'instructions-close'
+    MODAL_INFO                    = 'myModal'
+    MODAL_INFO_CLOSE              = 'close-modal-button'
+    MODAL_INFO_CONTENT            = 'modal-content'
 
 
 
@@ -91,7 +94,7 @@ class Metrics:
     # metrics that will determine how difficult the game will be to play
     BOARD_DIM = (26,22)
     INIT_FOE_COUNT = 0
-    INCREMENT_FOE_COUNT_BY_LEVEL = 10
+    INCREMENT_FOE_COUNT_BY_LEVEL = 5
     DROP_TOOL_MU = 0
     DROP_TOOL_SIGMA = 1
     MAX_TOOL_STOCK = 5
@@ -99,13 +102,20 @@ class Metrics:
     TOOL_DISABLE = -1
     INIC_TOOL_STOCK = {
         Tools.TELEPORT: TOOL_INFINITE,
-        Tools.SAFE_TELEPORT: 3,
-        Tools.GUIDED_TELEPORT: 3,
-        Tools.SMALL_BOMB: 3,
-        Tools.BIG_BOMB: 3,            
+        Tools.SAFE_TELEPORT: 2,
+        Tools.GUIDED_TELEPORT: 2,
+        Tools.SMALL_BOMB: 2,
+        Tools.BIG_BOMB: 2,            
     }
     DIE_BEYOND_EDGES = False
 
 class Anim:
     # times involved in animation (in ms)
-    STEP_TIME = 50
+    STEP_TIME = 150
+
+PUZZLE_BOARD_ELEMENTS = 'VBGXHF'
+
+class Content:
+    INVALID_PUZZLE = '<h2>INVALID PUZZLE!!!</h2>'
+
+

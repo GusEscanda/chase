@@ -1,8 +1,10 @@
 import ui
 from ui import UI, NoGui, GUI
-
+import util
+from util import az2int, int2az
 import random
-from constant import Tools, Prio, TextChar, GraphShape, Metrics
+from constant import Tools, Prio, TextChar, GraphShape, Metrics, Content
+from puzzle import Puzzle
 
 class BoardObject:
     # Mother class for all the board objects, implements the standard behavior and atributes of them.
@@ -168,16 +170,26 @@ class Hero( BoardObject ):
 
 class Board:
 
-    def __init__(self, maxR, maxC, gui = None, puzzle=None):
+    FREE = 1   # playing a free style game (board objects radndomly regerated)
+    PUZZLE = 2 # playing a puzzle
+    EDIT = 3   # editting a puzzle
+    REPLAY = 4   # replay the moves that solve a puzzle
+
+    def __init__(self, maxR, maxC, gui = None, puzzleString=None):
         # Set the height and width of the board
         self.maxR = maxR
         self.maxC = maxC
         self.vertical = (maxR > maxC)
-        self.puzzle = puzzle
 
         # Store a reference to the GUI object
         self.gui = gui
 
+        self.puzzle = None if not puzzleString else Puzzle(puzzleString)
+        if puzzle:
+            self.mode = Board.PUZZLE
+        else:
+            self.mode = Board.FREE
+        
         self.hero = None
         self.level = 0 # Counts the level so each one will be more challenging
 
@@ -195,41 +207,36 @@ class Board:
         # Create a list that will contain all the objects that must do something in each cicle of the game
         self.boardObjectList = []
 
-    def char2num(self,ch):
-        return ord(ch) - 97
-
-    def num2char(self,n):
-        return chr(n+97)
-
-    def str2rc(self,s):
+    def loadPuzzle(self):
+        self.toolStock = { tool: self.puzzle.toolStock[tool] for tool in self.puzzle.toolStock }
         if self.vertical:
-            return self.char2num(s[1]), self.char2num(s[0])
+            col, row = self.puzzle.bObjList['H'][0]
         else:
-            return self.char2num(s[0]), self.char2num(s[1])
-
-    def load_puzzle(self):
-        for tool in Metrics.INIC_TOOL_STOCK:
-            self.toolStock[tool] = -1
-        self.toolStock[Tools.SMALL_BOMB] = self.char2num(self.puzzle[0])
-        self.toolStock[Tools.BIG_BOMB] = self.char2num(self.puzzle[1])
-        self.toolStock[Tools.GUIDED_TELEPORT] = self.char2num(self.puzzle[2])
-        row, col = self.str2rc( self.puzzle[3:5] )
+            row, col = self.puzzle.bObjList['H'][0]
         self.placeBoardObjects( Hero, coords=(row,col) )
         self.hero = self.boardObjectList[0]
-        i = 5
-        while i < len(self.puzzle):
-            if self.puzzle[i] == 'V':
+        for elem in self.puzzle.bObjList:
+            if elem == 'H':
+                continue
+            elif elem == 'V':
                 boClass = SmallBomb
-            elif self.puzzle[i] == 'B':
+            elif elem == 'B':
                 boClass = BigBomb
-            elif self.puzzle[i] == 'G':
+            elif elem == 'G':
                 boClass = GuidedTeleport
-            else:
+            elif elem == 'X':
                 boClass = Foe
-            i += 1
-            while i < len(self.puzzle) and self.puzzle[i] >= 'a':
-                self.placeBoardObjects( boClass, coords=(self.str2rc(self.puzzle[i:i+2])) )
-                i += 2
+            elif elem == 'F':
+                boClass = Fire
+            for row, col in self.puzzle.bObjList[elem]:
+                if self.vertical:
+                    row, col = col, row
+                self.placeBoardObjects( boClass, coords=(row, col) )
+        desc = f"<h3>{self.puzzle.title}</h3><br>" + \
+               f"<p>{self.puzzle.message}</p><br>" + \
+               f"<p>by {self.puzzle.author}</p><br>" + \
+               f"<p>solved in {len(self.puzzle.authSoluc)//3} steps</p><br>"
+        self.gui.showModalInfo(desc)
 
     def emptyGrid(self):
         # using regular python lists because brython doesn't support numpy, I hope will not have performance issues...
@@ -245,10 +252,18 @@ class Board:
 
     def newLevel(self):
         self.cleanBoard()
-        if self.puzzle:
-            self.load_puzzle()
+        if self.mode == Board.PUZZLE:
+            if self.puzzle.invalid:
+                self.gui.showModalInfo(Content.INVALID_PUZZLE)
+                self.mode = Board.FREE
+            else:
+                self.loadPuzzle()
         else:
+            # self.mode == Board.FREE
             self.level += 1
+            if self.level == 1:
+                for tool in Metrics.INIC_TOOL_STOCK:
+                    self.toolStock[tool] = Metrics.INIC_TOOL_STOCK[tool]
             if self.level > 1:
                 self.gui.sndLevelUp()
             self.placeBoardObjects( Hero )
@@ -268,6 +283,7 @@ class Board:
 
         self.gui.textDisplayBoard(board = self)
         self.gui.refreshScores()
+        self.gui.refreshButtons()
         
     def newGame(self):
         if self.hero is not None:
@@ -277,10 +293,6 @@ class Board:
         self.score = 0
         self.steps = 0
         self.newLevel()
-        if not self.puzzle:
-            for tool in Metrics.INIC_TOOL_STOCK:
-                self.toolStock[tool] = Metrics.INIC_TOOL_STOCK[tool]
-        self.gui.refreshButtons()
 
     def collectTools(self):
         for _ in range(len(self.boardObjectList)): # for all the tools that remain in the board
@@ -333,6 +345,7 @@ class Board:
 
 
     def move(self, deltaR, deltaC, repeat=False):
+        # return  # XXXXXXX
         if self.checkNewGame():
             return
         # Take one or more steps in the (deltaR, deltaC) direction.
@@ -449,6 +462,8 @@ class Board:
             row = random.randrange(self.maxR)
             col = random.randrange(self.maxC)
             while (self.grid[row][col] != None) or (safe and self.notSafe(row,col)):
+                if self.safeness < 0.005:  # avoid infinite loop in extremely crowded boards
+                    break
                 row = random.randrange(self.maxR)
                 col = random.randrange(self.maxC)
         
@@ -554,7 +569,7 @@ if ui.BROWSER:
     else:
         maxR, maxC = min(Metrics.BOARD_DIM), max(Metrics.BOARD_DIM)
 
-    board = Board(maxR=maxR, maxC=maxC, puzzle=puzzle)
+    board = Board(maxR=maxR, maxC=maxC, puzzleString=puzzle)
     gui = GUI(board)
     board.gui = gui
     board.newGame()

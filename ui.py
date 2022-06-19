@@ -2,6 +2,7 @@ import time
 import os
 import math
 from constant import CSSClass, HTMLElmnt, Metrics, Tools, Anim, ToolHTMLElement
+from util import int2az, az2int
 
 try:
     import browser
@@ -178,6 +179,20 @@ class GUI(UI):
             self.bindsGamePlay(bind=True)
             self.playing = True
 
+    def showModalInfo(self, content):
+        browser.document[HTMLElmnt.MODAL_INFO_CONTENT].innerHTML = content
+        browser.document[HTMLElmnt.MODAL_INFO].classList.remove(CSSClass.HIDE)
+        browser.document[HTMLElmnt.MODAL_INFO_CLOSE].bind('click', self.hideModalInfo)
+        self.bindsGamePlay(False)
+        self.playing = False
+
+    def hideModalInfo(self, evt):
+        browser.document[HTMLElmnt.MODAL_INFO_CONTENT].innerHTML = ''
+        browser.document[HTMLElmnt.MODAL_INFO].classList.add(CSSClass.HIDE)
+        browser.document[HTMLElmnt.MODAL_INFO_CLOSE].removeEventListener('click', self.hideModalInfo)
+        self.bindsGamePlay(True)
+        self.playing = True
+
     def rowcol2coords(self, row, col, relative=True):
         top  = self.relativeTop  if relative else self.absoluteTop
         left = self.relativeLeft if relative else self.absoluteLeft
@@ -273,11 +288,19 @@ class GUI(UI):
                 self.mouseDownX, self.mouseDownY = None, None  # cancel move
                 return
         print(f'     x: {x}, y: {y}, coords: {self.coords2rowcol(x, y)}')
+
+        # XXXXXXXXXXX
+        # r, c = self.coords2rowcol(x, y)
+        # self.board.puzzle += int2az(r) + int2az(c)
+        # self.board.placeBoardObjects(self.board.foeClass, 1, (r, c))
+        # print(self.board.puzzle)
+        # XXXXXXXXXX
+
         self.mouseDownX, self.mouseDownY = x, y
         self.mouseUpX, self.mouseUpY = x, y  # if there is no movement the ponterMove will not be fired...
         
     def pointerMove(self, evt):
-        print(f'{evt.type} {evt.target.id}')
+        # print(f'{evt.type} {evt.target.id}')
         if evt.type == 'mousemove':
             x, y = evt.x, evt.y
         elif evt.type == 'touchmove':
@@ -287,7 +310,7 @@ class GUI(UI):
             else:
                 self.mouseUpX, self.mouseUpY = None, None  # cancel move
                 return
-        print(f'     x: {x}, y: {y}, coords: {self.coords2rowcol(x, y)}')
+        # print(f'     x: {x}, y: {y}, coords: {self.coords2rowcol(x, y)}')
         self.mouseUpX, self.mouseUpY = x, y
 
     def pointerEnd(self, evt):
