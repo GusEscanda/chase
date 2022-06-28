@@ -19,14 +19,13 @@ class UI:
 
     # override all or any of these functions depending on the type of interfase, text (standard os console) or graphic (via Brython)
     resetAnim = nullFunction
-    nextStep = nullFunction
+    nextStepTime = nullFunction
     draw = nullFunction
     translate = nullFunction
     delete = nullFunction
     
     refreshScores = nullFunction
     refreshButtons = nullFunction
-    refreshRepeat = nullFunction
     refreshGuided = nullFunction
     refreshSafeness = nullFunction
 
@@ -36,6 +35,7 @@ class UI:
     sndLost = nullFunction
 
     askNewGame = nullFunction
+    cleanBoard = nullFunction
 
     textDisplayBoard = nullFunction
 
@@ -68,7 +68,6 @@ class NoGui(UI):
         print()
         for t in board.toolStock:
             print( t + ' ' + str(board.toolStock[t] if board.toolStock[t] >= 0 else ''), end='   ' )
-        # print( '   ', '[r]' if board.repeat else ' r ', end='   ' )
         print()
         print()
 
@@ -109,8 +108,10 @@ class GUI(UI):
         self.lastPointerMoveTimeStamp = 0
 
         self.keydownArrows = {'ArrowUp':False, 'ArrowDown':False, 'ArrowLeft':False, 'ArrowRight':False}
+        self.playing = False
 
         self.bindsTitleScreen(bind=True)
+
 
     def bindsTitleScreen(self, bind):
         if bind:
@@ -127,10 +128,11 @@ class GUI(UI):
         if browser.document[HTMLElmnt.TITLE_SCREEN_DIALOG].classList.contains(CSSClass.TITLE_SCREEN_ACTIVE):
             browser.document[HTMLElmnt.TITLE_SCREEN_DIALOG].classList.remove(CSSClass.TITLE_SCREEN_ACTIVE)
             self.bindsTitleScreen(bind=False)
-            self.bindsGamePLay(bind=True)
+            self.bindsGamePlay(bind=True)
+            self.playing = True
 
 
-    def bindsGamePLay(self, bind):
+    def bindsGamePlay(self, bind):
         if bind:
             self.field.bind("mousedown", self.pointerStart)
             self.field.bind("mousemove", self.pointerMove)
@@ -140,6 +142,7 @@ class GUI(UI):
             self.field.bind('touchend', self.pointerEnd)
             window.bind('keydown', self.keyPressed)
             window.bind('keyup', self.keyPressed)
+            browser.document[HTMLElmnt.INSTRUCTIONS_TOGGLE].bind( 'click', lambda evt: self.showInstructions(True) )
             browser.document[HTMLElmnt.TELEPORT_BUTTON].bind( 'click', lambda evt: self.board.teleport() )
             browser.document[HTMLElmnt.SAFE_TELEPORT_BUTTON].bind( 'click', lambda evt: self.board.teleport(safe=True) )
             browser.document[HTMLElmnt.GUIDED_TELEPORT_BUTTON].bind( 'click', lambda evt: self.board.setGuided('toggle') )
@@ -155,6 +158,7 @@ class GUI(UI):
             self.field.removeEventListener('touchend', self.pointerEnd)
             window.removeEventListener('keydown', self.keyPressed)
             window.removeEventListener('keyup', self.keyPressed)
+            browser.document[HTMLElmnt.INSTRUCTIONS_TOGGLE].removeEventListener( 'click', lambda evt: self.showInstructions(True) )
             browser.document[HTMLElmnt.TELEPORT_BUTTON].removeEventListener( 'click', lambda evt: self.board.teleport() )
             browser.document[HTMLElmnt.SAFE_TELEPORT_BUTTON].removeEventListener( 'click', lambda evt: self.board.teleport(safe=True) )
             browser.document[HTMLElmnt.GUIDED_TELEPORT_BUTTON].removeEventListener( 'click', lambda evt: self.board.setGuided('toggle') )
@@ -162,6 +166,17 @@ class GUI(UI):
             browser.document[HTMLElmnt.BIG_BOMB_BUTTON].removeEventListener( 'click', lambda evt: self.board.bomb(big=True) )
             browser.document[HTMLElmnt.NEW_GAME_BUTTON].removeEventListener( 'click', lambda evt: self.board.newGame() )
 
+    def showInstructions(self, show=True):
+        if show:
+            self.playing = False
+            self.bindsGamePlay(bind=False)
+            browser.document[HTMLElmnt.INSTRUCTIONS].classList.remove(CSSClass.HIDE)
+            browser.document[HTMLElmnt.INSTRUCTIONS_CLOSE].bind( 'click', lambda evt: self.showInstructions(False) )
+        else:
+            browser.document[HTMLElmnt.INSTRUCTIONS].classList.add(CSSClass.HIDE)
+            browser.document[HTMLElmnt.INSTRUCTIONS_CLOSE].removeEventListener( 'click', lambda evt: self.showInstructions(False) )
+            self.bindsGamePlay(bind=True)
+            self.playing = True
 
     def rowcol2coords(self, row, col, relative=True):
         top  = self.relativeTop  if relative else self.absoluteTop
@@ -192,7 +207,7 @@ class GUI(UI):
     def resetAnim(self):
         self.animWhen = 0
 
-    def nextStep(self):
+    def nextStepTime(self):
         self.animWhen += Anim.STEP_TIME
 
     def _draw(self, img):
@@ -218,7 +233,7 @@ class GUI(UI):
             id = boardObj.id,
             src = boardObj.shape, 
             alt = boardObj.char,
-            Class = 'board-object', 
+            Class = CSSClass.BOARD_OBJECT, 
             style = {
                 'height': int(self.cellHeight),
                 'width': int(self.cellWidth),
@@ -236,6 +251,15 @@ class GUI(UI):
     def delete(self, boardObj):
         print(f'delete, id={boardObj.id} en {boardObj.row}, {boardObj.col} type={type(boardObj)}')
         timer.set_timeout(self._delete, self.animWhen + Anim.STEP_TIME, boardObj.id)
+
+    def cleanBoard(self):
+        timer.set_timeout(self._cleanBoard, self.animWhen + Anim.STEP_TIME)
+
+    def _cleanBoard(self):
+        boardObjects = browser.document.select('.'+CSSClass.BOARD_OBJECT)
+        print('cleanBoard:', len(boardObjects), 'objects')
+        for ob in boardObjects:
+            ob.remove()
 
     def pointerStart(self, evt):
         print(f'{evt.type} {evt.target.id}')
@@ -293,26 +317,24 @@ class GUI(UI):
             if deltaR == 0 and deltaC == 0:
                 self.board.teleport(guided=True, coords=self.coords2rowcol(self.mouseUpX, self.mouseUpY))
         else:
-            self.board.repeat = self.board.repeat or (evt.timeStamp - self.lastPointerMoveTimeStamp < GUI.FAST_MOVE)
-            self.board.repeat = self.board.repeat or ((length/self.cellWidth) > GUI.BIG_MOVE)
-            self.board.move(deltaR,deltaC)
+            repeat = evt.shiftKey or \
+                     (evt.timeStamp - self.lastPointerMoveTimeStamp < GUI.FAST_MOVE) or \
+                     ((length/self.cellWidth) > GUI.BIG_MOVE)
+            self.board.move(deltaR,deltaC, repeat)
             self.lastPointerMoveTimeStamp = evt.timeStamp
 
     def keyPressed(self, evt):
-
+        if not self.playing:
+            return
         if evt.type == 'keydown':
             print('keydown', evt.key)
-            if evt.key == 'Shift':
-                self.board.setRepeat('on')
-            elif evt.key in self.keydownArrows:
+            if evt.key in self.keydownArrows:
                 self.keydownArrows[evt.key] = True
             return
 
         if evt.type == 'keyup':
             print('keyup', evt.key)
-            if evt.key == 'Shift':
-                self.board.setRepeat('off')
-            elif evt.key in '123456789 ' or evt.key in ['Home', 'End', 'PageUp', 'PageDown', 'Clear']:
+            if evt.key in '123456789 ' or evt.key in ['Home', 'End', 'PageUp', 'PageDown', 'Clear']:
                 deltaR, deltaC = 0, 0
                 if evt.key in '741' or evt.key in ['Home', 'End']:
                     deltaC = -1
@@ -322,7 +344,7 @@ class GUI(UI):
                     deltaR = -1
                 elif evt.key in '123' or evt.key in ['End', 'PageDown']:
                     deltaR = 1
-                self.board.move(deltaR,deltaC)
+                self.board.move(deltaR, deltaC, evt.shiftKey)
             elif evt.key in self.keydownArrows:
                 if not self.keydownArrows[evt.key]:
                     return # this is the keyup of an arrow that has been processed in combination with another
@@ -337,7 +359,7 @@ class GUI(UI):
                     deltaC = deltaC + 1 
                 self.keydownArrows = {k: False for k in self.keydownArrows}
                 print('move', deltaR, deltaC)
-                self.board.move(deltaR,deltaC)
+                self.board.move(deltaR, deltaC, evt.shiftKey)
             elif evt.key in 'tT':
                 self.board.teleport()
             elif evt.key in 'sS':
@@ -348,8 +370,6 @@ class GUI(UI):
                 self.board.bomb(big=False)
             elif evt.key in 'bB':
                 self.board.bomb(big=True)
-            elif evt.key in 'rR':
-                self.board.setRepeat('toggle')
             elif evt.key in 'nN':
                 self.board.newGame()
             return
@@ -379,12 +399,16 @@ class GUI(UI):
         tools = self.board.toolStock if tool is None else {tool}
         for t in tools:
             print('refresh buttons', t, self.board.toolStock[t])
-            browser.document[ToolHTMLElement[t]].classList.remove(CSSClass.HIDE)
             if self.board.toolStock[t] < 0:
                 browser.document[ToolHTMLElement[t]].classList.add(CSSClass.HIDE)
             elif self.board.toolStock[t] == Metrics.TOOL_INFINITE:
-                pass ## Poner aqui lo neecsario para hacer la raya o lo que sea que indique "uso infinito"
+                browser.document[ToolHTMLElement[t]].classList.remove(CSSClass.HIDE)
+                browser.document[HTMLElmnt.INFINITE_ID_PREFIX + ToolHTMLElement[t]].classList.remove(CSSClass.HIDE)
+                browser.document[HTMLElmnt.CIRCLES_PARENT_ID_PREFIX + ToolHTMLElement[t]].classList.add(CSSClass.HIDE)
             else:
+                browser.document[ToolHTMLElement[t]].classList.remove(CSSClass.HIDE)
+                browser.document[HTMLElmnt.INFINITE_ID_PREFIX + ToolHTMLElement[t]].classList.add(CSSClass.HIDE)
+                browser.document[HTMLElmnt.CIRCLES_PARENT_ID_PREFIX + ToolHTMLElement[t]].classList.remove(CSSClass.HIDE)
                 for c in range(Metrics.MAX_TOOL_STOCK):
                     idCircle = ToolHTMLElement[t] + HTMLElmnt.CIRCLES_ID_SUFFIX + str(c+1)
                     if self.board.toolStock[t] > c:

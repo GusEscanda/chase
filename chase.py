@@ -190,7 +190,6 @@ class Board:
         self.highScore = 0
         self.toolStock = {}
 
-        self.repeat = False
         self.guided = False
 
         # Create a list that will contain all the objects that must do something in each cicle of the game
@@ -242,6 +241,7 @@ class Board:
         self.boardObjectList = []
         self.grid = self.emptyGrid()
         self.foeCount = 0
+        self.gui.cleanBoard()  # En teoria no debe hacer objetos en el tablero a esta altura, pero si por error quedara alguno lo borro...
 
     def newLevel(self):
         self.cleanBoard()
@@ -260,9 +260,8 @@ class Board:
             self.placeBoardObjects( BigBomb, toolDrop() )
             self.placeBoardObjects( SafeTeleport, toolDrop() )
             self.placeBoardObjects( GuidedTeleport, toolDrop() )
-            
-        self.setRepeat('off')  # reset the repeat mode
-        self.setGuided('off')  # reset the guided mode
+
+        self.setGuided('off')
 
         self.calculateSafeness()
         self.gui.refreshSafeness()
@@ -320,21 +319,9 @@ class Board:
                 self.foeCount += 1
             added += 1
 
-    def setRepeat(self, mode='toggle'):
-        """ mode: 'on' set repeat mode on, 'off' set repeat mode off, 'toggle' toggles repeat mode"""
-        if self.checkNewGame():
-            return
-        if mode == 'toggle':
-            value = not self.repeat
-        else:
-            value = (mode.lower() == 'on')
-        self.repeat = value
-        self.gui.refreshRepeat(self.repeat)
-        return self.repeat
-
     def setGuided(self, mode='toggle'):
         """ mode: 'on' set guided mode on, 'off' set guided mode off, 'toggle' toggles guided mode"""
-        if self.checkNewGame():
+        if mode != 'off' and self.checkNewGame():
             return
         if mode == 'toggle':
             value = not self.guided
@@ -345,7 +332,7 @@ class Board:
         return self.guided
 
 
-    def move(self, deltaR, deltaC):
+    def move(self, deltaR, deltaC, repeat=False):
         if self.checkNewGame():
             return
         # Take one or more steps in the (deltaR, deltaC) direction.
@@ -358,7 +345,7 @@ class Board:
 
             # If the mode is 'repeat', keep going until reaches a border, an obstacle or a non safe cell (near a Foe). 
             # So the 'repeat' mode is safe...
-            if self.repeat and ( self.notSafe(newR,newC) or self.notEmpty(newR,newC) ):
+            if repeat and ( self.notSafe(newR,newC) or self.notEmpty(newR,newC) ):
                 break
 
             # clear the grid and start to generate the updated one
@@ -380,20 +367,19 @@ class Board:
                     self.boardObjectList.append( bObj )
 
             # if the mode is 'repeat', keep going
-            if not self.repeat:
+            if not repeat:
                 break
 
             self.gui.textDisplayBoard(board = self)
 
-            if self.repeat:
-                self.gui.nextStep()
+            if repeat:
+                self.gui.nextStepTime()
 
         if moved:
             self.steps += 1
             
         if self.hero.alive:
-            self.setRepeat('off')  # reset the repeat mode
-            self.setGuided('off')  # reset the guided mode
+            self.setGuided('off')
             self.calculateSafeness()
             self.gui.refreshSafeness()
         else:
@@ -476,8 +462,7 @@ class Board:
         self.hero.row = row
         self.hero.col = col
         self.gui.translate( boardObj = self.hero )
-        self.setRepeat('off')
-        self.move(0,0)
+        self.move(0, 0, repeat=False)
         self.gui.textDisplayBoard(board = self)
 
     def bomb(self, big=False):
@@ -506,12 +491,11 @@ class Board:
                         self.placeBoardObjects( Fire, coords = (row + deltaR, col + deltaC) )
                 elif not isinstance( self.grid[ row + deltaR ][ col + deltaC ], Fire ):
                     self.grid[ row + deltaR ][ col + deltaC ].die(killer=None)
-        self.setRepeat('off')
-        self.move(0,0)
+        self.move(0, 0, repeat=False)
         self.gui.textDisplayBoard(board = self)
 
     def checkNewGame(self):
-        if self.hero.alive:
+        if self.hero.alive and self.foeCount > 0:
             return False
         else:
             self.newGame()
@@ -550,8 +534,6 @@ def test():
             board.bomb(big=False)
         elif k in 'bB':
             board.bomb(big=True)
-        elif k in 'rR':
-            board.setRepeat('toggle')
         elif k in 'nN':
             board.newGame()
         board.gui.textDisplayBoard( board = board)
