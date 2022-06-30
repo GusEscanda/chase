@@ -91,7 +91,7 @@ class Metrics:
     # metrics that will determine how difficult the game will be to play
     BOARD_DIM = (26,22)
     INIT_FOE_COUNT = 0
-    INCREMENT_FOE_COUNT_BY_LEVEL = 10
+    INCREMENT_FOE_COUNT_BY_LEVEL = 6
     DROP_TOOL_MU = 0
     DROP_TOOL_SIGMA = 1
     MAX_TOOL_STOCK = 5

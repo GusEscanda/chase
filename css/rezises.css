@@ -21,6 +21,11 @@
   .game-title__press-to-enter {
     font-size: 24px;
   }
+
+  .instructions {
+    height: 100vh;
+    width: 100%;
+  }
 }
 
 /* ! 400 */
