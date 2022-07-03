@@ -3,7 +3,7 @@ from ui import UI, NoGui, GUI
 import util
 from util import az2int, int2az
 import random
-from constant import Tools, Prio, TextChar, GraphShape, Metrics, Content
+from constant import Tools, Prio, TextChar, GraphShape, Metrics, Content, PlayMode
 from puzzle import Puzzle
 
 class BoardObject:
@@ -170,11 +170,6 @@ class Hero( BoardObject ):
 
 class Board:
 
-    FREE = 1   # playing a free style game (board objects radndomly regerated)
-    PUZZLE = 2 # playing a puzzle
-    EDIT = 3   # editting a puzzle
-    REPLAY = 4   # replay the moves that solve a puzzle
-
     def __init__(self, maxR, maxC, gui = None, puzzleString=None):
         # Set the height and width of the board
         self.maxR = maxR
@@ -186,9 +181,9 @@ class Board:
 
         self.puzzle = None if not puzzleString else Puzzle(puzzleString)
         if puzzle:
-            self.mode = Board.PUZZLE
+            self.mode = PlayMode.PUZZLE
         else:
-            self.mode = Board.FREE
+            self.mode = PlayMode.FREE
         
         self.hero = None
         self.level = 0 # Counts the level so each one will be more challenging
@@ -252,14 +247,14 @@ class Board:
 
     def newLevel(self):
         self.cleanBoard()
-        if self.mode == Board.PUZZLE:
+        if self.mode == PlayMode.PUZZLE:
             if self.puzzle.invalid:
                 self.gui.showModalInfo(Content.INVALID_PUZZLE)
-                self.mode = Board.FREE
+                self.mode = PlayMode.FREE
             else:
                 self.loadPuzzle()
         else:
-            # self.mode == Board.FREE
+            # self.mode == PlayMode.FREE
             self.level += 1
             if self.level == 1:
                 for tool in Metrics.INIC_TOOL_STOCK:
@@ -268,8 +263,8 @@ class Board:
                 self.gui.sndLevelUp()
             self.placeBoardObjects( Hero )
             self.hero = self.boardObjectList[0]
-            self.placeBoardObjects( Foe, Metrics.INIT_FOE_COUNT + Metrics.INCREMENT_FOE_COUNT_BY_LEVEL * self.level )
-            
+            foeCount = min( Metrics.INIT_FOE_COUNT + Metrics.INCREMENT_FOE_COUNT_BY_LEVEL * self.level, Metrics.MAX_FOES_PER_LEVEL )
+            self.placeBoardObjects( Foe, foeCount )            
             toolDrop = lambda : max(0, int( random.normalvariate( Metrics.DROP_TOOL_MU, Metrics.DROP_TOOL_SIGMA ) ))
             self.placeBoardObjects( SmallBomb, toolDrop() )
             self.placeBoardObjects( BigBomb, toolDrop() )

@@ -1,6 +1,6 @@
 import urllib.parse
 import hashlib
-from util import bytes2az, az2int, int2az
+from util import bytes2az, az2int, int2az, decode, encode
 from constant import Tools, Metrics, PUZZLE_BOARD_ELEMENTS
 
 class Puzzle:
@@ -21,18 +21,18 @@ class Puzzle:
     ]
 
     PRESETS = [
-        'fhhehhjkedelcsbhhycvfaabctcgcxhc/Gustavo/Easy/Try%20this%20one%20first...//////aaa/XgnngpmponrmuHln',
-        'flgyfghigggfgyfodpiyjsfdbhebangj/Gustavo/Wait/Just%20sit%20down%20and%20wait%20for%20them//////aaa/XabbbccdcedfdgeheifjfkglgmhnhoinjmjlkkkjlilhlhmgmfngohohpipjpkqlqmrnrosntmtlukujvivhwgwfxexdycybzazHvn',
-        'ggcnhugrcljvihhkbqamaefzjhamacii/Gustavo/Lothlorien///////aaa/XcpdxfsfjgeiiimioiqishwmvpqooolnernsksrsauavdvevgHln',
-        'hxdogsjrhlgkesezdfijjqgidhaejncz/Gustavo/Tronador///////aaa/XcfecdkcoctfhfnfsfwhehqjqktkwmunrnoproxsvuwkdlhnboerducsipksmHin',
-        'ipfyhvgwexirctdpiiccdaambpjchzbf/Gustavo/Gravity///////aaa/VmllmBnpXijggeicgcablfmiogsfvfzczcvizcrfalekgiapeohlapklzoasgslozrqraucuasuuouzrzntjuHln',
-        'fkgqhnfxjdfobqhhbhipfsiafxhefsit/Gustavo/Snow/Find%20at%20leat%202%20solutions%20in%207%20steps%21%21//////aab/XafanbobzcycwdudtetexemdkdddbeagifrjwkvmxnvntotvouourtrjpkpjljkljmhnbmmnnqprnqsrsrtrysytxukujqdtbucudHlz',
-        'dqcfacghjpjjdqbxiafuijgzjrhshyii/Gustavo/Solve%20this%20one/if%20you%20can...//////aab/BmrnrnsXhngpgqgsirjskqlqlsjuhvkwjymwmyouoqopeudsctbsbvdvbxdyfwendmambiagbeddcbdhfgejflhjjgkejchdfbkkmklimglbncparboeqdtcvaudufsfqgoirjthukrnqppmpxrtsrtouqustusxuyvvHcq',
-        'dkccdbhxccdienaibjcqfsjbhhjrhidx/Gustavo/Mendieta///////aab/XfmfnfogngohohphqjskrlsouovownwmzmpoppopqolpkpmpgoenendnalclekfmflglhkimiljlljmjkjghhiigjfhjceefeebdbcdceadbhbidjamcncoapardsctcubsbwcxeyewdvqtruvytyrxspsrrrvrvpurvtuntnsmrjrhsftfufsetivgvhvjukveudtaqcHtw',
-        'gsasfabwjcbdbshmddifhbgofadhcibz/Gustavo/Two%20ways/to%20do%20the%20same%20score.%20Find%20them%21%21//////aab/XgqeqeseteufuftdrcrcsdxeybwbvbuauataxhuivkwkxlwnznvowpwpyqvbfdfdgbhchcdddeefegefhekangnhlhkhiihjhjijmlllmlolpmpkqksjsosopnnojoklingnhpgmflefagbicjakalbmbobpbqbrbrcrgrhsitftevdvgqjrkpmvjvkqnqpvqvrsyrzuzuxtwHln',
-        'cxcsgrdvgzaahcijemhxbdfnhrighwgq/Gustavo/El%20Renegau///////aab/XkxkumxlxmzhzhqhrhshtgqmqmononqoqorooonnnnmmlminsnunxoyqzpwqvrtsuusuuvhugtgtfsjsktkqjtnrppmqmqgrgsdrdqdqbtbnelekdkgjgihijhjhkjmhnglflelekejeidkckbkfidmendoamajbrcweugvewgxeydzbdbgdfhfjcibgbfaeceddacabaHln',
-        'ilcucierauhicaeiabhsiufcgzczjjfn/Gustavo/Taxi%21%21///////aab/XlmkmklkninimlqnroqmtltkulxotrtttpwqvpxnzrztytzuzuwuvupuntntprpqovmvlabbdaeafcfdfdgdifjfkflelclbkbnaobocsbwcwdvcyeygyiygwfqgqdaebfdhdiakalblclekejehghhjikjlimjljkgmgndodpdqatascsdtdvaretfthtitjukriqjpiHln',
-        'hujqjufchwisjkjnhbjpeidjbcaeaqap/Gustavo/Walk/just%20walk%20and%20see//////aaa/XabacadaeafagahaiajakalamanaoapavbvcvdvevfvgvhvivjvkvlvmvnvovpvqvrvsvtvvtvsvrvqvpvovnvmvlvkvjvivhvgvfvevdvcvbpaoanamalakajaiahagafaeadacabaazHbb',
+        'http://127.0.0.1:5500/?puzzle=achfbuhxdlapdhccbucqfehzerethudj/Mmd2INt/rIdK/PXw%20QtzV%20tBa%209j8V8.../123456123456123456/////aaa/XgnngpmponrmuHln',
+        'http://127.0.0.1:5500/?puzzle=dojocsapaxhgjajgjsaugreyhzbccyhu/Mmd%20pdHILhI/WIj2/Nmd2%20dzQ%20h2fx%20Sxc%209Ij2%20ytX%202Was/123/////aaa/XabbbccdcedfdgeheifjfkglgmhnhoinjmjlkkkjlilhlhmgmfngohohpipjpkqlqmrnrosntmtlukujvivhwgwfxexdycybzazHvn',
+        'http://127.0.0.1:5500/?puzzle=aejrfyfjgucsicclfoehfvgdgmbkaghy/MIQRc9zNQ/528QAn87ax//123456789.1123456789.1123456789.1/////aaa/XcpdxfsfjgeiiimioiqishwmvpqooolnernsksrsauavdvevgHln',
+        'http://127.0.0.1:5500/?puzzle=dheehlehjhanecategjdamhzfcftbdcx/6Q8t%20Ju7QzBe/PXnxIGtX//123456789.123456789.123456789./////aaa/XcfecdkcoctfhfnfsfwhehqjqktkwmunrnoproxsvuwkdlhnboerducsipksmHin',
+        'http://127.0.0.1:5500/?puzzle=dudliteagrjdcvafjnjogefcgpjkdbet/MNn8Fa%204Ss2f/MXSE78K//123456789.123456789.123456789./////aaa/VmllmBnpXijggeicgcablfmiogsfvfzczcvizcrfalekgiapeohlapklzoasgslozrqraucuasuuouzrzntjuHln',
+        'http://127.0.0.1:5500/?puzzle=jdfqgtiegybdddgwejbugmdodeafieiy/N2L%20tLt1/FBn9/47Lh%20S2%20QuI8%203%20S2QDQjtBd%207L%20U%20SQaJV%21%21/123456712345671234567/////aab/XafanbobzcycwdudtetexemdkdddbeagifrjwkvmxnvntotvouourtrjpkpjljkljmhnbmmnnqprnqsrsrtrysytxukujqdtbucudHlz',
+        'http://127.0.0.1:5500/?puzzle=ceccanjbcgdsbgdjelfvjshdaobycmfw/Mmd%20pdHILhI/F2QEN%202WjS%20nxN/z9%20K2W%20oSx.../123451234512345/////aab/BmrnrnsXhngpgqgsirjskqlqlsjuhvkwjymwmyouoqopeudsctbsbvdvbxdyfwendmambiagbeddcbdhfgejflhjjgkejchdfbkkmklimglbncparboeqdtcvaudufsfqgoirjthukrnqppmpxrtsrtouqustusxuyvvHcq',
+        'http://127.0.0.1:5500/?puzzle=gnajgkeadqgcfjhfgoejdvfwenesfbdd/Y2BuX8t%20UtB8RBS8XnSI/ONLh7a2I//123123123/////aab/XfmfnfogngohohphqjskrlsouovownwmzmpoppopqolpkpmpgoenendnalclekfmflglhkimiljlljmjkjghhiigjfhjceefeebdbcdceadbhbidjamcncoapardsctcubsbwcxeyewdvqtruvytyrxspsrrrvrvpurvtuntnsmrjrhsftfufsetivgvhvjukveudtaqcHtw',
+        'http://127.0.0.1:5500/?puzzle=jpiqbagvaxehjddndkaabqcwcuarfkbi/rua%20pdHILhI/P1n%201SKV/22%20h2%202Wa%20VSsN%20Son8N.%20djxc%202Was%21%21/123456789.1123456789.1123456789.1/////aab/XgqeqeseteufuftdrcrcsdxeybwbvbuauataxhuivkwkxlwnznvowpwpyqvbfdfdgbhchcdddeefegefhekangnhlhkhiihjhjijmlllmlolpmpkqksjsosopnnojoklingnhpgmflefagbicjakalbmbobpbqbrbrcrgrhsitftevdvgqjrkpmvjvkqnqpvqvrsyrzuzuxtwHln',
+        'http://127.0.0.1:5500/?puzzle=etisjvffdeatjkfndxgqjpdpdeateagn/TNe82%2042L2ILRX9tVS/rA%20YNLuFSD//123456123456123456/////aab/XkxkumxlxmzhzhqhrhshtgqmqmononqoqorooonnnnmmlminsnunxoyqzpwqvrtsuusuuvhugtgtfsjsktkqjtnrppmqmqgrgsdrdqdqbtbnelekdkgjgihijhjhkjmhnglflelekejeidkckbkfidmendoamajbrcweugvewgxeydzbdbgdfhfjcibgbfaeceddacabaHln',
+        'http://127.0.0.1:5500/?puzzle=hxjmhheedggcdgcndschflathujoimgr/T7Et%20gSoSxcS/PIOz%21%21//123456712345671234567/////aab/XlmkmklkninimlqnroqmtltkulxotrtttpwqvpxnzrztytzuzuwuvupuntntprpqovmvlabbdaeafcfdfdgdifjfkflelclbkbnaobocsbwcwdvcyeygyiygwfqgqdaebfdhdiakalblclekejehghhjikjlimjljkgmgndodpdqatascsdtdvaretfthtitjukriqjpiHln',
+        'http://127.0.0.1:5500/?puzzle=htegjsgsimfhcudchwfycsekgodkczfz/Mmd2INt/WIQ0/lmd2%20fRAh%20ILh%20duN/123/////aaa/XabacadaeafagahaiajakalamanaoapavbvcvdvevfvgvhvivjvkvlvmvnvovpvqvrvsvtvvtvsvrvqvpvovnvmvlvkvjvivhvgvfvevdvcvbpaoanamalakajaiahagafaeadacabaazHbb',
     ]
 
     def __init__(self, puzzleString):
@@ -56,12 +56,19 @@ class Puzzle:
             self.message,
             self.authSoluc,
             self.editPass,
-            self.repondent,
+            self.respondent,
             self.response,
             self.respSoluc,
             self.tools,
             self.bObjs,
         ) = puzzle
+
+        self.author = decode(self.author)
+        self.title = decode(self.title)
+        self.message = decode(self.message)
+        self.editPass = decode(self.editPass)
+        self.respondent = decode(self.respondent)
+        self.response = decode(self.response)
 
         self.toolStock = { tool: -1 for tool in Metrics.INIC_TOOL_STOCK }
         self.toolStock[Tools.SMALL_BOMB] = az2int(self.tools[0])
@@ -89,14 +96,19 @@ class Puzzle:
                 self.bObjs += elem
             for row, col in self.bObjList[elem]:
                 self.bObjs += int2az(row) + int2az(col)
-        
+        self.author = encode(self.author)
+        self.title = encode(self.title)
+        self.message = encode(self.message)
+        self.editPass = encode(self.editPass)
+        self.respondent = encode(self.respondent)
+        self.response = encode(self.response)
         puzzle = [
             self.author,
             self.title,
             self.message,
             self.authSoluc,
             self.editPass,
-            self.repondent,
+            self.respondent,
             self.response,
             self.respSoluc,
             self.tools,
@@ -110,4 +122,6 @@ class Puzzle:
 
 def printPresets():
     for p in Puzzle.PRESETS:
+        p = p.split('=')[1]
         print(f"'{str(Puzzle(p))}',")
+

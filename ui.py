@@ -1,7 +1,7 @@
 import time
 import os
 import math
-from constant import CSSClass, HTMLElmnt, Metrics, Tools, Anim, ToolHTMLElement
+from constant import CSSClass, HTMLElmnt, Metrics, Tools, Anim, PlayMode, ToolHTMLElement
 from util import int2az, az2int
 
 try:
@@ -129,12 +129,15 @@ class GUI(UI):
         if browser.document[HTMLElmnt.TITLE_SCREEN_DIALOG].classList.contains(CSSClass.TITLE_SCREEN_ACTIVE):
             browser.document[HTMLElmnt.TITLE_SCREEN_DIALOG].classList.remove(CSSClass.TITLE_SCREEN_ACTIVE)
             self.bindsTitleScreen(bind=False)
-            self.bindsGamePlay(bind=True)
-            self.playing = True
+            if self.board.mode != PlayMode.PUZZLE:
+                print('removeTitleAndStart, calling bindsGamePlay ON')
+                self.bindsGamePlay(bind=True)
+                self.playing = True
 
 
     def bindsGamePlay(self, bind):
         if bind:
+            print('bindsGamePlay ON')
             self.field.bind("mousedown", self.pointerStart)
             self.field.bind("mousemove", self.pointerMove)
             self.field.bind("mouseup", self.pointerEnd)
@@ -151,6 +154,7 @@ class GUI(UI):
             browser.document[HTMLElmnt.BIG_BOMB_BUTTON].bind( 'click', lambda evt: self.board.bomb(big=True) )
             browser.document[HTMLElmnt.NEW_GAME_BUTTON].bind( 'click', lambda evt: self.board.newGame() )
         else:
+            print('bindsGamePlay OFF')
             self.field.removeEventListener("mousedown", self.pointerStart)
             self.field.removeEventListener("mousemove", self.pointerMove)
             self.field.removeEventListener("mouseup", self.pointerEnd)
@@ -170,26 +174,32 @@ class GUI(UI):
     def showInstructions(self, show=True):
         if show:
             self.playing = False
+            print('showInstructions, calling bindsGamePlay OFF')
             self.bindsGamePlay(bind=False)
             browser.document[HTMLElmnt.INSTRUCTIONS].classList.remove(CSSClass.HIDE)
             browser.document[HTMLElmnt.INSTRUCTIONS_CLOSE].bind( 'click', lambda evt: self.showInstructions(False) )
         else:
             browser.document[HTMLElmnt.INSTRUCTIONS].classList.add(CSSClass.HIDE)
             browser.document[HTMLElmnt.INSTRUCTIONS_CLOSE].removeEventListener( 'click', lambda evt: self.showInstructions(False) )
+            print('showInstructions, calling bindsGamePlay ON')
             self.bindsGamePlay(bind=True)
             self.playing = True
 
     def showModalInfo(self, content):
+        print('showModalInfo')
         browser.document[HTMLElmnt.MODAL_INFO_CONTENT].innerHTML = content
         browser.document[HTMLElmnt.MODAL_INFO].classList.remove(CSSClass.HIDE)
         browser.document[HTMLElmnt.MODAL_INFO_CLOSE].bind('click', self.hideModalInfo)
+        print('showModalInfo, calling bindsGamePlay OFF')
         self.bindsGamePlay(False)
         self.playing = False
 
     def hideModalInfo(self, evt):
+        print('hideModalInfo')
         browser.document[HTMLElmnt.MODAL_INFO_CONTENT].innerHTML = ''
         browser.document[HTMLElmnt.MODAL_INFO].classList.add(CSSClass.HIDE)
         browser.document[HTMLElmnt.MODAL_INFO_CLOSE].removeEventListener('click', self.hideModalInfo)
+        print('hideModalInfo, calling bindsGamePlay ON')
         self.bindsGamePlay(True)
         self.playing = True
 
@@ -412,6 +422,7 @@ class GUI(UI):
             browser.document[HTMLElmnt.DIV_STEPS].classList.remove(CSSClass.HIDE)
             browser.document[HTMLElmnt.DIV_HIGH_SCORE].classList.remove(CSSClass.HIDE)
 
+        browser.document[HTMLElmnt.TEXT_TITLE].textContent = self.board.puzzle.title if self.board.puzzle else 'Chase'
         browser.document[HTMLElmnt.TEXT_LEVEL].textContent = self.board.level
         browser.document[HTMLElmnt.TEXT_FOE_COUNT].textContent = self.board.foeCount
         browser.document[HTMLElmnt.TEXT_SCORE].textContent = self.board.score
