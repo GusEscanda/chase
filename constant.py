@@ -80,8 +80,8 @@ class TextChar:
     GUIDED_TELEPORT = '\u0398'
 
 class GraphShape:
-    HERO            = 'assets/img/user-green.svg'
-    DEAD_HERO       = 'assets/img/user-red.svg'
+    HERO            = 'assets/img/character.svg'
+    DEAD_HERO       = 'assets/img/character-red.svg'
     FOE             = 'assets/img/omega.svg'
     FIRE            = 'assets/img/fire.svg'
     SMALL_BOMB      = 'assets/img/small-bomb.svg'
