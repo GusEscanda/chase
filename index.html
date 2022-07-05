@@ -29,12 +29,12 @@
           <p for="level" class="scores info">Level: </p>
           <span type="text" id="level" class="score-number"></span>
         </div>
-        <div style="display: none;" class="info-item" id="div-safeness">
-          <p for="safeness" class="scores">Safeness: </p>
+        <div class="info-item hide" id="div-safeness">
+          <p for="safeness" class="scores info">Safeness: </p>
           <span type="text" id="safeness" class="score-number"></span>
         </div>
-        <div style="display: none;" class="info-item" id="div-steps">
-          <p for="steps" class="scores">Steps: </p>
+        <div class="info-item hide" id="div-steps">
+          <p for="steps" class="scores info">Steps: </p>
           <span type="text" id="steps" class="score-number"></span>
         </div>
         <div class="info-item" id="div-foeCount">
@@ -48,6 +48,7 @@
       </div>
       <div class="buttons-wrapper">
         <button id='audio' title="Audio" class="tool-buttons tool-buttons--new-game"><img src="./assets/img/audio.svg" alt="Audio"></button>
+        <button id='audio-off' title="Audio" class="tool-buttons tool-buttons--new-game hide"><img src="./assets/img/audio-off.svg" alt="Audio"></button>
         <button id="instructions-toggle" title="Instructions" class="tool-buttons tool-buttons--new-game"><img src="./assets/img/info.svg" alt="Instructions"></button>
         <button id='new' title="New Game" class="tool-buttons tool-buttons--new-game"><img src="./assets/img/restart.svg" alt="Restart"></button>
       </div>
@@ -67,7 +68,7 @@
             <span>(t)</span>
           </div>
           <div id="count-infinite-t" class="count-indicator count-indicator--infinite"></div>
-          <div id="count-indicator-t" class="count-indicator hide">
+          <div id="count-indicator-t" class="count-indicator">
             <div id="tCircle1" class="count-indicator__circle"></div>
             <div id="tCircle2" class="count-indicator__circle"></div>
             <div id="tCircle3" class="count-indicator__circle"></div>
@@ -83,7 +84,7 @@
             <img src="./assets/img/safe-teleport-button.svg" alt="Safe Teleport">
             <span>(s)</span>
           </div>
-          <div id="count-infinite-s" class="count-indicator count-indicator--infinite hide"></div>
+          <div id="count-infinite-s" class="count-indicator count-indicator--infinite"></div>
           <div id="count-indicator-s" class="count-indicator">
             <div id="sCircle1" class="count-indicator__circle"></div>
             <div id="sCircle2" class="count-indicator__circle"></div>
@@ -100,7 +101,7 @@
             <img src="./assets/img/guided-teleport-button.svg" alt="Guided Teleport">
             <span>(g)</span>
           </div>
-          <div id="count-infinite-g" class="count-indicator count-indicator--infinite hide"></div>
+          <div id="count-infinite-g" class="count-indicator count-indicator--infinite"></div>
           <div id="count-indicator-g" class="count-indicator">
             <div id="gCircle1" class="count-indicator__circle"></div>
             <div id="gCircle2" class="count-indicator__circle"></div>
@@ -117,7 +118,7 @@
             <img src="./assets/img/small-bomb-button.svg" alt="Small Bomb">
             <span>(v)</span>
           </div>
-          <div id="count-infinite-v" class="count-indicator count-indicator--infinite hide"></div>
+          <div id="count-infinite-v" class="count-indicator count-indicator--infinite"></div>
           <div id="count-indicator-v" class="count-indicator">
             <div id="vCircle1" class="count-indicator__circle"></div>
             <div id="vCircle2" class="count-indicator__circle"></div>
@@ -134,7 +135,7 @@
             <img src="./assets/img/big-bomb-button.svg" alt="Big Bomb">
             <span>(b)</span>
           </div>
-          <div id="count-infinite-b" class="count-indicator count-indicator--infinite hide"></div>
+          <div id="count-infinite-b" class="count-indicator count-indicator--infinite"></div>
           <div id="count-indicator-b" class="count-indicator">
             <div id="bCircle1" class="count-indicator__circle"></div>
             <div id="bCircle2" class="count-indicator__circle"></div>
@@ -168,7 +169,7 @@
       <!-- ! Instructions -->
       <h2 class="instructions__title instructions__red">INSTRUCTIONS</h2>
       <div class="instructions__game">
-        <p>The enemies will alawys try to reah you.</p>
+        <p>The enemies will always try to reach you.</p>
         <p>Move around the field to avoid them and make them kill themselves.</p>
       </div>
       <!-- ! Commands -->
@@ -221,7 +222,7 @@
         <div class="instructions__movements">
           <h5 class="instructions__title instructions__red instructions__key-section-title">Movements</h5>
           <div class="instructions__instrictions-item">
-            <p>Combine arrows to move diagonaly</p>
+            <p>Combine arrows to move diagonally</p>
           </div>
           <div class="instructions__instrictions-item">
             <p>Move up:</p>

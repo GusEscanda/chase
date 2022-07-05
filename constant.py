@@ -27,6 +27,8 @@ class HTMLElmnt:
     SND_GET_TOOL                  = 'sndGetTool'
     SND_LEVEL_UP                  = 'sndLevelUp'
     SND_LOST                      = 'sndLost'
+    AUDIO                         = 'audio'
+    AUDIO_OFF                     = 'audio-off'
     INSTRUCTIONS_TOGGLE           = 'instructions-toggle'
     INSTRUCTIONS                  = 'instructions'
     INSTRUCTIONS_CLOSE            = 'instructions-close'

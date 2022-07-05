@@ -110,6 +110,8 @@ class GUI(UI):
         self.keydownArrows = {'ArrowUp':False, 'ArrowDown':False, 'ArrowLeft':False, 'ArrowRight':False}
         self.playing = False
 
+        self.audio = True
+
         self.bindsTitleScreen(bind=True)
 
 
@@ -143,6 +145,8 @@ class GUI(UI):
             window.bind('keydown', self.keyPressed)
             window.bind('keyup', self.keyPressed)
             browser.document[HTMLElmnt.INSTRUCTIONS_TOGGLE].bind( 'click', lambda evt: self.showInstructions(True) )
+            browser.document[HTMLElmnt.AUDIO].bind('click', lambda evt: self.toggleAudio(False) )
+            browser.document[HTMLElmnt.AUDIO_OFF].bind('click', lambda evt: self.toggleAudio(True) )
             browser.document[HTMLElmnt.TELEPORT_BUTTON].bind( 'click', lambda evt: self.board.teleport() )
             browser.document[HTMLElmnt.SAFE_TELEPORT_BUTTON].bind( 'click', lambda evt: self.board.teleport(safe=True) )
             browser.document[HTMLElmnt.GUIDED_TELEPORT_BUTTON].bind( 'click', lambda evt: self.board.setGuided('toggle') )
@@ -159,6 +163,8 @@ class GUI(UI):
             window.removeEventListener('keydown', self.keyPressed)
             window.removeEventListener('keyup', self.keyPressed)
             browser.document[HTMLElmnt.INSTRUCTIONS_TOGGLE].removeEventListener( 'click', lambda evt: self.showInstructions(True) )
+            browser.document[HTMLElmnt.AUDIO].removeEventListener('click', lambda evt: self.toggleAudio(False) )
+            browser.document[HTMLElmnt.AUDIO_OFF].removeEventListener('click', lambda evt: self.toggleAudio(True) )
             browser.document[HTMLElmnt.TELEPORT_BUTTON].removeEventListener( 'click', lambda evt: self.board.teleport() )
             browser.document[HTMLElmnt.SAFE_TELEPORT_BUTTON].removeEventListener( 'click', lambda evt: self.board.teleport(safe=True) )
             browser.document[HTMLElmnt.GUIDED_TELEPORT_BUTTON].removeEventListener( 'click', lambda evt: self.board.setGuided('toggle') )
@@ -178,6 +184,15 @@ class GUI(UI):
             self.bindsGamePlay(bind=True)
             self.playing = True
 
+    def toggleAudio(self, audio):
+        self.audio = audio
+        if audio:
+            browser.document[HTMLElmnt.AUDIO].classList.remove(CSSClass.HIDE)
+            browser.document[HTMLElmnt.AUDIO_OFF].classList.add(CSSClass.HIDE)
+        else:
+            browser.document[HTMLElmnt.AUDIO].classList.add(CSSClass.HIDE)
+            browser.document[HTMLElmnt.AUDIO_OFF].classList.remove(CSSClass.HIDE)
+
     def rowcol2coords(self, row, col, relative=True):
         top  = self.relativeTop  if relative else self.absoluteTop
         left = self.relativeLeft if relative else self.absoluteLeft
@@ -193,15 +208,23 @@ class GUI(UI):
         return ( row, col )
 
     def sndFire(self):
+        if not self.audio:
+            return
         timer.set_timeout(browser.document[HTMLElmnt.SND_FIRE].play, self.animWhen + Anim.STEP_TIME)
 
     def sndGetTool(self):
+        if not self.audio:
+            return
         timer.set_timeout(browser.document[HTMLElmnt.SND_GET_TOOL].play, self.animWhen)
 
     def sndLevelUp(self):
+        if not self.audio:
+            return
         timer.set_timeout(browser.document[HTMLElmnt.SND_LEVEL_UP].play, self.animWhen)
 
     def sndLost(self):
+        if not self.audio:
+            return
         timer.set_timeout(browser.document[HTMLElmnt.SND_LOST].play, self.animWhen + Anim.STEP_TIME)
 
     def resetAnim(self):
