@@ -33,8 +33,8 @@ class HTMLElmnt:
     INSTRUCTIONS                  = 'instructions'
     INSTRUCTIONS_CLOSE            = 'instructions-close'
     CARD                          = 'card'
-    CARD_TITLE                    = 'cardTitle'  # Restart?
-    CARD_TEXT                     = 'cardText'  # You were doing pretty good! Are you sure you want to restart de level?
+    CARD_TITLE                    = 'cardTitle'
+    CARD_TEXT                     = 'cardText'
     CARD_BTN_1                    = 'acceptButton'  # Restart
     CARD_BTN_2                    = 'cancelButton'  # Cancel
 

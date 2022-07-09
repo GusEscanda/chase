@@ -489,7 +489,7 @@ button {
   left: 50%;
   transform: translate(-50%, -50%);
   max-width: 584px;
-  padding: 40px 100px;
+  padding: 20px 20px;
   background-color: var(--grey-one);
   color: var(--white);
   text-align: center;
