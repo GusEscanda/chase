@@ -27,9 +27,16 @@ class HTMLElmnt:
     SND_GET_TOOL                  = 'sndGetTool'
     SND_LEVEL_UP                  = 'sndLevelUp'
     SND_LOST                      = 'sndLost'
+    AUDIO                         = 'audio'
+    AUDIO_OFF                     = 'audio-off'
     INSTRUCTIONS_TOGGLE           = 'instructions-toggle'
     INSTRUCTIONS                  = 'instructions'
     INSTRUCTIONS_CLOSE            = 'instructions-close'
+    CARD                          = 'card'
+    CARD_TITLE                    = 'cardTitle'
+    CARD_TEXT                     = 'cardText'
+    CARD_BTN_1                    = 'acceptButton'  # Restart
+    CARD_BTN_2                    = 'cancelButton'  # Cancel
 
 
 
@@ -78,8 +85,8 @@ class TextChar:
     GUIDED_TELEPORT = '\u0398'
 
 class GraphShape:
-    HERO            = 'assets/img/user-green.svg'
-    DEAD_HERO       = 'assets/img/user-red.svg'
+    HERO            = 'assets/img/character.svg'
+    DEAD_HERO       = 'assets/img/character-red.svg'
     FOE             = 'assets/img/omega.svg'
     FIRE            = 'assets/img/fire.svg'
     SMALL_BOMB      = 'assets/img/small-bomb.svg'

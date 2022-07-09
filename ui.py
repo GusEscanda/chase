@@ -1,5 +1,3 @@
-import time
-import os
 import math
 from constant import CSSClass, HTMLElmnt, Metrics, Tools, Anim, ToolHTMLElement
 
@@ -9,70 +7,11 @@ try:
     # I'm running in a web browser => use Brython to manage the GUI (https://brython.info/)
     BROWSER = True
 except:
-    # Brython isn't available so use standard python text based interfase
-    import os
+    # Brython isn't available
     BROWSER = False
 
-class UI:
 
-    nullFunction = lambda *args, **kwargs: None
-
-    # override all or any of these functions depending on the type of interfase, text (standard os console) or graphic (via Brython)
-    resetAnim = nullFunction
-    nextStepTime = nullFunction
-    draw = nullFunction
-    translate = nullFunction
-    delete = nullFunction
-    
-    refreshScores = nullFunction
-    refreshButtons = nullFunction
-    refreshGuided = nullFunction
-    refreshSafeness = nullFunction
-
-    sndFire = nullFunction
-    sndGetTool = nullFunction
-    sndLevelUp = nullFunction
-    sndLost = nullFunction
-
-    askNewGame = nullFunction
-    cleanBoard = nullFunction
-
-    textDisplayBoard = nullFunction
-
-
-class NoGui(UI):
-    # when testing the game in text mode (no graphics available) use this class instead to manage the user interfase
-
-    def askNewGame(self):
-        again = ' '
-        while again not in 'yns':
-            again = input('Play again (y/n)? ').lower()
-        return again in 'ys'
-
-    def textDisplayBoard(self, board):
-
-        os.system('cls')
-        print()
-        print('Foes left', board.foeCount, ' '*20, 'Score:', board.score, ' '*20, 'High Score:', board.highScore)
-        print()
-        print('  ' + ('. 1 2 3 4 5 6 7 8 9 ' * 20)[ : board.maxC*2 ] + '  ' )
-        for row in range(board.maxR):
-            print( (str(row%10) if row%10 != 0 else '.') + ' ', end='')
-            for col in range(board.maxC):
-                if board.grid[row][col] != None:
-                    print(board.grid[row][col].char+' ', end='')
-                else:
-                    print('  ', end='')
-            print( (str(row%10) if row%10 != 0 else '.') )
-        print('  ' + ('. 1 2 3 4 5 6 7 8 9 ' * 20)[ : board.maxC*2 ] + '  ' )
-        print()
-        for t in board.toolStock:
-            print( t + ' ' + str(board.toolStock[t] if board.toolStock[t] >= 0 else ''), end='   ' )
-        print()
-        print()
-
-
-class GUI(UI):
+class GUI:
     # class to manage all the Graphical User Interfase based on Brython and the browser objects
 
     SMALL_MOVE = 1
@@ -110,6 +49,8 @@ class GUI(UI):
         self.keydownArrows = {'ArrowUp':False, 'ArrowDown':False, 'ArrowLeft':False, 'ArrowRight':False}
         self.playing = False
 
+        self.audio = True
+
         self.bindsTitleScreen(bind=True)
 
 
@@ -143,6 +84,8 @@ class GUI(UI):
             window.bind('keydown', self.keyPressed)
             window.bind('keyup', self.keyPressed)
             browser.document[HTMLElmnt.INSTRUCTIONS_TOGGLE].bind( 'click', lambda evt: self.showInstructions(True) )
+            browser.document[HTMLElmnt.AUDIO].bind('click', lambda evt: self.toggleAudio(False) )
+            browser.document[HTMLElmnt.AUDIO_OFF].bind('click', lambda evt: self.toggleAudio(True) )
             browser.document[HTMLElmnt.TELEPORT_BUTTON].bind( 'click', lambda evt: self.board.teleport() )
             browser.document[HTMLElmnt.SAFE_TELEPORT_BUTTON].bind( 'click', lambda evt: self.board.teleport(safe=True) )
             browser.document[HTMLElmnt.GUIDED_TELEPORT_BUTTON].bind( 'click', lambda evt: self.board.setGuided('toggle') )
@@ -150,21 +93,21 @@ class GUI(UI):
             browser.document[HTMLElmnt.BIG_BOMB_BUTTON].bind( 'click', lambda evt: self.board.bomb(big=True) )
             browser.document[HTMLElmnt.NEW_GAME_BUTTON].bind( 'click', lambda evt: self.board.newGame() )
         else:
-            self.field.removeEventListener("mousedown", self.pointerStart)
-            self.field.removeEventListener("mousemove", self.pointerMove)
-            self.field.removeEventListener("mouseup", self.pointerEnd)
-            self.field.removeEventListener('touchstart', self.pointerStart)
-            self.field.removeEventListener('touchmove', self.pointerMove)
-            self.field.removeEventListener('touchend', self.pointerEnd)
-            window.removeEventListener('keydown', self.keyPressed)
-            window.removeEventListener('keyup', self.keyPressed)
-            browser.document[HTMLElmnt.INSTRUCTIONS_TOGGLE].removeEventListener( 'click', lambda evt: self.showInstructions(True) )
-            browser.document[HTMLElmnt.TELEPORT_BUTTON].removeEventListener( 'click', lambda evt: self.board.teleport() )
-            browser.document[HTMLElmnt.SAFE_TELEPORT_BUTTON].removeEventListener( 'click', lambda evt: self.board.teleport(safe=True) )
-            browser.document[HTMLElmnt.GUIDED_TELEPORT_BUTTON].removeEventListener( 'click', lambda evt: self.board.setGuided('toggle') )
-            browser.document[HTMLElmnt.SMALL_BOMB_BUTTON].removeEventListener( 'click', lambda evt: self.board.bomb(big=False) )
-            browser.document[HTMLElmnt.BIG_BOMB_BUTTON].removeEventListener( 'click', lambda evt: self.board.bomb(big=True) )
-            browser.document[HTMLElmnt.NEW_GAME_BUTTON].removeEventListener( 'click', lambda evt: self.board.newGame() )
+            self.field.unbind("mousedown")
+            self.field.unbind("mousemove")
+            self.field.unbind("mouseup")
+            self.field.unbind('touchstart')
+            self.field.unbind('touchmove')
+            self.field.unbind('touchend')
+            browser.document[HTMLElmnt.INSTRUCTIONS_TOGGLE].unbind( 'click')
+            browser.document[HTMLElmnt.AUDIO].unbind('click')
+            browser.document[HTMLElmnt.AUDIO_OFF].unbind('click')
+            browser.document[HTMLElmnt.TELEPORT_BUTTON].unbind( 'click')
+            browser.document[HTMLElmnt.SAFE_TELEPORT_BUTTON].unbind( 'click')
+            browser.document[HTMLElmnt.GUIDED_TELEPORT_BUTTON].unbind( 'click')
+            browser.document[HTMLElmnt.SMALL_BOMB_BUTTON].unbind( 'click')
+            browser.document[HTMLElmnt.BIG_BOMB_BUTTON].unbind( 'click')
+            browser.document[HTMLElmnt.NEW_GAME_BUTTON].unbind( 'click')
 
     def showInstructions(self, show=True):
         if show:
@@ -174,9 +117,56 @@ class GUI(UI):
             browser.document[HTMLElmnt.INSTRUCTIONS_CLOSE].bind( 'click', lambda evt: self.showInstructions(False) )
         else:
             browser.document[HTMLElmnt.INSTRUCTIONS].classList.add(CSSClass.HIDE)
-            browser.document[HTMLElmnt.INSTRUCTIONS_CLOSE].removeEventListener( 'click', lambda evt: self.showInstructions(False) )
+            browser.document[HTMLElmnt.INSTRUCTIONS_CLOSE].unbind('click')
             self.bindsGamePlay(bind=True)
             self.playing = True
+
+    def toggleAudio(self, audio):
+        self.audio = audio
+        if audio:
+            browser.document[HTMLElmnt.AUDIO].classList.remove(CSSClass.HIDE)
+            browser.document[HTMLElmnt.AUDIO_OFF].classList.add(CSSClass.HIDE)
+        else:
+            browser.document[HTMLElmnt.AUDIO].classList.add(CSSClass.HIDE)
+            browser.document[HTMLElmnt.AUDIO_OFF].classList.remove(CSSClass.HIDE)
+
+    def showCard(self, title, content, button1=None, button2=None, func1=None, func2=None):
+        print('showCard')
+        browser.document[HTMLElmnt.CARD_TITLE].innerText = title
+        browser.document[HTMLElmnt.CARD_TEXT].innerHTML = content
+        if button1:
+            browser.document[HTMLElmnt.CARD_BTN_1].innerText = button1
+            browser.document[HTMLElmnt.CARD_BTN_1].classList.remove(CSSClass.HIDE)
+            browser.document[HTMLElmnt.CARD_BTN_1].bind('click', func1)
+        else:
+            browser.document[HTMLElmnt.CARD_BTN_1].innerText = ''
+            browser.document[HTMLElmnt.CARD_BTN_1].classList.add(CSSClass.HIDE)
+            browser.document[HTMLElmnt.CARD_BTN_1].unbind('click')
+        if button2:
+            browser.document[HTMLElmnt.CARD_BTN_2].innerText = button2
+            browser.document[HTMLElmnt.CARD_BTN_2].classList.remove(CSSClass.HIDE)
+            browser.document[HTMLElmnt.CARD_BTN_2].bind('click', func2)
+        else:
+            browser.document[HTMLElmnt.CARD_BTN_2].innerText = ''
+            browser.document[HTMLElmnt.CARD_BTN_2].classList.add(CSSClass.HIDE)
+            browser.document[HTMLElmnt.CARD_BTN_2].unbind('click')
+        browser.document[HTMLElmnt.CARD].classList.remove(CSSClass.HIDE)
+        print('showCard, calling bindsGamePlay OFF')
+        self.bindsGamePlay(False)
+        self.playing = False
+
+    def hideCard(self, *args, **kwargs):
+        print('hideCard')
+        browser.document[HTMLElmnt.CARD_TITLE].innerText = ''
+        browser.document[HTMLElmnt.CARD_TEXT].innerHTML = ''
+        browser.document[HTMLElmnt.CARD_BTN_1].innerText = ''
+        browser.document[HTMLElmnt.CARD_BTN_2].innerText = ''
+        browser.document[HTMLElmnt.CARD_BTN_1].unbind('click')
+        browser.document[HTMLElmnt.CARD_BTN_2].unbind('click')
+        browser.document[HTMLElmnt.CARD].classList.add(CSSClass.HIDE)
+        print('hideCard, calling bindsGamePlay ON')
+        self.bindsGamePlay(True)
+        self.playing = True
 
     def rowcol2coords(self, row, col, relative=True):
         top  = self.relativeTop  if relative else self.absoluteTop
@@ -193,15 +183,23 @@ class GUI(UI):
         return ( row, col )
 
     def sndFire(self):
+        if not self.audio:
+            return
         timer.set_timeout(browser.document[HTMLElmnt.SND_FIRE].play, self.animWhen + Anim.STEP_TIME)
 
     def sndGetTool(self):
+        if not self.audio:
+            return
         timer.set_timeout(browser.document[HTMLElmnt.SND_GET_TOOL].play, self.animWhen)
 
     def sndLevelUp(self):
+        if not self.audio:
+            return
         timer.set_timeout(browser.document[HTMLElmnt.SND_LEVEL_UP].play, self.animWhen)
 
     def sndLost(self):
+        if not self.audio:
+            return
         timer.set_timeout(browser.document[HTMLElmnt.SND_LOST].play, self.animWhen + Anim.STEP_TIME)
 
     def resetAnim(self):
@@ -427,6 +425,5 @@ class GUI(UI):
     def refreshSafeness(self):
         browser.document[HTMLElmnt.TEXT_SAFENESS].textContent = "{:.4f}".format(self.board.safeness)
 
-    def askNewGame(self):
-        return browser.confirm('Play again?')
+
 
