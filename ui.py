@@ -382,9 +382,9 @@ class GUI:
             browser.document[HTMLElmnt.DIV_HIGH_SCORE].classList.add(CSSClass.HIDE)
         else:
             browser.document[HTMLElmnt.DIV_LEVEL].classList.remove(CSSClass.HIDE)
-            browser.document[HTMLElmnt.DIV_FOE_COUNT].classList.remove(CSSClass.HIDE)
+            browser.document[HTMLElmnt.DIV_FOE_COUNT].classList.add(CSSClass.HIDE)
             browser.document[HTMLElmnt.DIV_SCORE].classList.remove(CSSClass.HIDE)
-            browser.document[HTMLElmnt.DIV_STEPS].classList.remove(CSSClass.HIDE)
+            browser.document[HTMLElmnt.DIV_STEPS].classList.add(CSSClass.HIDE)
             browser.document[HTMLElmnt.DIV_HIGH_SCORE].classList.remove(CSSClass.HIDE)
 
         browser.document[HTMLElmnt.TEXT_LEVEL].textContent = self.board.level
