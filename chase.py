@@ -1,5 +1,5 @@
 import ui
-from ui import UI, NoGui, GUI
+from ui import GUI
 
 import random
 from constant import Tools, Prio, TextChar, GraphShape, Metrics
@@ -17,8 +17,8 @@ class BoardObject:
         self.col = col
         self.priority = Prio.LOWER
         self.tool = None
-        self.char = None   # character to display in the board, only in testing mode
-        self.shape = None  # shape that will have in the board in a GUI context
+        self.char = None   # text char to identify the object (for debugging purposes only)
+        self.shape = None  # shape that will have in the board
         BoardObject.idCount += 1
         self.id = f'BObj_{BoardObject.idCount}' # asign a unique id (used in the GUI as the id in the browser object svgRoot)
 
@@ -168,6 +168,10 @@ class Hero( BoardObject ):
 
 class Board:
 
+    NOT_STARTED = 'NOT_STARTED'
+    PLAYING = 'PLAYING'
+    GAME_OVER = 'GAME_OVER'
+
     def __init__(self, maxR, maxC, gui = None, puzzle=None):
         # Set the height and width of the board
         self.maxR = maxR
@@ -189,7 +193,7 @@ class Board:
         self.steps = 0
         self.highScore = 0
         self.toolStock = {}
-
+        self.gameStatus = Board.NOT_STARTED
         self.guided = False
 
         # Create a list that will contain all the objects that must do something in each cicle of the game
@@ -266,13 +270,13 @@ class Board:
         self.calculateSafeness()
         self.gui.refreshSafeness()
 
-        self.gui.textDisplayBoard(board = self)
         self.gui.refreshScores()
         
     def newGame(self):
-        if self.hero is not None:
-            if not self.gui.askNewGame():
-                return
+        if self.gameStatus == Board.PLAYING:
+            self.askNewGame()
+            return
+        self.gameStatus = Board.PLAYING
         self.level = 0
         self.score = 0
         self.steps = 0
@@ -321,7 +325,8 @@ class Board:
 
     def setGuided(self, mode='toggle'):
         """ mode: 'on' set guided mode on, 'off' set guided mode off, 'toggle' toggles guided mode"""
-        if mode != 'off' and self.checkNewGame():
+        if mode != 'off' and self.gameStatus != Board.PLAYING:
+            self.askNewGame()
             return
         if mode == 'toggle':
             value = not self.guided
@@ -331,9 +336,9 @@ class Board:
         self.gui.refreshGuided(self.guided)
         return self.guided
 
-
     def move(self, deltaR, deltaC, repeat=False):
-        if self.checkNewGame():
+        if self.gameStatus != Board.PLAYING:
+            self.askNewGame()
             return
         # Take one or more steps in the (deltaR, deltaC) direction.
         self.gui.resetAnim()
@@ -366,14 +371,10 @@ class Board:
                 if bObj.alive:
                     self.boardObjectList.append( bObj )
 
-            # if the mode is 'repeat', keep going
-            if not repeat:
-                break
-
-            self.gui.textDisplayBoard(board = self)
-
             if repeat:
                 self.gui.nextStepTime()
+            else:
+                break
 
         if moved:
             self.steps += 1
@@ -386,7 +387,6 @@ class Board:
             self.placeBoardObjects( DeadHero, coords = (self.hero.row, self.hero.col) )
             self.gui.sndLost()
 
-        self.gui.textDisplayBoard(board = self)
         self.gui.refreshScores()
 
         if self.foeCount == 0:
@@ -395,6 +395,8 @@ class Board:
             else:
                 self.collectTools()
                 self.newLevel()
+        
+        self.gameStatus = Board.PLAYING if self.hero.alive and self.foeCount > 0 else Board.GAME_OVER 
 
     def calculateSafeness(self):
         countSafe, countEmpty = 0, 0
@@ -433,7 +435,8 @@ class Board:
         return False
 
     def teleport(self, safe=False, guided=False, coords=(0,0)):
-        if self.checkNewGame():
+        if self.gameStatus != Board.PLAYING:
+            self.askNewGame()
             return
         # Check if you have the tool
         if safe and self.tool(Tools.SAFE_TELEPORT) <= 0:
@@ -463,10 +466,10 @@ class Board:
         self.hero.col = col
         self.gui.translate( boardObj = self.hero )
         self.move(0, 0, repeat=False)
-        self.gui.textDisplayBoard(board = self)
 
     def bomb(self, big=False):
-        if self.checkNewGame():
+        if self.gameStatus != Board.PLAYING:
+            self.askNewGame()
             return
         bombType = Tools.BIG_BOMB if big else Tools.SMALL_BOMB
         if self.tool( bombType ) <= 0:
@@ -492,59 +495,23 @@ class Board:
                 elif not isinstance( self.grid[ row + deltaR ][ col + deltaC ], Fire ):
                     self.grid[ row + deltaR ][ col + deltaC ].die(killer=None)
         self.move(0, 0, repeat=False)
-        self.gui.textDisplayBoard(board = self)
 
-    def checkNewGame(self):
-        if self.hero.alive and self.foeCount > 0:
-            return False
-        else:
-            self.newGame()
-            return True
+    def askNewGame(self):
+        self.gui.showCard(
+            'Restart?',
+            'You were doing pretty good!!',
+            'New game',
+            'Not now',
+            self.startNewGame,
+            self.gui.hideCard
+        )
 
-
-def test():
-    # This is only for testing of the game objects and the interaction between them. It'll run only in a text based environment.
-
-    board = Board(maxR = min(Metrics.BOARD_DIM), maxC = max(Metrics.BOARD_DIM), gui = NoGui() )
-    board.newGame()
-    while True:
-        k = input('key (n t s g v b 123456789 r):')
-        if k == ' ':
-            break
-
-        if k in '123456789':
-            deltaR, deltaC = 0, 0
-            if k in '741':
-                deltaC = -1
-            elif k in '963':
-                deltaC = 1
-            if k in '789':
-                deltaR = -1
-            elif k in '123':
-                deltaR = 1
-            board.move(deltaR,deltaC)
-        elif k in 'tT':
-            board.teleport()
-        elif k in 'sS':
-            board.teleport(safe=True)
-        elif k in 'gG':
-            board.setGuided('on')
-            board.teleport( guided=True, coords=( int(input('row: ')), int(input('col: ')) ) )
-        elif k in 'vV':
-            board.bomb(big=False)
-        elif k in 'bB':
-            board.bomb(big=True)
-        elif k in 'nN':
-            board.newGame()
-        board.gui.textDisplayBoard( board = board)
-
-
-if __name__ == "__main__" and not ui.BROWSER:
-    test()
-
+    def startNewGame(self, *args, **kwargs):
+        self.gui.hideCard()
+        self.gameStatus = Board.NOT_STARTED
+        self.newGame()
 
 if ui.BROWSER:
-
     puzzle = None
     if 'puzzle' in ui.document.query:
         puzzle = ui.document.query['puzzle']
@@ -558,5 +525,6 @@ if ui.BROWSER:
     gui = GUI(board)
     board.gui = gui
     board.newGame()
-
+else:
+    print('No GUI available')
 
