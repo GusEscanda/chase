@@ -13,6 +13,8 @@
   <script type="text/python" src="chase.py"></script>
 </head>
 <body onload="brython(1)">
+  <div class="overlay hide"></div>
+  <div id="modalOverlay" class="modal-overlay hide"></div>
   <audio id="sndFire" src="assets/audio/sndFire.wav"></audio>
   <audio id="sndGetTool" src="assets/audio/sndTool.mp3"></audio>
   <audio id="sndLevelUp" src="assets/audio/sndLevel.mp3"></audio>
@@ -20,72 +22,67 @@
   <div class="main-game">
     <div class="info-wrapper">
       <div class="info-wrapper__items">
-        <div class="info-item" id="div-title">
-          <p for="title" class="scores"></p>
-          <span type="text" id="title" class="scores">Chase</span>
-        </div>
-        <div class="info-item" id="div-level">
-          <p for="level" class="scores">Level: </p>
-          <span type="text" id="level" class="scores"></span>
-        </div>
-        <div class="info-item" id="div-safeness">
-          <p for="safeness" class="scores">Safeness: </p>
-          <span type="text" id="safeness" class="scores"></span>
-        </div>
-        <div class="info-item" id="div-steps">
-          <p for="steps" class="scores">Steps: </p>
-          <span type="text" id="steps" class="scores"></span>
-        </div>
-        <div class="info-item" id="div-foeCount">
-          <p for="foeCount" class="scores">Enemies: </p>
-          <span type="text" id="foeCount" class="scores"></span>
-        </div>
         <div class="info-item" id="div-score">
-          <p for="score" class="scores" class="scores">Score: </p>
+          <p for="score" class="scores" class="scores">SCORE: </p>
           <span type="text" id="score" class="scores"></span>
         </div>
+        <div class="info-item" id="div-level">
+          <p for="level" class="scores info">Level: </p>
+          <span type="text" id="level" class="score-number"></span>
+        </div>
+        <div class="info-item hide" id="div-safeness">
+          <p for="safeness" class="scores info">Safeness: </p>
+          <span type="text" id="safeness" class="score-number"></span>
+        </div>
+        <div class="info-item hide" id="div-steps">
+          <p for="steps" class="scores info">Steps: </p>
+          <span type="text" id="steps" class="score-number"></span>
+        </div>
+        <div class="info-item" id="div-foeCount">
+          <p for="foeCount" class="scores info">Enemies: </p>
+          <span type="text" id="foeCount" class="score-number"></span>
+        </div>
         <div class="info-item" id="div-highScore">
-          <p for="highScore" class="scores">High Score: </p>
-          <span type="text" id="highScore" class="scores"></span>
+          <p for="highScore" class="scores info">High Score: </p>
+          <span type="text" id="highScore" class="score-number"></span>
         </div>
       </div>
       <div class="buttons-wrapper">
-        <button id="instructions-toggle" title="Instructions" class="tool-buttons tool-buttons--new-game">Instructions</button>
-        <button id='new' title="New Game" class="tool-buttons tool-buttons--new-game">New Game</button>
+        <button id='audio' title="Audio" class="tool-buttons tool-buttons--new-game"><img src="./assets/img/audio.svg" alt="Audio"></button>
+        <button id='audio-off' title="Audio" class="tool-buttons tool-buttons--new-game hide"><img src="./assets/img/audio-off.svg" alt="Audio"></button>
+        <button id="instructions-toggle" title="Instructions" class="tool-buttons tool-buttons--new-game"><img src="./assets/img/info.svg" alt="Instructions"></button>
+        <button id="new" title="New Game" class="tool-buttons tool-buttons--new-game"><img src="./assets/img/restart.svg" alt="Restart"></button>
       </div>
     </div>
     <div class="field-wrapper">
       <div id="separationWrapper" class="separation-wrapper">
-        <div id="field" class="field-class">
-          <!-- CORREGIR ESTO!!! The Modal -->
-          <div id="myModal" class="modal hide">
-            <!-- Modal content -->
-            <div class="modal-content-class">
-              <span id="close-modal-button" class="close-modal">&times;</span>
-              <div id="modal-content"></div>
-            </div>
-          </div>
-          <!--  Hasta aca lo de corregir XXXXX -->
-        </div>
+        <img class="field-corner" src="./assets/img/field-corner.svg" alt="Field Corner">
+        <img class="field-corner field-corner--top-right" src="./assets/img/field-corner.svg" alt="Field Corner">
+        <img class="field-corner field-corner--bottom-left" src="./assets/img/field-corner.svg" alt="Field Corner">
+        <img class="field-corner field-corner--bottom-right" src="./assets/img/field-corner.svg" alt="Field Corner">
+        <div id="field" class="field-class"></div>
       </div>
       <div class="action-buttons-wrapper">
         <button class="action-button" title="Teleport" id='t'>
-          <img src="./assets/img//teleport-button.svg" alt="Teleport">
+          <div class="action-button__img">
+            <img src="./assets/img//teleport-button.svg" alt="Teleport">
+            <span class="none-mobile">(t)</span>
+          </div>
           <div id="count-infinite-t" class="count-indicator count-indicator--infinite"></div>
-          <div id="count-indicator-t" class="count-indicator hide">
+          <div id="count-indicator-t" class="count-indicator">
             <div id="tCircle1" class="count-indicator__circle"></div>
             <div id="tCircle2" class="count-indicator__circle"></div>
             <div id="tCircle3" class="count-indicator__circle"></div>
             <div id="tCircle4" class="count-indicator__circle"></div>
             <div id="tCircle5" class="count-indicator__circle"></div>
           </div>
-          <div id="tTooltip" class="button-tooltip">
-            <p>Or press "t"</p>
-          </div>
         </button>
         <button class="action-button" title="Safe Teleport" id='s'>
-          <img src="./assets/img/safe-teleport-button.svg" alt="Safe Teleport">
-          <div id="count-infinite-s" class="count-indicator count-indicator--infinite hide"></div>
+          <div class="action-button__img">
+            <img src="./assets/img/safe-teleport-button.svg" alt="Safe Teleport">
+            <span class="none-mobile">(s)</span>
+          </div>
+          <div id="count-infinite-s" class="count-indicator count-indicator--infinite"></div>
           <div id="count-indicator-s" class="count-indicator">
             <div id="sCircle1" class="count-indicator__circle"></div>
             <div id="sCircle2" class="count-indicator__circle"></div>
@@ -93,13 +90,13 @@
             <div id="sCircle4" class="count-indicator__circle"></div>
             <div id="sCircle5" class="count-indicator__circle"></div>
           </div>
-          <div id="sTooltip" class="button-tooltip">
-            <p>Or press "s"</p>
-          </div>
         </button>
         <button class="action-button action-button--teleport" title="Guided Teleport" id='g'>
-          <img src="./assets/img/guided-teleport-button.svg" alt="Guided Teleport">
-          <div id="count-infinite-g" class="count-indicator count-indicator--infinite hide"></div>
+          <div class="action-button__img">
+            <img src="./assets/img/guided-teleport-button.svg" alt="Guided Teleport">
+            <span class="none-mobile">(g)</span>
+          </div>
+          <div id="count-infinite-g" class="count-indicator count-indicator--infinite"></div>
           <div id="count-indicator-g" class="count-indicator">
             <div id="gCircle1" class="count-indicator__circle"></div>
             <div id="gCircle2" class="count-indicator__circle"></div>
@@ -107,13 +104,13 @@
             <div id="gCircle4" class="count-indicator__circle"></div>
             <div id="gCircle5" class="count-indicator__circle"></div>
           </div>
-          <div id="gTooltip" class="button-tooltip">
-            <p>Or press "g"</p>
-          </div>
         </button>
         <button class="action-button" title="Small Bomb" id='v'>
-          <img src="./assets/img/small-bomb-button.svg" alt="Small Bomb">
-          <div id="count-infinite-v" class="count-indicator count-indicator--infinite hide"></div>
+          <div class="action-button__img">
+            <img src="./assets/img/small-bomb-button.svg" alt="Small Bomb">
+            <span class="none-mobile">(v)</span>
+          </div>
+          <div id="count-infinite-v" class="count-indicator count-indicator--infinite"></div>
           <div id="count-indicator-v" class="count-indicator">
             <div id="vCircle1" class="count-indicator__circle"></div>
             <div id="vCircle2" class="count-indicator__circle"></div>
@@ -121,22 +118,19 @@
             <div id="vCircle4" class="count-indicator__circle"></div>
             <div id="vCircle5" class="count-indicator__circle"></div>
           </div>
-          <div id="vTooltip" class="button-tooltip">
-            <p>Or press "v"</p>
-          </div>
         </button>
         <button class="action-button" title="Big Bomb" id='b'>
-          <img src="./assets/img/big-bomb-button.svg" alt="Big Bomb">
-          <div id="count-infinite-b" class="count-indicator count-indicator--infinite hide"></div>
+          <div class="action-button__img">
+            <img src="./assets/img/big-bomb-button.svg" alt="Big Bomb">
+            <span class="none-mobile">(b)</span>
+          </div>
+          <div id="count-infinite-b" class="count-indicator count-indicator--infinite"></div>
           <div id="count-indicator-b" class="count-indicator">
             <div id="bCircle1" class="count-indicator__circle"></div>
             <div id="bCircle2" class="count-indicator__circle"></div>
             <div id="bCircle3" class="count-indicator__circle"></div>
             <div id="bCircle4" class="count-indicator__circle"></div>
             <div id="bCircle5" class="count-indicator__circle"></div>
-          </div>
-          <div id="bTooltip" class="button-tooltip">
-            <p>Or press "b"</p>
           </div>
         </button>
       </div>
@@ -155,90 +149,120 @@
   <!-- ! Instructions -->
   <div id="instructions" class="instructions hide">
     <button id="instructions-close" class="close-button">
-      X
+      <img src="./assets/img/close-icon.svg" alt="Close Instructions" title="Close Instructions">
     </button>
     <div class="instructions__info">
       <!-- ! Instructions -->
-      <h2>Instructions</h2>
+      <h2 class="instructions__title instructions__red">INSTRUCTIONS</h2>
       <div class="instructions__game">
-        <p>The enemies will alawys try to reah you.</p>
+        <p>The enemies will always try to reach you.</p>
         <p>Move around the field to avoid them and make them kill themselves.</p>
       </div>
       <!-- ! Commands -->
-      <h4>Commands</h4>
       <div class="instructions__commands-wrapper">
         <!-- ! Powers -->
         <div class="instructions__powers">
-          <h5 class="instructions__key-section-title">Powers</h5>
+          <h5 class="instructions__title instructions__red instructions__key-section-title">Powers</h5>
           <div class="instructions__instrictions-item">
-            <p>Teleport to a random location:</p>
+            <p>Teleport to a random location</p>
             <div class="instructions__instriction-command">
-              <span>t</span>
+              <span class="none-mobile">T</span>
+              <span class="none-mobile">or</span>
+              <img src="./assets/img/teleport-button.svg" alt="Teleport" title="Teleport">
             </div>
           </div>
           <div class="instructions__instrictions-item">
-            <p>Teleport to a safe location:</p>
+            <p>Teleport to a safe location</p>
             <div class="instructions__instriction-command">
-              <span>s</span>
+              <span class="none-mobile">S</span>
+              <span class="none-mobile">or</span>
+              <img src="./assets/img//safe-teleport-button.svg" alt="Safe Teleport" title="Safe Teleport">
             </div>
           </div>
           <div class="instructions__instrictions-item">
-            <p>Guided teleport:</p>
+            <p>Guided telepor:</p>
             <div class="instructions__instriction-command">
-              <span>g</span>
+              <span class="none-mobile">G</span>
+              <span class="none-mobile">or</span>
+              <img src="./assets/img/guided-teleport-button.svg" alt="Guided Teleport" title="Guided Teleport">
             </div>
           </div>
           <div class="instructions__instrictions-item">
-            <p>Small bomb:</p>
+            <p>Small bomb</p>
             <div class="instructions__instriction-command">
-              <span>v</span>
+              <span class="none-mobile">V</span>
+              <span class="none-mobile">or</span>
+              <img src="./assets/img/small-bomb-button.svg" alt="Small Bomb" title="Small Bomb">
             </div>
           </div>
           <div class="instructions__instrictions-item">
-            <p>Big bomb:</p>
+            <p>Big bomb</p>
             <div class="instructions__instriction-command">
-              <span>b</span>
+              <span class="none-mobile">B</span>
+              <span class="none-mobile">or</span>
+              <img src="./assets/img/big-bomb-button.svg" alt="Big Bomb" title="Big Bomb">
             </div>
           </div>
         </div>
         <!-- ! Movements -->
         <div class="instructions__movements">
-          <h5 class="instructions__key-section-title">Movements</h5>
-          <div class="instructions__instrictions-item">
-            <p>Combine arrows to move diagonaly</p>
-          </div>
-          <div class="instructions__instrictions-item">
-            <p>Move up:</p>
+          <h5 class="instructions__title instructions__red instructions__key-section-title">Movements</h5>
+          <!-- ! None Mobile Instructions -->
+          <div class="instructions__instrictions-item none-mobile">
+            <p>Move one step</p>
             <div class="instructions__instriction-command">
-              <span>↑</span>
+              <span class="command command--arrow">↑ ↓ ← →</span>
             </div>
           </div>
-          <div class="instructions__instrictions-item">
-            <p>Move down:</p>
+          <div class="instructions__instrictions-item none-mobile">
+            <p>Stay in the spot</p>
             <div class="instructions__instriction-command">
-              <span>↓</span>
+              <span class="command command--arrow">SPACE</span>
             </div>
           </div>
-          <div class="instructions__instrictions-item">
-            <p>Move right:</p>
+          <div class="instructions__instrictions-item none-mobile">
+            <p>Combine arrows to move diagonally</p>
+          </div>
+          <div class="instructions__instrictions-item none-mobile">
+            <p>Move straight all you can</p>
             <div class="instructions__instriction-command">
-              <span>→</span>
+              <span class="command">SHFT + Any movement command</span>
             </div>
           </div>
-          <div class="instructions__instrictions-item">
-            <p>Move left:</p>
+          <!-- ! Mobile Instructions -->
+          <div class="instructions__instrictions-item mobile-comand">
+            <p>To shift, long swipe to the side you want. To stay in the same spot, double tap anywere.</p>
+          </div>
+          <div class="instructions__instrictions-item mobile-comand">
+            <p>Move</p>
             <div class="instructions__instriction-command">
-              <span>←</span>
+              <span class="command command--mobile">Swipe in any direction</span>
             </div>
           </div>
-          <div class="instructions__instrictions-item">
-            <p>Move stright all you can:</p>
+          <div class="instructions__instrictions-item mobile-comand">
+            <p>Move diagonal</p>
             <div class="instructions__instriction-command">
-              <span>shift + arrow</span>
+              <span class="command command--mobile">Diagonal swipe in any direction</span>
+            </div>
+          </div>
+          <div class="instructions__instrictions-item mobile-comand">
+            <p>Stay in the spot</p>
+            <div class="instructions__instriction-command">
+              <span class="command command--mobile">Tap anywhere</span>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ! Card -->
+  <div id="card" class="card hide">
+    <div class="card__data">
+      <p id="cardTitle" class="card__title"></p>
+      <p id="cardText" class="card__text"></p>
+      <button id="acceptButton"></button>
+      <button id="cancelButton"></button>
     </div>
   </div>
 </body>

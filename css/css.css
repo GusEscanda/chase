@@ -1,15 +1,81 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
 
+:root {
+  --grey-one: #000E17;
+  --grey-two: #1B1C20;
+  --white: #fafafa;
+  --blue-one: #1DAECB;
+  --blue-two: #6E979D;
+  --orange: #F5573F;
+  --violet: #370051;
+  --bg: linear-gradient(var(--violet), var(--grey-two));
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  color: #40aa3a;
 }
 
 body {
-  background-color: #1a1a1a;
+  background: var(--bg);
   font-family: 'Roboto Mono', monospace;
+  color: var(--white);
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--grey-one);
+  z-index: 1;
+  opacity: 0.8;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--grey-one);
+  z-index: 1;
+  opacity: 0.8;
+}
+
+.field-corner {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  transform: translate(-50%, -50%);
+}
+
+.field-corner--top-right {
+  right: -4px;
+  left: auto;
+  transform: translate(50%, -50%) rotate(90deg);
+}
+
+.field-corner--bottom-left {
+  top: auto;
+  bottom: -4px;
+  transform: translate(-50%, 50%) rotate(-90deg);
+}
+
+.field-corner--bottom-right {
+  top: auto;
+  right: -4px;
+  left: auto;
+  bottom: -4px;
+  transform: translate(50%, 50%) rotate(180deg);
+}
+
+#div-score {
+  color: var(--orange);
+  font-weight: bold;
+  font-size: 32px;
 }
 
 .game-title {
@@ -94,14 +160,34 @@ body {
 
 .instructions {
   position: fixed;
-  top: 0;
-  left: 0;
-  background-color: #1a1a1a;
-  height: 100vh;
-  width: 100%;
-  padding: 20px;
-/*  display: none; */
+  top: 50%;
+  left: 50%;
+  background-color: #000E17;
+  height: 90vh;
+  width: 90%;
+  padding: 90px;
+  margin: 0 auto;
+  transform: translate(-50%, -50%);
   overflow: auto;
+  font-size: 16px;
+  z-index: 2;
+}
+
+.instructions__info {
+  max-width: 740px;
+  margin: 0 auto;
+}
+
+.instructions__title {
+  font-size: 30px;
+}
+
+.instructions__secondary-title {
+  font-size: 20px;
+}
+
+.instructions__red {
+  color: var(--orange);
 }
 
 .instructions--active {
@@ -109,7 +195,6 @@ body {
 }
 
 .instructions__game {
-  font-size: 20px;
   margin-bottom: 20px;
 }
 
@@ -124,7 +209,6 @@ body {
 }
 
 .instructions__commands-wrapper {
-  font-size: 20px;
   max-width: 680px;
 }
 
@@ -144,8 +228,37 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #40aa3a;
-  padding: 10px;
+  font-size: 16px;
+}
+
+.instructions__instriction-command span {
+  margin-right: 20px;
+}
+
+.instructions__instriction-command span:first-of-type {
+  margin-right: 20px;
+  font-size: 20px;
+}
+
+.command {
+  color: var(--blue-one);
+  background-color: var(--grey-two);
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.command--arrow {
+  font-size: 36px !important;
+}
+
+.mobile-comand {
+  display: none;
+}
+
+.instructions__instriction-command img {
+  width: 42px;
 }
 
 .instructions__key-section-title {
@@ -160,14 +273,14 @@ body {
 
 .close-button {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 80px;
+  right: 80px;
   border: none;
   padding: 0;
 }
 
 .main-game {
-  max-width: 1100px;
+  max-width: 1112px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -181,7 +294,7 @@ body {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 50px;
 }
 
 .info-wrapper__items {
@@ -196,21 +309,24 @@ body {
   line-height: 28px;
 }
 
-.info-item p {
-  font-size: 22px;
+.info-item .info,
+.info-item .score-number {
+  font-size: 20px;
   margin-right: 6px;
 }
 
 .field-wrapper {
+  position: relative;
   display: flex;
   height: 80%;
 }
 
 .separation-wrapper {
+  position: relative;
   height: 100%;
   width: 100%;
-  border: 2px solid #40aa3a;
-  margin-right: 8px;
+  border: 1px solid var(--blue-two);
+  margin-right: 20px;
   padding: 12px;
 }
 
@@ -226,8 +342,8 @@ body {
 }
 
 button {
-  background-color: transparent !important;
-  border: 2px solid #40aa3a;
+  background-color: transparent;
+  border: none;
   text-align: center;
   padding: 4px 10px;
   font-size: 30px;
@@ -238,9 +354,11 @@ button {
 }
 
 .action-button {
+  background-color: var(--grey-two);
   position: relative;
   object-fit: contain;
-  width: 72px;
+  height: 90px;
+  width: 90px;
 }
 
 .action-button:hover > .button-tooltip {
@@ -249,10 +367,24 @@ button {
   left: -116%;
 }
 
+.action-button__img {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  color: var(--white);
+}
+
 .action-button img {
   width: 100%;
-  height: 48px;
-  margin-bottom: 8px;
+  height: 38px;
+  width: 38px;
+  object-fit: contain;
+  margin-bottom: 10px;
+  margin-right: 4px;
+}
+
+.action-button span {
+  font-size: 16px;
 }
 
 .button-tooltip {
@@ -274,7 +406,7 @@ button {
   background-color: #fa0505 !important;
 }
 
-.hide { /* CORREGIR ESTA CLASE POR FAVOR!!! */
+.hide {
   display: none !important;
 }
 
@@ -351,43 +483,47 @@ button {
   cursor: url(../assets/img/guided-teleport-button.svg), auto;
 }
 
-/* CORREGIR TODO ESTO!!!! */
-
-/* The Modal (background) */
-.modal {
-  /* display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
-  left: 20;
-  top: 20;
-  width: 80%; /* Full width */
-  height: 80%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+.card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 584px;
+  padding: 20px 20px;
+  background-color: var(--grey-one);
+  color: var(--white);
+  text-align: center;
 }
 
-/* Modal Content/Box */
-.modal-content-class {
-  background-color: #fefefe;
-  margin: 15% auto; /* 15% from the top and centered */
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%; /* Could be more or less, depending on screen size */
+.card__title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
 }
 
-/* The Close Button */
-.close-modal {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
+.card__text {
+  font-size: 16px;
+  margin-bottom: 40px;
 }
 
-.close-modal:hover,
-.close-modal:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
+.card button {
+  max-width: 300px;
+  width: 100%;
+  display: block;
+  margin: 0 auto;
+  padding: 10px;
+  font-size: 16px;
+  background-color: var(--orange);
+  margin-bottom: 20px;
 }
 
+.card button:last-of-type {
+  max-width: 300px;
+  margin: 0 auto;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid var(--white);
+  background-color: transparent;
+  color: var(--white);
+  margin-bottom: 0;
+}

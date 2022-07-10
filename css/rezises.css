@@ -1,19 +1,19 @@
 /* ! 1000 */
-@media(max-width: 1000px) {
+@media (max-width: 1000px) {
   .game-title h2 {
     font-size: 180px;
   }
 }
 
 /* ! 888px */
-@media(max-width: 800px) {
+@media (max-width: 800px) {
   .info-item {
     margin-right: 10px;
   }
 }
 
 /* ! 680 */
-@media(max-width: 680px) {
+@media (max-width: 768px) {
   .game-title h2 {
     font-size: 100px;
   }
@@ -21,15 +21,133 @@
   .game-title__press-to-enter {
     font-size: 24px;
   }
+
+  .instructions {
+    height: 100vh;
+    width: 100%;
+  }
+
+  .none-mobile {
+    display: none;
+  }
+
+  .mobile-comand {
+    display: flex;
+  }
+  .info-wrapper {
+    align-items: flex-start;
+    margin-bottom: 30px;
+  }
+
+  .info-wrapper__items {
+    display: block;
+  }
+
+  .scores {
+    font-size: 20px;
+  }
+
+  .info-item .info {
+    font-size: 12px;
+  }
+
+  .info-item .info, .info-item .score-number {
+    font-size: 14px;
+  }
+
+  .field-wrapper {
+    display: block;
+  }
+
+  .separation-wrapper {
+    margin-bottom: 40px;
+  }
+
+  .action-buttons-wrapper {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .instructions {
+    padding: 40px;
+  }
+
+  .close-button {
+    top: 20px;
+    right: 20px;
+  }
+
+  .instructions h2 {
+    font-size: 20px;
+  }
+
+  .instructions__game {
+    font-size: 16px;
+  }
+
+  .instructions__key-section-title {
+    font-size: 16px;
+  }
+
+  .instructions__instrictions-item p {
+    margin-right: 20px;
+    font-size: 14px;
+  }
+
+  .instructions__instriction-command img {
+    width: 30px;
+  }
+
+  .instructions__instriction-command span:first-of-type {
+    font-size: 14px;
+  }
+}
+
+/* ! 504 */
+@media (max-width: 504px) {
+  .action-button {
+    height: 70px;
+    width: 70px;
+    margin-right: 6px;
+  }
+
+  .action-button img {
+    height: 20px;
+    width: 20px;
+  }
+
+  .instructions {
+    padding: 40px 20px;
+  }
+
+  .instructions__game {
+    font-size: 12px;
+  }
+
+  .instructions__instrictions-item p {
+    font-size: 12px;
+  }
+
+  .instructions__instriction-command span:first-of-type {
+    font-size: 12px;
+  }
 }
 
 /* ! 400 */
-@media(max-width: 400px) {
+@media (max-width: 400px) {
   .game-title h2 {
     font-size: 60px;
   }
 
   .game-title__press-to-enter {
     font-size: 18px;
+  }
+}
+
+/* ! 396 */
+@media (max-width: 396px) {
+  .action-buttons-wrapper {
+    flex-wrap: wrap;
+    justify-content: flex-start;
   }
 }
