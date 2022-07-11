@@ -231,11 +231,18 @@ class Board:
                 if self.vertical:
                     row, col = col, row
                 self.placeBoardObjects( boClass, coords=(row, col) )
-        desc = f"<h3>{self.puzzle.title}</h3><br>" + \
-               f"<p>{self.puzzle.message}</p><br>" + \
+        desc = f"<p>{self.puzzle.message}</p><br>" + \
                f"<p>by {self.puzzle.author}</p><br>" + \
                f"<p>solved in {len(self.puzzle.authSoluc)//3} steps</p><br>"
-        self.gui.showModalInfo(desc)
+        self.gui.showCard(
+            title = self.puzzle.title,
+            content = desc,
+            button1 = 'Ok',
+            button2 = None,
+            func1 = self.gui.hideCard,
+            func2 = None
+        )
+
 
     def emptyGrid(self):
         # using regular python lists because brython doesn't support numpy, I hope will not have performance issues...
@@ -253,7 +260,14 @@ class Board:
         self.cleanBoard()
         if self.mode == PlayMode.PUZZLE:
             if self.puzzle.invalid:
-                self.gui.showModalInfo(Content.INVALID_PUZZLE)
+                self.gui.showCard(
+                    title = 'Error',
+                    content = '<h2>INVALID PUZZLE!!!</h2>',
+                    button1 = 'Ok',
+                    button2 = None,
+                    func1 = self.gui.hideCard,
+                    func2 = None
+                )
                 self.mode = PlayMode.FREE
             else:
                 self.loadPuzzle()
