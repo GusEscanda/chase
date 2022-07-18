@@ -11,6 +11,8 @@ class HTMLElmnt:
     NEW_GAME_BUTTON               = 'new'
     GUIDED_TELEPORT_CURSOR_SCOPE  = 'separationWrapper'
     TITLE_SCREEN_DIALOG           = 'gameTitleScreen'
+    TEXT_TITLE                    = 'title'
+    DIV_TITLE                     = 'div-title'
     TEXT_LEVEL                    = 'level'
     DIV_LEVEL                     = 'div-level'
     TEXT_FOE_COUNT                = 'foeCount'
@@ -98,7 +100,8 @@ class Metrics:
     # metrics that will determine how difficult the game will be to play
     BOARD_DIM = (26,22)
     INIT_FOE_COUNT = 0
-    INCREMENT_FOE_COUNT_BY_LEVEL = 6
+    INCREMENT_FOE_COUNT_BY_LEVEL = 5
+    MAX_FOES_PER_LEVEL = 250
     DROP_TOOL_MU = 0
     DROP_TOOL_SIGMA = 1
     MAX_TOOL_STOCK = 5
@@ -106,13 +109,22 @@ class Metrics:
     TOOL_DISABLE = -1
     INIC_TOOL_STOCK = {
         Tools.TELEPORT: TOOL_INFINITE,
-        Tools.SAFE_TELEPORT: 3,
-        Tools.GUIDED_TELEPORT: 3,
-        Tools.SMALL_BOMB: 3,
-        Tools.BIG_BOMB: 3,            
+        Tools.SAFE_TELEPORT: 2,
+        Tools.GUIDED_TELEPORT: 2,
+        Tools.SMALL_BOMB: 2,
+        Tools.BIG_BOMB: 2,            
     }
     DIE_BEYOND_EDGES = False
 
 class Anim:
     # times involved in animation (in ms)
-    STEP_TIME = 50
+    STEP_TIME = 150
+
+PUZZLE_BOARD_ELEMENTS = 'VBGXHF'
+
+class PlayMode:
+    FREE = 1   # playing a free style game (board objects radndomly regerated)
+    PUZZLE = 2 # playing a puzzle
+    EDIT = 3   # editting a puzzle
+    REPLAY = 4   # replay the moves that solve a puzzle
+

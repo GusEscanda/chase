@@ -1,8 +1,10 @@
 import ui
 from ui import GUI
-
+import util
+from util import az2int, int2az
 import random
-from constant import Tools, Prio, TextChar, GraphShape, Metrics
+from constant import Tools, Prio, TextChar, GraphShape, Metrics, PlayMode
+from puzzle import Puzzle
 
 class BoardObject:
     # Mother class for all the board objects, implements the standard behavior and atributes of them.
@@ -172,16 +174,21 @@ class Board:
     PLAYING = 'PLAYING'
     GAME_OVER = 'GAME_OVER'
 
-    def __init__(self, maxR, maxC, gui = None, puzzle=None):
+    def __init__(self, maxR, maxC, gui = None, puzzleString=None):
         # Set the height and width of the board
         self.maxR = maxR
         self.maxC = maxC
         self.vertical = (maxR > maxC)
-        self.puzzle = puzzle
 
         # Store a reference to the GUI object
         self.gui = gui
 
+        self.puzzle = None if not puzzleString else Puzzle(puzzleString)
+        if puzzle:
+            self.mode = PlayMode.PUZZLE
+        else:
+            self.mode = PlayMode.FREE
+        
         self.hero = None
         self.level = 0 # Counts the level so each one will be more challenging
 
@@ -199,41 +206,43 @@ class Board:
         # Create a list that will contain all the objects that must do something in each cicle of the game
         self.boardObjectList = []
 
-    def char2num(self,ch):
-        return ord(ch) - 97
-
-    def num2char(self,n):
-        return chr(n+97)
-
-    def str2rc(self,s):
+    def loadPuzzle(self):
+        self.toolStock = { tool: self.puzzle.toolStock[tool] for tool in self.puzzle.toolStock }
         if self.vertical:
-            return self.char2num(s[1]), self.char2num(s[0])
+            col, row = self.puzzle.bObjList['H'][0]
         else:
-            return self.char2num(s[0]), self.char2num(s[1])
-
-    def load_puzzle(self):
-        for tool in Metrics.INIC_TOOL_STOCK:
-            self.toolStock[tool] = -1
-        self.toolStock[Tools.SMALL_BOMB] = self.char2num(self.puzzle[0])
-        self.toolStock[Tools.BIG_BOMB] = self.char2num(self.puzzle[1])
-        self.toolStock[Tools.GUIDED_TELEPORT] = self.char2num(self.puzzle[2])
-        row, col = self.str2rc( self.puzzle[3:5] )
+            row, col = self.puzzle.bObjList['H'][0]
         self.placeBoardObjects( Hero, coords=(row,col) )
         self.hero = self.boardObjectList[0]
-        i = 5
-        while i < len(self.puzzle):
-            if self.puzzle[i] == 'V':
+        for elem in self.puzzle.bObjList:
+            if elem == 'H':
+                continue
+            elif elem == 'V':
                 boClass = SmallBomb
-            elif self.puzzle[i] == 'B':
+            elif elem == 'B':
                 boClass = BigBomb
-            elif self.puzzle[i] == 'G':
+            elif elem == 'G':
                 boClass = GuidedTeleport
-            else:
+            elif elem == 'X':
                 boClass = Foe
-            i += 1
-            while i < len(self.puzzle) and self.puzzle[i] >= 'a':
-                self.placeBoardObjects( boClass, coords=(self.str2rc(self.puzzle[i:i+2])) )
-                i += 2
+            elif elem == 'F':
+                boClass = Fire
+            for row, col in self.puzzle.bObjList[elem]:
+                if self.vertical:
+                    row, col = col, row
+                self.placeBoardObjects( boClass, coords=(row, col) )
+        desc = f"<p>{self.puzzle.message}</p><br>" + \
+               f"<p>by {self.puzzle.author}</p><br>" + \
+               f"<p>solved in {len(self.puzzle.authSoluc)//3} steps</p><br>"
+        self.gui.showCard(
+            title = self.puzzle.title,
+            content = desc,
+            button1 = 'Ok',
+            button2 = None,
+            func1 = self.gui.hideCard,
+            func2 = None
+        )
+
 
     def emptyGrid(self):
         # using regular python lists because brython doesn't support numpy, I hope will not have performance issues...
@@ -249,16 +258,31 @@ class Board:
 
     def newLevel(self):
         self.cleanBoard()
-        if self.puzzle:
-            self.load_puzzle()
+        if self.mode == PlayMode.PUZZLE:
+            if self.puzzle.invalid:
+                self.gui.showCard(
+                    title = 'Error',
+                    content = '<h2>INVALID PUZZLE!!!</h2>',
+                    button1 = 'Ok',
+                    button2 = None,
+                    func1 = self.gui.hideCard,
+                    func2 = None
+                )
+                self.mode = PlayMode.FREE
+            else:
+                self.loadPuzzle()
         else:
+            # self.mode == PlayMode.FREE
             self.level += 1
+            if self.level == 1:
+                for tool in Metrics.INIC_TOOL_STOCK:
+                    self.toolStock[tool] = Metrics.INIC_TOOL_STOCK[tool]
             if self.level > 1:
                 self.gui.sndLevelUp()
             self.placeBoardObjects( Hero )
             self.hero = self.boardObjectList[0]
-            self.placeBoardObjects( Foe, Metrics.INIT_FOE_COUNT + Metrics.INCREMENT_FOE_COUNT_BY_LEVEL * self.level )
-            
+            foeCount = min( Metrics.INIT_FOE_COUNT + Metrics.INCREMENT_FOE_COUNT_BY_LEVEL * self.level, Metrics.MAX_FOES_PER_LEVEL )
+            self.placeBoardObjects( Foe, foeCount )            
             toolDrop = lambda : max(0, int( random.normalvariate( Metrics.DROP_TOOL_MU, Metrics.DROP_TOOL_SIGMA ) ))
             self.placeBoardObjects( SmallBomb, toolDrop() )
             self.placeBoardObjects( BigBomb, toolDrop() )
@@ -271,6 +295,7 @@ class Board:
         self.gui.refreshSafeness()
 
         self.gui.refreshScores()
+        self.gui.refreshButtons()
         
     def newGame(self):
         if self.gameStatus == Board.PLAYING:
@@ -281,10 +306,6 @@ class Board:
         self.score = 0
         self.steps = 0
         self.newLevel()
-        if not self.puzzle:
-            for tool in Metrics.INIC_TOOL_STOCK:
-                self.toolStock[tool] = Metrics.INIC_TOOL_STOCK[tool]
-        self.gui.refreshButtons()
 
     def collectTools(self):
         for _ in range(len(self.boardObjectList)): # for all the tools that remain in the board
@@ -301,8 +322,7 @@ class Board:
         if self.toolStock[tool] >= 0 and self.toolStock[tool] != Metrics.TOOL_INFINITE:
             self.toolStock[tool] += qty
             self.toolStock[tool] = min(self.toolStock[tool], Metrics.MAX_TOOL_STOCK)
-        if oldValue != self.toolStock[tool]:
-            self.gui.refreshButtons(tool) # if the stock has changed, refresh the button
+        self.gui.refreshButtons(tool) # refresh the button apearance
         return self.toolStock[tool]
 
     def placeBoardObjects(self, boardObjectClass, qty=1, coords=None):
@@ -452,6 +472,8 @@ class Board:
             row = random.randrange(self.maxR)
             col = random.randrange(self.maxC)
             while (self.grid[row][col] != None) or (safe and self.notSafe(row,col)):
+                if self.safeness < 0.005:  # avoid infinite loop in extremely crowded boards
+                    break
                 row = random.randrange(self.maxR)
                 col = random.randrange(self.maxC)
         
@@ -521,7 +543,7 @@ if ui.BROWSER:
     else:
         maxR, maxC = min(Metrics.BOARD_DIM), max(Metrics.BOARD_DIM)
 
-    board = Board(maxR=maxR, maxC=maxC, puzzle=puzzle)
+    board = Board(maxR=maxR, maxC=maxC, puzzleString=puzzle)
     gui = GUI(board)
     board.gui = gui
     board.newGame()

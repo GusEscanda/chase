@@ -1,5 +1,6 @@
 import math
-from constant import CSSClass, HTMLElmnt, Metrics, Tools, Anim, ToolHTMLElement
+from constant import CSSClass, HTMLElmnt, Metrics, Tools, Anim, PlayMode, ToolHTMLElement
+from util import int2az, az2int
 
 try:
     import browser
@@ -45,11 +46,15 @@ class GUI:
         self.mouseUpX = None
         self.mouseUpY = None
         self.lastPointerMoveTimeStamp = 0
+        self.lastKeyEventTimeStamp = 0
 
         self.keydownArrows = {'ArrowUp':False, 'ArrowDown':False, 'ArrowLeft':False, 'ArrowRight':False}
         self.playing = False
 
         self.audio = True
+
+        self.button1Func = None
+        self.button2Func = None
 
         self.bindsTitleScreen(bind=True)
 
@@ -64,25 +69,27 @@ class GUI:
             window.removeEventListener('touchend', self.removeTitleAndStart)
             window.removeEventListener('keyup', self.removeTitleAndStart)
 
-
     def removeTitleAndStart(self, evt):
         if browser.document[HTMLElmnt.TITLE_SCREEN_DIALOG].classList.contains(CSSClass.TITLE_SCREEN_ACTIVE):
             browser.document[HTMLElmnt.TITLE_SCREEN_DIALOG].classList.remove(CSSClass.TITLE_SCREEN_ACTIVE)
             self.bindsTitleScreen(bind=False)
-            self.bindsGamePlay(bind=True)
-            self.playing = True
+            window.bind('keydown', self.keyPressed)
+            window.bind('keyup', self.keyPressed)
+            if self.board.mode != PlayMode.PUZZLE:
+                print('removeTitleAndStart, calling bindsGamePlay ON')
+                self.bindsGamePlay(bind=True)
+                self.playing = True
 
 
     def bindsGamePlay(self, bind):
         if bind:
+            print('bindsGamePlay ON')
             self.field.bind("mousedown", self.pointerStart)
             self.field.bind("mousemove", self.pointerMove)
             self.field.bind("mouseup", self.pointerEnd)
             self.field.bind('touchstart', self.pointerStart)
             self.field.bind('touchmove', self.pointerMove)
             self.field.bind('touchend', self.pointerEnd)
-            window.bind('keydown', self.keyPressed)
-            window.bind('keyup', self.keyPressed)
             browser.document[HTMLElmnt.INSTRUCTIONS_TOGGLE].bind( 'click', lambda evt: self.showInstructions(True) )
             browser.document[HTMLElmnt.AUDIO].bind('click', lambda evt: self.toggleAudio(False) )
             browser.document[HTMLElmnt.AUDIO_OFF].bind('click', lambda evt: self.toggleAudio(True) )
@@ -112,6 +119,7 @@ class GUI:
     def showInstructions(self, show=True):
         if show:
             self.playing = False
+            print('showInstructions, calling bindsGamePlay OFF')
             self.bindsGamePlay(bind=False)
             browser.document[HTMLElmnt.INSTRUCTIONS].classList.remove(CSSClass.HIDE)
             browser.document[HTMLElmnt.INSTRUCTIONS_CLOSE].bind( 'click', lambda evt: self.showInstructions(False) )
@@ -138,18 +146,22 @@ class GUI:
             browser.document[HTMLElmnt.CARD_BTN_1].innerText = button1
             browser.document[HTMLElmnt.CARD_BTN_1].classList.remove(CSSClass.HIDE)
             browser.document[HTMLElmnt.CARD_BTN_1].bind('click', func1)
+            self.button1Func = func1
         else:
             browser.document[HTMLElmnt.CARD_BTN_1].innerText = ''
             browser.document[HTMLElmnt.CARD_BTN_1].classList.add(CSSClass.HIDE)
             browser.document[HTMLElmnt.CARD_BTN_1].unbind('click')
+            self.button1Func = None
         if button2:
             browser.document[HTMLElmnt.CARD_BTN_2].innerText = button2
             browser.document[HTMLElmnt.CARD_BTN_2].classList.remove(CSSClass.HIDE)
             browser.document[HTMLElmnt.CARD_BTN_2].bind('click', func2)
+            self.button2Func = func2
         else:
             browser.document[HTMLElmnt.CARD_BTN_2].innerText = ''
             browser.document[HTMLElmnt.CARD_BTN_2].classList.add(CSSClass.HIDE)
             browser.document[HTMLElmnt.CARD_BTN_2].unbind('click')
+            self.button2Func = None
         browser.document[HTMLElmnt.CARD].classList.remove(CSSClass.HIDE)
         print('showCard, calling bindsGamePlay OFF')
         self.bindsGamePlay(False)
@@ -164,6 +176,8 @@ class GUI:
         browser.document[HTMLElmnt.CARD_BTN_1].unbind('click')
         browser.document[HTMLElmnt.CARD_BTN_2].unbind('click')
         browser.document[HTMLElmnt.CARD].classList.add(CSSClass.HIDE)
+        self.button1Func = None
+        self.button2Func = None
         print('hideCard, calling bindsGamePlay ON')
         self.bindsGamePlay(True)
         self.playing = True
@@ -275,7 +289,7 @@ class GUI:
         self.mouseUpX, self.mouseUpY = x, y  # if there is no movement the ponterMove will not be fired...
         
     def pointerMove(self, evt):
-        print(f'{evt.type} {evt.target.id}')
+        # print(f'{evt.type} {evt.target.id}')
         if evt.type == 'mousemove':
             x, y = evt.x, evt.y
         elif evt.type == 'touchmove':
@@ -285,7 +299,7 @@ class GUI:
             else:
                 self.mouseUpX, self.mouseUpY = None, None  # cancel move
                 return
-        print(f'     x: {x}, y: {y}, coords: {self.coords2rowcol(x, y)}')
+        # print(f'     x: {x}, y: {y}, coords: {self.coords2rowcol(x, y)}')
         self.mouseUpX, self.mouseUpY = x, y
 
     def pointerEnd(self, evt):
@@ -321,18 +335,30 @@ class GUI:
             self.board.move(deltaR,deltaC, repeat)
             self.lastPointerMoveTimeStamp = evt.timeStamp
 
+
     def keyPressed(self, evt):
-        if not self.playing:
+        print(evt.type, evt.key, f"playing: {self.playing}")
+        print(f"lastKeyEventTimeStamp: {self.lastKeyEventTimeStamp}, timeStamp: {evt.timeStamp}, diff: {evt.timeStamp-self.lastKeyEventTimeStamp}")
+        if evt.timeStamp-self.lastKeyEventTimeStamp < GUI.FAST_MOVE:
             return
+        if evt.type == 'keyup':
+            self.lastKeyEventTimeStamp = evt.timeStamp
+
+        if not self.playing:
+            if evt.type == 'keyup':
+                if evt.key in [' ', 'Enter'] and self.button1Func != None:
+                    self.button1Func(evt)
+                elif evt.key == 'Escape' and self.button2Func != None:
+                    self.button2Func(evt)
+            return
+
         if evt.type == 'keydown':
-            print('keydown', evt.key)
             if evt.key in self.keydownArrows:
                 self.keydownArrows[evt.key] = True
             return
 
         if evt.type == 'keyup':
-            print('keyup', evt.key)
-            if evt.key in '123456789 ' or evt.key in ['Home', 'End', 'PageUp', 'PageDown', 'Clear']:
+            if evt.key in '123456789 ' or evt.key in ['Home', 'End', 'PageUp', 'PageDown', 'Clear', 'Enter']:
                 deltaR, deltaC = 0, 0
                 if evt.key in '741' or evt.key in ['Home', 'End']:
                     deltaC = -1
@@ -387,6 +413,7 @@ class GUI:
             browser.document[HTMLElmnt.DIV_STEPS].classList.add(CSSClass.HIDE)
             browser.document[HTMLElmnt.DIV_HIGH_SCORE].classList.remove(CSSClass.HIDE)
 
+        browser.document[HTMLElmnt.TEXT_TITLE].textContent = self.board.puzzle.title if self.board.puzzle else 'Chase'
         browser.document[HTMLElmnt.TEXT_LEVEL].textContent = self.board.level
         browser.document[HTMLElmnt.TEXT_FOE_COUNT].textContent = self.board.foeCount
         browser.document[HTMLElmnt.TEXT_SCORE].textContent = self.board.score
@@ -413,6 +440,7 @@ class GUI:
                         browser.document[idCircle].classList.add(CSSClass.COUNT_INDICATOR)
                     else:
                         browser.document[idCircle].classList.remove(CSSClass.COUNT_INDICATOR)
+            browser.document[ToolHTMLElement[t]].blur()  # take the focus off the button (avoid <Enter> or <Space> to erroneously trigger the button)
 
     def refreshGuided(self, value):
         if value:
