@@ -237,10 +237,9 @@ class Board:
         self.gui.showCard(
             title = self.puzzle.title,
             content = desc,
-            button1 = 'Ok',
-            button2 = None,
-            func1 = self.gui.hideCard,
-            func2 = None
+            buttons = [
+                ('Ok', self.gui.hideCard)                
+            ]
         )
 
 
@@ -263,10 +262,7 @@ class Board:
                 self.gui.showCard(
                     title = 'Error',
                     content = '<h2>INVALID PUZZLE!!!</h2>',
-                    button1 = 'Ok',
-                    button2 = None,
-                    func1 = self.gui.hideCard,
-                    func2 = None
+                    buttons = [('Ok', self.gui.hideCard)]
                 )
                 self.mode = PlayMode.FREE
             else:
@@ -519,13 +515,17 @@ class Board:
         self.move(0, 0, repeat=False)
 
     def askNewGame(self):
+        buttons = []
+        if self.mode == PlayMode.PUZZLE:
+            buttons.append(('Restat puzzle', self.startNewGame))
+            buttons.append(('Play free mode', self.gui.startFreeMode))
+        else:
+            buttons.append(('New game', self.startNewGame))
+        buttons.append(('Cancel', self.gui.hideCard))
         self.gui.showCard(
             'Restart?',
             'You were doing pretty good!!',
-            'New game',
-            'Not now',
-            self.startNewGame,
-            self.gui.hideCard
+            buttons
         )
 
     def startNewGame(self, *args, **kwargs):

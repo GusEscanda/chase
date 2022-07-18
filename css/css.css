@@ -516,7 +516,7 @@ button {
   background-color: var(--orange);
   margin-bottom: 20px;
 }
-
+/*
 .card button:last-of-type {
   max-width: 300px;
   margin: 0 auto;
@@ -527,3 +527,4 @@ button {
   color: var(--white);
   margin-bottom: 0;
 }
+*/
