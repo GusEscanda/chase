@@ -53,8 +53,7 @@ class GUI:
 
         self.audio = True
 
-        self.button1Func = None
-        self.button2Func = None
+        self.buttonFunc = []
 
         self.bindsTitleScreen(bind=True)
 
@@ -138,30 +137,20 @@ class GUI:
             browser.document[HTMLElmnt.AUDIO].classList.add(CSSClass.HIDE)
             browser.document[HTMLElmnt.AUDIO_OFF].classList.remove(CSSClass.HIDE)
 
-    def showCard(self, title, content, button1=None, button2=None, func1=None, func2=None):
+    def showCard(self, title, content, buttons):
         print('showCard')
         browser.document[HTMLElmnt.CARD_TITLE].innerText = title
         browser.document[HTMLElmnt.CARD_TEXT].innerHTML = content
-        if button1:
-            browser.document[HTMLElmnt.CARD_BTN_1].innerText = button1
-            browser.document[HTMLElmnt.CARD_BTN_1].classList.remove(CSSClass.HIDE)
-            browser.document[HTMLElmnt.CARD_BTN_1].bind('click', func1)
-            self.button1Func = func1
-        else:
-            browser.document[HTMLElmnt.CARD_BTN_1].innerText = ''
-            browser.document[HTMLElmnt.CARD_BTN_1].classList.add(CSSClass.HIDE)
-            browser.document[HTMLElmnt.CARD_BTN_1].unbind('click')
-            self.button1Func = None
-        if button2:
-            browser.document[HTMLElmnt.CARD_BTN_2].innerText = button2
-            browser.document[HTMLElmnt.CARD_BTN_2].classList.remove(CSSClass.HIDE)
-            browser.document[HTMLElmnt.CARD_BTN_2].bind('click', func2)
-            self.button2Func = func2
-        else:
-            browser.document[HTMLElmnt.CARD_BTN_2].innerText = ''
-            browser.document[HTMLElmnt.CARD_BTN_2].classList.add(CSSClass.HIDE)
-            browser.document[HTMLElmnt.CARD_BTN_2].unbind('click')
-            self.button2Func = None
+        for i in range(3):
+            browser.document[HTMLElmnt.CARD_BTN[i]].innerText = ''
+            browser.document[HTMLElmnt.CARD_BTN[i]].unbind('click')
+            browser.document[HTMLElmnt.CARD_BTN[i]].classList.add(CSSClass.HIDE)
+        self.buttonFunc = []
+        for i, b in enumerate(buttons):
+            browser.document[HTMLElmnt.CARD_BTN[i]].innerText = b[0]
+            browser.document[HTMLElmnt.CARD_BTN[i]].classList.remove(CSSClass.HIDE)
+            browser.document[HTMLElmnt.CARD_BTN[i]].bind('click', b[1])
+            self.buttonFunc.append(b[1])
         browser.document[HTMLElmnt.CARD].classList.remove(CSSClass.HIDE)
         print('showCard, calling bindsGamePlay OFF')
         self.bindsGamePlay(False)
@@ -169,18 +158,20 @@ class GUI:
 
     def hideCard(self, *args, **kwargs):
         print('hideCard')
+        browser.document[HTMLElmnt.CARD].classList.add(CSSClass.HIDE)
         browser.document[HTMLElmnt.CARD_TITLE].innerText = ''
         browser.document[HTMLElmnt.CARD_TEXT].innerHTML = ''
-        browser.document[HTMLElmnt.CARD_BTN_1].innerText = ''
-        browser.document[HTMLElmnt.CARD_BTN_2].innerText = ''
-        browser.document[HTMLElmnt.CARD_BTN_1].unbind('click')
-        browser.document[HTMLElmnt.CARD_BTN_2].unbind('click')
-        browser.document[HTMLElmnt.CARD].classList.add(CSSClass.HIDE)
-        self.button1Func = None
-        self.button2Func = None
+        for i in range(len(self.buttonFunc)):
+            browser.document[HTMLElmnt.CARD_BTN[i]].innerText = ''
+            browser.document[HTMLElmnt.CARD_BTN[i]].unbind('click')
+            browser.document[HTMLElmnt.CARD_BTN[i]].classList.add(CSSClass.HIDE)
+        self.buttonFunc = []
         print('hideCard, calling bindsGamePlay ON')
         self.bindsGamePlay(True)
         self.playing = True
+
+    def startFreeMode(self, *args, **kwargs):
+        browser.document.location.href = '.'
 
     def rowcol2coords(self, row, col, relative=True):
         top  = self.relativeTop  if relative else self.absoluteTop
@@ -346,10 +337,10 @@ class GUI:
 
         if not self.playing:
             if evt.type == 'keyup':
-                if evt.key in [' ', 'Enter'] and self.button1Func != None:
-                    self.button1Func(evt)
-                elif evt.key == 'Escape' and self.button2Func != None:
-                    self.button2Func(evt)
+                if evt.key in [' ', 'Enter'] and 0 < len(self.buttonFunc) <= 2:  # if there are 1 or 2 buttons, "click" the 1st one
+                    self.buttonFunc[0](evt)
+                elif evt.key == 'Escape' and len(self.buttonFunc) > 0:  # if there is at least one button, click the last one
+                    self.buttonFunc[-1](evt)
             return
 
         if evt.type == 'keydown':

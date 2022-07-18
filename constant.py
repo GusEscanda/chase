@@ -37,9 +37,7 @@ class HTMLElmnt:
     CARD                          = 'card'
     CARD_TITLE                    = 'cardTitle'
     CARD_TEXT                     = 'cardText'
-    CARD_BTN_1                    = 'acceptButton'  # Restart
-    CARD_BTN_2                    = 'cancelButton'  # Cancel
-
+    CARD_BTN                      = ['cardButton0', 'cardButton1', 'cardButton2']
 
 
 class CSSClass:
