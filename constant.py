@@ -122,9 +122,6 @@ class Anim:
 
 PUZZLE_BOARD_ELEMENTS = 'VBGXHF'
 
-class Content:
-    INVALID_PUZZLE = '<h2>INVALID PUZZLE!!!</h2>'
-
 class PlayMode:
     FREE = 1   # playing a free style game (board objects radndomly regerated)
     PUZZLE = 2 # playing a puzzle

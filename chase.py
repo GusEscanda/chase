@@ -3,7 +3,7 @@ from ui import GUI
 import util
 from util import az2int, int2az
 import random
-from constant import Tools, Prio, TextChar, GraphShape, Metrics, Content, PlayMode
+from constant import Tools, Prio, TextChar, GraphShape, Metrics, PlayMode
 from puzzle import Puzzle
 
 class BoardObject:
@@ -322,8 +322,7 @@ class Board:
         if self.toolStock[tool] >= 0 and self.toolStock[tool] != Metrics.TOOL_INFINITE:
             self.toolStock[tool] += qty
             self.toolStock[tool] = min(self.toolStock[tool], Metrics.MAX_TOOL_STOCK)
-        if oldValue != self.toolStock[tool]:
-            self.gui.refreshButtons(tool) # if the stock has changed, refresh the button
+        self.gui.refreshButtons(tool) # refresh the button apearance
         return self.toolStock[tool]
 
     def placeBoardObjects(self, boardObjectClass, qty=1, coords=None):
