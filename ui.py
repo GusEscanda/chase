@@ -406,7 +406,8 @@ class GUI:
             repeat = evt.shiftKey or \
                      (evt.timeStamp - self.lastPointerMoveTimeStamp < GUI.FAST_MOVE) or \
                      ((length/self.cellWidth) > GUI.BIG_MOVE)
-            self.board.move(deltaR,deltaC, repeat)
+            user = (evt.timeStamp - self.lastPointerMoveTimeStamp < GUI.FAST_MOVE)  # if repeating with double click don't count this as two steps
+            self.board.move(deltaR, deltaC, repeat, user)
             self.lastPointerMoveTimeStamp = evt.timeStamp
 
 
