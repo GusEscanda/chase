@@ -1,3 +1,4 @@
+import http
 import math
 from constant import CSSClass, HTMLElmnt, Metrics, Tools, Anim, PlayMode, ToolHTMLElement
 from util import int2az, az2int
@@ -72,12 +73,11 @@ class GUI:
         if browser.document[HTMLElmnt.TITLE_SCREEN_DIALOG].classList.contains(CSSClass.TITLE_SCREEN_ACTIVE):
             browser.document[HTMLElmnt.TITLE_SCREEN_DIALOG].classList.remove(CSSClass.TITLE_SCREEN_ACTIVE)
             self.bindsTitleScreen(bind=False)
-            window.bind('keydown', self.keyPressed)
-            window.bind('keyup', self.keyPressed)
             if self.board.mode != PlayMode.PUZZLE:
                 print('removeTitleAndStart, calling bindsGamePlay ON')
                 self.bindsGamePlay(bind=True)
                 self.playing = True
+                self.field.focus()
 
 
     def bindsGamePlay(self, bind):
@@ -89,15 +89,17 @@ class GUI:
             self.field.bind('touchstart', self.pointerStart)
             self.field.bind('touchmove', self.pointerMove)
             self.field.bind('touchend', self.pointerEnd)
-            browser.document[HTMLElmnt.INSTRUCTIONS_TOGGLE].bind( 'click', lambda evt: self.showInstructions(True) )
-            browser.document[HTMLElmnt.AUDIO].bind('click', lambda evt: self.toggleAudio(False) )
-            browser.document[HTMLElmnt.AUDIO_OFF].bind('click', lambda evt: self.toggleAudio(True) )
-            browser.document[HTMLElmnt.TELEPORT_BUTTON].bind( 'click', lambda evt: self.board.teleport() )
-            browser.document[HTMLElmnt.SAFE_TELEPORT_BUTTON].bind( 'click', lambda evt: self.board.teleport(safe=True) )
-            browser.document[HTMLElmnt.GUIDED_TELEPORT_BUTTON].bind( 'click', lambda evt: self.board.setGuided('toggle') )
-            browser.document[HTMLElmnt.SMALL_BOMB_BUTTON].bind( 'click', lambda evt: self.board.bomb(big=False) )
-            browser.document[HTMLElmnt.BIG_BOMB_BUTTON].bind( 'click', lambda evt: self.board.bomb(big=True) )
-            browser.document[HTMLElmnt.NEW_GAME_BUTTON].bind( 'click', lambda evt: self.board.newGame() )
+            self.field.bind('keydown', self.keyPressed)
+            self.field.bind('keyup', self.keyPressed)
+            browser.document[HTMLElmnt.INSTRUCTIONS_TOGGLE].bind( 'click', lambda e: self.gameClickButton(HTMLElmnt.INSTRUCTIONS_TOGGLE) )
+            browser.document[HTMLElmnt.AUDIO].bind('click', lambda e: self.gameClickButton(HTMLElmnt.AUDIO) )
+            browser.document[HTMLElmnt.AUDIO_OFF].bind('click', lambda e: self.gameClickButton(HTMLElmnt.AUDIO_OFF) )
+            browser.document[HTMLElmnt.TELEPORT_BUTTON].bind( 'click', lambda e: self.gameClickButton(HTMLElmnt.TELEPORT_BUTTON) )
+            browser.document[HTMLElmnt.SAFE_TELEPORT_BUTTON].bind( 'click', lambda e: self.gameClickButton(HTMLElmnt.SAFE_TELEPORT_BUTTON) )
+            browser.document[HTMLElmnt.GUIDED_TELEPORT_BUTTON].bind( 'click', lambda e: self.gameClickButton(HTMLElmnt.GUIDED_TELEPORT_BUTTON) )
+            browser.document[HTMLElmnt.SMALL_BOMB_BUTTON].bind( 'click', lambda e: self.gameClickButton(HTMLElmnt.SMALL_BOMB_BUTTON) )
+            browser.document[HTMLElmnt.BIG_BOMB_BUTTON].bind( 'click', lambda e: self.gameClickButton(HTMLElmnt.BIG_BOMB_BUTTON) )
+            browser.document[HTMLElmnt.NEW_GAME_BUTTON].bind( 'click', lambda e: self.gameClickButton(HTMLElmnt.NEW_GAME_BUTTON) )
         else:
             self.field.unbind("mousedown")
             self.field.unbind("mousemove")
@@ -105,6 +107,8 @@ class GUI:
             self.field.unbind('touchstart')
             self.field.unbind('touchmove')
             self.field.unbind('touchend')
+            self.field.unbind('keydown')
+            self.field.unbind('keyup')
             browser.document[HTMLElmnt.INSTRUCTIONS_TOGGLE].unbind( 'click')
             browser.document[HTMLElmnt.AUDIO].unbind('click')
             browser.document[HTMLElmnt.AUDIO_OFF].unbind('click')
@@ -115,9 +119,31 @@ class GUI:
             browser.document[HTMLElmnt.BIG_BOMB_BUTTON].unbind( 'click')
             browser.document[HTMLElmnt.NEW_GAME_BUTTON].unbind( 'click')
 
+    def gameClickButton(self, elemId):
+        if elemId == HTMLElmnt.INSTRUCTIONS_TOGGLE:
+            self.showInstructions(True)
+        elif elemId == HTMLElmnt.AUDIO:
+            self.toggleAudio(False)
+        elif elemId == HTMLElmnt.AUDIO_OFF:
+            self.toggleAudio(True)
+        elif elemId == HTMLElmnt.TELEPORT_BUTTON:
+            self.board.teleport()
+        elif elemId == HTMLElmnt.SAFE_TELEPORT_BUTTON:
+            self.board.teleport(safe=True)
+        elif elemId == HTMLElmnt.GUIDED_TELEPORT_BUTTON:
+            self.board.setGuided('toggle')
+        elif elemId == HTMLElmnt.SMALL_BOMB_BUTTON:
+            self.board.bomb(big=False)
+        elif elemId == HTMLElmnt.BIG_BOMB_BUTTON:
+            self.board.bomb(big=True)
+        elif elemId == HTMLElmnt.NEW_GAME_BUTTON:
+            self.board.newGame()
+        self.field.focus()    
+
     def showInstructions(self, show=True):
         if show:
             self.playing = False
+            self.field.blur()
             print('showInstructions, calling bindsGamePlay OFF')
             self.bindsGamePlay(bind=False)
             browser.document[HTMLElmnt.INSTRUCTIONS].classList.remove(CSSClass.HIDE)
@@ -127,6 +153,7 @@ class GUI:
             browser.document[HTMLElmnt.INSTRUCTIONS_CLOSE].unbind('click')
             self.bindsGamePlay(bind=True)
             self.playing = True
+            self.field.focus()
 
     def toggleAudio(self, audio):
         self.audio = audio
@@ -136,9 +163,10 @@ class GUI:
         else:
             browser.document[HTMLElmnt.AUDIO].classList.add(CSSClass.HIDE)
             browser.document[HTMLElmnt.AUDIO_OFF].classList.remove(CSSClass.HIDE)
+        self.field.focus()
 
-    def showCard(self, title, content, buttons):
-        print('showCard')
+    def _showCard(self, title, content, buttons):
+        print('_showCard', title)
         browser.document[HTMLElmnt.CARD_TITLE].innerText = title
         browser.document[HTMLElmnt.CARD_TEXT].innerHTML = content
         for i in range(3):
@@ -152,9 +180,14 @@ class GUI:
             browser.document[HTMLElmnt.CARD_BTN[i]].bind('click', b[1])
             self.buttonFunc.append(b[1])
         browser.document[HTMLElmnt.CARD].classList.remove(CSSClass.HIDE)
+
+    def showCard(self, title, content, buttons, immediate=True):
         print('showCard, calling bindsGamePlay OFF')
         self.bindsGamePlay(False)
         self.playing = False
+        self.field.blur()
+        w = 0 if immediate else self.animWhen + Anim.STEP_TIME
+        timer.set_timeout(self._showCard, w, title, content, buttons)
 
     def hideCard(self, *args, **kwargs):
         print('hideCard')
@@ -169,6 +202,56 @@ class GUI:
         print('hideCard, calling bindsGamePlay ON')
         self.bindsGamePlay(True)
         self.playing = True
+        self.field.focus()
+
+    def _puzzleResponse(self, title, content, buttons):
+        print('_puzzleResponse', title)
+        browser.document[HTMLElmnt.RESPONSE_TITLE].innerText = title
+        browser.document[HTMLElmnt.RESPONSE_TEXT].innerHTML = content
+        self.buttonFunc = []
+        for i, b in enumerate(buttons):
+            browser.document[HTMLElmnt.RESPONSE_BTN[i]].classList.remove(CSSClass.HIDE)
+            browser.document[HTMLElmnt.RESPONSE_BTN[i]].bind('click', b)
+            self.buttonFunc.append(b)
+        browser.document[HTMLElmnt.PUZZLE_RESPONSE].classList.remove(CSSClass.HIDE)
+
+    def puzzleResponse(self, title, content, buttons, immediate=True):
+        print('puzzleResponse, calling bindsGamePlay OFF')
+        self.bindsGamePlay(False)
+        self.playing = False
+        self.field.blur()
+        w = 0 if immediate else self.animWhen + Anim.STEP_TIME
+        timer.set_timeout(self._puzzleResponse, w, title, content, buttons)
+    
+    def hidePuzzleResponse(self, *args, **kwargs):
+        print('hidePuzzleResponse')
+        browser.document[HTMLElmnt.PUZZLE_RESPONSE].classList.add(CSSClass.HIDE)
+        for i in range(len(self.buttonFunc)):
+            browser.document[HTMLElmnt.RESPONSE_BTN[i]].unbind('click')
+            browser.document[HTMLElmnt.RESPONSE_BTN[i]].classList.add(CSSClass.HIDE)
+        self.buttonFunc = []
+        print('hidePuzzleResponse, calling bindsGamePlay ON')
+        self.bindsGamePlay(True)
+        self.playing = True
+        self.field.focus()
+        self.board.puzzle.respSoluc = ''
+
+    def copyPuzzleToClipboard(self):
+        self.board.puzzle.respondent = browser.document[HTMLElmnt.RESPONSE_RESPONDENT].value
+        self.board.puzzle.response = browser.document[HTMLElmnt.RESPONSE_RESPONSE].value
+        area = browser.document[HTMLElmnt.RESPONSE_CLIPBOARD_COPY]
+        href = browser.document.location.href
+        href = href.split('://')
+        protocol = href[0]
+        domain = href[1].split('/')[0]
+        area.value = protocol + '://' + domain + '/?puzzle=' + str(self.board.puzzle)
+        area.classList.remove(CSSClass.HIDE)
+        area.focus()
+        area.select()
+        area.setSelectionRange(0, 99999)
+        browser.document.execCommand("copy")
+        area.classList.add(CSSClass.HIDE)
+        print('Copiado al clipboard:', area.value)
 
     def startFreeMode(self, *args, **kwargs):
         browser.document.location.href = '.'
@@ -335,6 +418,7 @@ class GUI:
         if evt.type == 'keyup':
             self.lastKeyEventTimeStamp = evt.timeStamp
 
+        # Por acá nunca va a pasar!! Llevar todo esto a un event handler especifico XXXXXXX
         if not self.playing:
             if evt.type == 'keyup':
                 if evt.key in [' ', 'Enter'] and 0 < len(self.buttonFunc) <= 2:  # if there are 1 or 2 buttons, "click" the 1st one

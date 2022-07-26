@@ -38,8 +38,14 @@ class HTMLElmnt:
     CARD_TITLE                    = 'cardTitle'
     CARD_TEXT                     = 'cardText'
     CARD_BTN                      = ['cardButton0', 'cardButton1', 'cardButton2']
-
-
+    PUZZLE_RESPONSE               = 'puzzle-response'
+    RESPONSE_TITLE                = 'responseTitle'
+    RESPONSE_TEXT                 = 'responseText'
+    RESPONSE_RESPONDENT           = 'responseRespondent'
+    RESPONSE_RESPONSE              = 'responseResponse'
+    RESPONSE_BTN                  = ['responseOk', 'responseCancel']
+    RESPONSE_CLIPBOARD_COPY       = 'responseClipboardCopy'
+    
 class CSSClass:
     BOARD_OBJECT                  = 'board-object'
     COUNT_INDICATOR               = 'count-indicator__circle--active'

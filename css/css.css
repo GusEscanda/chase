@@ -528,3 +528,39 @@ button {
   margin-bottom: 0;
 }
 */
+
+.dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 584px;
+  padding: 20px 20px;
+  background-color: var(--grey-one);
+  color: var(--white);
+  text-align: center;
+}
+
+.dialog__title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.dialog__text {
+  font-size: 16px;
+  margin-bottom: 40px;
+}
+
+.dialog button {
+  max-width: 300px;
+  width: 100%;
+  display: block;
+  margin: 0 auto;
+  padding: 10px;
+  font-size: 16px;
+  background-color: var(--orange);
+  margin-bottom: 20px;
+}
+
+
