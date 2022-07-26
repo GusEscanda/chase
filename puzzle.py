@@ -69,6 +69,8 @@ class Puzzle:
         self.editPass = decode(self.editPass)
         self.respondent = decode(self.respondent)
         self.response = decode(self.response)
+        self.authSoluc = decode(self.authSoluc)
+        self.respSoluc = decode(self.respSoluc)
 
         self.toolStock = { tool: -1 for tool in Metrics.INIC_TOOL_STOCK }
         self.toolStock[Tools.SMALL_BOMB] = az2int(self.tools[0])
@@ -84,35 +86,45 @@ class Puzzle:
             self.bObjList[bElem].append((az2int(self.bObjs[i]), az2int(self.bObjs[i+1])))
             i += 2
 
+    @property
+    def authSteps(self):
+        return len(self.authSoluc)//3
+    
+    @property
+    def respSteps(self):
+        return len(self.respSoluc)//3
+
     def __str__(self):
         if self.invalid:
             return ''
-        self.tools = int2az(self.toolStock[Tools.SMALL_BOMB]) + \
-                     int2az(self.toolStock[Tools.BIG_BOMB]) + \
-                     int2az(self.toolStock[Tools.GUIDED_TELEPORT])
-        self.bObjs = ''
+        tools = int2az(self.toolStock[Tools.SMALL_BOMB]) + \
+                int2az(self.toolStock[Tools.BIG_BOMB]) + \
+                int2az(self.toolStock[Tools.GUIDED_TELEPORT])
+        bObjs = ''
         for elem in self.bObjList:
             if len(self.bObjList[elem]) > 0:
-                self.bObjs += elem
+                bObjs += elem
             for row, col in self.bObjList[elem]:
-                self.bObjs += int2az(row) + int2az(col)
-        self.author = encode(self.author)
-        self.title = encode(self.title)
-        self.message = encode(self.message)
-        self.editPass = encode(self.editPass)
-        self.respondent = encode(self.respondent)
-        self.response = encode(self.response)
+                bObjs += int2az(row) + int2az(col)
+        author = encode(self.author)
+        title = encode(self.title)
+        message = encode(self.message)
+        editPass = encode(self.editPass)
+        respondent = encode(self.respondent)
+        response = encode(self.response)
+        authSoluc = encode(self.authSoluc)
+        respSoluc = encode(self.respSoluc)
         puzzle = [
-            self.author,
-            self.title,
-            self.message,
-            self.authSoluc,
-            self.editPass,
-            self.respondent,
-            self.response,
-            self.respSoluc,
-            self.tools,
-            self.bObjs,
+            author,
+            title,
+            message,
+            authSoluc,
+            editPass,
+            respondent,
+            response,
+            respSoluc,
+            tools,
+            bObjs,
         ]
         integrity = bytes2az(hashlib.md5('/'.join(puzzle).encode()).digest())
         puzzle = [urllib.parse.quote(elem, safe='') for elem in puzzle]

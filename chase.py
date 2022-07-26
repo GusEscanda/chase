@@ -1,7 +1,7 @@
 import ui
 from ui import GUI
 import util
-from util import az2int, int2az
+from util import az2int, int2az, str2az
 import random
 from constant import Tools, Prio, TextChar, GraphShape, Metrics, PlayMode
 from puzzle import Puzzle
@@ -231,15 +231,30 @@ class Board:
                 if self.vertical:
                     row, col = col, row
                 self.placeBoardObjects( boClass, coords=(row, col) )
-        desc = f"<p>{self.puzzle.message}</p><br>" + \
-               f"<p>by {self.puzzle.author}</p><br>" + \
-               f"<p>solved in {len(self.puzzle.authSoluc)//3} steps</p><br>"
+        if self.puzzle.respSoluc:
+            desc = f"<p>{self.puzzle.message}</p><br>" + \
+                   f"<p>by {self.puzzle.author} ({self.puzzle.authSteps} steps)</p><br>" + \
+                   f"<br><br><p>Also solved by {self.puzzle.respondent} in {self.puzzle.respSteps} steps!!</p><br>" + \
+                   f"<p>{self.puzzle.response}</p><br>"
+            buttons = [
+                ('Play puzzle', self.gui.hideCard),
+                ('Show respondent solution', self.gui.hideCard),
+                ('Play freestyle mode', self.gui.startFreeMode)
+            ]
+            print('Respondent soluc:', self.puzzle.respSoluc)
+            self.showSoluc = self.puzzle.respSoluc
+            self.puzzle.respondent = ''
+            self.puzzle.response = ''
+            self.puzzle.respSoluc = ''
+        else:
+            desc = f"<p>{self.puzzle.message}</p><br>" + \
+                   f"<p>by {self.puzzle.author}</p><br>" + \
+                   f"<p>solved in {self.puzzle.authSteps} steps</p><br>"
+            buttons = [('Ok', self.gui.hideCard)]
         self.gui.showCard(
             title = self.puzzle.title,
             content = desc,
-            buttons = [
-                ('Ok', self.gui.hideCard)                
-            ]
+            buttons = buttons
         )
 
 
@@ -314,7 +329,6 @@ class Board:
 
     def tool(self, tool, qty=0):
         # Updates the tool stock based on qty. Returns the current stock of the tool
-        oldValue = self.toolStock[tool]
         if self.toolStock[tool] >= 0 and self.toolStock[tool] != Metrics.TOOL_INFINITE:
             self.toolStock[tool] += qty
             self.toolStock[tool] = min(self.toolStock[tool], Metrics.MAX_TOOL_STOCK)
@@ -352,7 +366,7 @@ class Board:
         self.gui.refreshGuided(self.guided)
         return self.guided
 
-    def move(self, deltaR, deltaC, repeat=False):
+    def move(self, deltaR, deltaC, repeat=False, user=True):
         if self.gameStatus != Board.PLAYING:
             self.askNewGame()
             return
@@ -394,6 +408,10 @@ class Board:
 
         if moved:
             self.steps += 1
+            if self.mode == PlayMode.PUZZLE and user:
+                self.puzzle.respSoluc += 'M' if repeat else 'm'
+                self.puzzle.respSoluc += (int2az(deltaR+10) + int2az(deltaC+10)) if not self.vertical else (int2az(deltaC+10) + int2az(deltaR+10))
+                print('Respondent soluc:', self.puzzle.respSoluc)
             
         if self.hero.alive:
             self.setGuided('off')
@@ -402,17 +420,54 @@ class Board:
         else:
             self.placeBoardObjects( DeadHero, coords = (self.hero.row, self.hero.col) )
             self.gui.sndLost()
+            if self.mode == PlayMode.PUZZLE:
+                self.puzzle.respSoluc = ''
 
         self.gui.refreshScores()
 
         if self.foeCount == 0:
             if self.puzzle:
-                pass  # Festejo puzzle
+                self.puzzleSolvedMessage()
             else:
                 self.collectTools()
                 self.newLevel()
         
         self.gameStatus = Board.PLAYING if self.hero.alive and self.foeCount > 0 else Board.GAME_OVER 
+
+    def puzzleSolvedMessage(self):
+        if self.steps > self.puzzle.authSteps:
+            message = f"""
+                <P>Solved in {self.steps} steps, you can do better!!</P><br>
+                <p>Solve it in {self.puzzle.authSteps} steps or less and respond to {self.puzzle.author}!!</p>
+            """
+            self.gui.showCard(
+                'Good job!!',
+                message,
+                [('Ok', self.gui.hideCard)], 
+                immediate = False
+            )
+            self.puzzle.respSoluc = ''
+        else:
+            message = f"""
+                <p>Solved in {self.steps} steps!!<p>
+                <p>Send a response to {self.puzzle.author}!!
+            """
+            self.gui.puzzleResponse(
+                'Good job!!',
+                message,
+                [self.informResponse, self.gui.hidePuzzleResponse],
+                immediate = False
+            )
+
+    def informResponse(self, *args, **kwargs):
+        self.gui.copyPuzzleToClipboard()
+        self.gui.hidePuzzleResponse(*args, **kwargs)
+        self.gui.showCard(
+            'Response copied',
+            f'''A link with your response and your solution was copied to the clipboard, 
+                just paste it in a message to {self.puzzle.author}''',
+            [('Ok', self.gui.hideCard)]
+        )
 
     def calculateSafeness(self):
         countSafe, countEmpty = 0, 0
@@ -482,8 +537,12 @@ class Board:
 
         self.hero.row = row
         self.hero.col = col
+        if self.mode == PlayMode.PUZZLE:
+            self.puzzle.respSoluc += 'G'
+            self.puzzle.respSoluc += (int2az(row) + int2az(col)) if not self.vertical else (int2az(col) + int2az(row))
+            print('Respondent soluc:', self.puzzle.respSoluc)
         self.gui.translate( boardObj = self.hero )
-        self.move(0, 0, repeat=False)
+        self.move(0, 0, repeat=False, user=False)
 
     def bomb(self, big=False):
         if self.gameStatus != Board.PLAYING:
@@ -512,13 +571,17 @@ class Board:
                         self.placeBoardObjects( Fire, coords = (row + deltaR, col + deltaC) )
                 elif not isinstance( self.grid[ row + deltaR ][ col + deltaC ], Fire ):
                     self.grid[ row + deltaR ][ col + deltaC ].die(killer=None)
-        self.move(0, 0, repeat=False)
+        if self.mode == PlayMode.PUZZLE:
+            self.puzzle.respSoluc += 'B' if big else 'V'
+            self.puzzle.respSoluc += (int2az(row) + int2az(col)) if not self.vertical else (int2az(col) + int2az(row))
+            print('Respondent soluc:', self.puzzle.respSoluc)
+        self.move(0, 0, repeat=False, user=False)
 
     def askNewGame(self):
         buttons = []
         if self.mode == PlayMode.PUZZLE:
-            buttons.append(('Restat puzzle', self.startNewGame))
-            buttons.append(('Play free mode', self.gui.startFreeMode))
+            buttons.append(('Restart puzzle', self.startNewGame))
+            buttons.append(('Play freestyle mode', self.gui.startFreeMode))
         else:
             buttons.append(('New game', self.startNewGame))
         buttons.append(('Cancel', self.gui.hideCard))
